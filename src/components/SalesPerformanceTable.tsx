@@ -29,7 +29,7 @@ const SalesPerformanceTable = () => {
       />
 
       <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 overflow-auto">
-        <div className="relative min-w-full overflow-auto">
+        <div className="relative overflow-auto" style={{ maxWidth: '100%' }}>
           <HotTable
             ref={hotRef}
             data={data}
@@ -38,7 +38,7 @@ const SalesPerformanceTable = () => {
             colHeaders={true}
             width="100%"
             height="calc(100vh - 200px)"
-            colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 더 넓게
+            colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 넓게, 나머지는 균일하게
             fixedColumnsLeft={1}
             fixedRowsTop={3} // 3개의 헤더 행 고정
             manualColumnResize={true}
@@ -49,7 +49,7 @@ const SalesPerformanceTable = () => {
             cells={getCellsSettings()}
             wordWrap={false}
             className="sales-performance-table"
-            stretchH="all"
+            stretchH="none"
             rowHeights={28}
             outsideClickDeselects={false}
             autoWrapRow={true}

@@ -79,10 +79,22 @@
   /* Handsontable 커스텀 스타일 */
   .handsontable {
     font-family: 'Pretendard', sans-serif !important;
+    font-size: 13px !important;
   }
   
   .ht_master .wtHolder {
     font-family: 'Pretendard', sans-serif !important;
+  }
+
+  /* 국가 헤더 행 스타일링 */
+  .handsontable .font-bold.bg-gray-200 {
+    background-color: #f3f4f6 !important;
+    font-weight: 700 !important;
+  }
+
+  /* 숫자 데이터 정렬 */
+  .handsontable td:not(:first-child):not(:nth-child(11n+0)) {
+    text-align: right;
   }
 }
 
@@ -115,4 +127,15 @@
 
 .highlight-cell {
   animation: backgroundPulse 2s infinite;
+}
+
+/* 날짜 및 카테고리 헤더 스타일링 */
+.handsontable th {
+  background-color: #f9fafb !important;
+  font-weight: 600 !important;
+}
+
+/* 수평 스크롤 개선 */
+.sales-performance-table {
+  overflow-x: auto;
 }
