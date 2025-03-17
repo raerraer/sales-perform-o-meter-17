@@ -1,5 +1,7 @@
+
 import { useEffect } from 'react';
 import SalesPerformanceTable from '@/components/SalesPerformanceTable';
+
 const Index = () => {
   useEffect(() => {
     // 페이지 로드 시 부드러운 애니메이션 적용
@@ -16,8 +18,6 @@ const Index = () => {
       </header>
       
       <main className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        
-        
         <SalesPerformanceTable />
       </main>
       
