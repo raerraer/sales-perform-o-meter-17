@@ -87,9 +87,20 @@
   }
 
   /* 국가 헤더 행 스타일링 */
-  .handsontable .font-bold.bg-gray-200 {
+  .handsontable .country-row {
     background-color: #f3f4f6 !important;
     font-weight: 700 !important;
+    text-align: center !important;
+  }
+
+  /* 첫 번째 열(국가명, 모델명) 정렬 */
+  .handsontable td:first-child {
+    text-align: right !important;
+  }
+
+  /* 국가명은 중앙 정렬 */
+  .handsontable .country-row td:first-child {
+    text-align: center !important;
   }
 
   /* 숫자 데이터 정렬 */

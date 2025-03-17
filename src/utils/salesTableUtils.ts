@@ -1,4 +1,3 @@
-
 // 테이블에 사용할 상수값 정의
 export const MONTHS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 export const CATEGORIES = ['전년', '계획', '실행', '속보', '전망', '비고'];
@@ -135,7 +134,7 @@ export const createCellsSettingsFunction = (data: any[], isEditMode: boolean, or
     // 국가 행 스타일 (첫번째 열이 국가명이고 col이 0인 경우)
     const isCountryRow = col === 0 && COUNTRIES.includes(data[row][0]);
     if (isCountryRow) {
-      cellProperties.className = 'font-bold bg-gray-200';
+      cellProperties.className = 'country-row';
     }
     
     // 비고 열 처리 (각 월의 11번째 열은 비고)
