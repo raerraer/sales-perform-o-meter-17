@@ -34,13 +34,13 @@ const SalesPerformanceTable = () => {
             ref={hotRef}
             data={data}
             licenseKey="non-commercial-and-evaluation"
-            rowHeaders={true}
+            rowHeaders={false}
             colHeaders={true}
             width="100%"
             height="calc(100vh - 200px)"
-            colWidths={45}
+            colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 더 넓게
             fixedColumnsLeft={1}
-            fixedRowsTop={0}
+            fixedRowsTop={3} // 3개의 헤더 행 고정
             manualColumnResize={true}
             contextMenu={isEditMode}
             copyPaste={isEditMode}

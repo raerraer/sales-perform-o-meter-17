@@ -11,11 +11,11 @@ export const generateInitialData = () => {
   
   COUNTRIES.forEach(country => {
     // 국가 행 추가
-    data.push([country, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
+    data.push([country, ...Array(72).fill('')]);
     
     // 각 국가별 모델 행 추가
     MODELS.forEach(model => {
-      data.push([model, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
+      data.push([model, ...Array(72).fill('')]);
     });
   });
   
@@ -24,47 +24,52 @@ export const generateInitialData = () => {
 
 // 헤더 생성 함수
 export const generateComplexHeaders = () => {
-  const monthHeaders = [];
+  const headers = [];
   
-  for (let month = 0; month < 12; month++) {
-    const categoryHeaders = [];
-    
-    for (let category = 0; category < CATEGORIES.length; category++) {
-      if (category < 5) { // 전년, 계획, 실행, 속보, 전망
-        categoryHeaders.push({
-          label: CATEGORIES[category],
-          colspan: 2
-        });
-      } else { // 비고
-        categoryHeaders.push({
-          label: CATEGORIES[category],
-          colspan: 1
-        });
-      }
-    }
-    
+  // 첫 번째 행: 월 헤더
+  const monthHeaders = [{ label: '', colspan: 1 }]; // 첫 번째 열은 국가/모델명
+  
+  for (let month = 0; month < MONTHS.length; month++) {
     monthHeaders.push({
       label: `${MONTHS[month]}월`,
-      colspan: categoryHeaders.reduce((acc, curr) => acc + curr.colspan, 0)
+      colspan: 11 // 각 월별로 (5개 카테고리 x 2) + 비고 1 = 11개 열
     });
   }
+  headers.push(monthHeaders);
   
-  // 모든 월에 대한 헤더 생성
-  const allColumnHeaders: any[] = [];
-  for (let month = 0; month < 12; month++) {
-    // 각 월별로 카테고리 헤더 추가
-    for (let category = 0; category < 5; category++) {
-      allColumnHeaders.push({label: 'Qty', colspan: 1});
-      allColumnHeaders.push({label: 'Amt', colspan: 1});
+  // 두 번째 행: 카테고리 헤더
+  const categoryHeaders = [{ label: '', colspan: 1 }]; // 첫 번째 열은 국가/모델명
+  
+  for (let month = 0; month < MONTHS.length; month++) {
+    for (let category = 0; category < CATEGORIES.length - 1; category++) {
+      // 전년, 계획, 실행, 속보, 전망 각각 Qty, Amt 포함
+      categoryHeaders.push({
+        label: CATEGORIES[category],
+        colspan: 2
+      });
     }
-    // 비고 열 추가
-    allColumnHeaders.push({label: '', colspan: 1});
+    // 비고 컬럼
+    categoryHeaders.push({
+      label: CATEGORIES[5],
+      colspan: 1
+    });
   }
+  headers.push(categoryHeaders);
   
-  return [
-    monthHeaders,
-    allColumnHeaders
-  ];
+  // 세 번째 행: Qty, Amt 헤더
+  const detailHeaders = [{ label: '', colspan: 1 }]; // 첫 번째 열은 국가/모델명
+  
+  for (let month = 0; month < MONTHS.length; month++) {
+    for (let category = 0; category < CATEGORIES.length - 1; category++) {
+      detailHeaders.push({ label: 'Qty', colspan: 1 });
+      detailHeaders.push({ label: 'Amt', colspan: 1 });
+    }
+    // 비고 컬럼
+    detailHeaders.push({ label: '', colspan: 1 });
+  }
+  headers.push(detailHeaders);
+  
+  return headers;
 };
 
 // 셀 설정 함수 생성기
@@ -78,10 +83,11 @@ export const createCellsSettingsFunction = (data: any[], isEditMode: boolean, or
     }
     
     // 비고 열은 항상 수정 가능 (읽기 모드에서도)
-    if ((col - 1) % 11 === 10) { // 각 월의 비고 열 (11번째 열)
+    const isRemarksColumn = (col - 1) % 11 === 10; // 각 월의 11번째 열은 비고
+    if (isRemarksColumn) {
       cellProperties.readOnly = false;
     } 
-    // 수정 모드가 아닌 경우 모든 셀을 읽기 전용으로 설정
+    // 수정 모드가 아닌 경우 비고 외 모든 셀을 읽기 전용으로 설정
     else if (!isEditMode) {
       cellProperties.readOnly = true;
     }
@@ -89,7 +95,7 @@ export const createCellsSettingsFunction = (data: any[], isEditMode: boolean, or
     // 변경된 셀에 하이라이트 적용
     if (isEditMode && originalData.length > 0 && originalData[row] && data[row]) {
       if (originalData[row][col] !== data[row][col] && data[row][col] !== '') {
-        cellProperties.className = 'highlight-cell';
+        cellProperties.className = (cellProperties.className || '') + ' highlight-cell';
       }
     }
     
