@@ -20,11 +20,11 @@ const generateInitialData = () => {
   
   COUNTRIES.forEach(country => {
     // 국가 행 추가
-    data.push([country, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
+    data.push([country, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
     
     // 각 국가별 모델 행 추가
     MODELS.forEach(model => {
-      data.push([model, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
+      data.push([model, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
     });
   });
   
@@ -48,7 +48,7 @@ const SalesPerformanceTable = () => {
       }
       
       // 비고 열은 항상 수정 가능 (읽기 모드에서도)
-      if (col === 71 || col === 36 || col === 6) { // 비고 열 인덱스
+      if ((col - 1) % 11 === 10) { // 각 월의 비고 열 (11번째 열)
         cellProperties.readOnly = false;
       } 
       // 수정 모드가 아닌 경우 모든 셀을 읽기 전용으로 설정
@@ -73,8 +73,7 @@ const SalesPerformanceTable = () => {
   const generateComplexHeaders = () => {
     const monthHeaders = [];
     
-    for (let month = 0; month < 3; month++) { // 예시로 처음 3개월만 표시 (1, 2, 12월)
-      const monthIndex = month === 2 ? 11 : month; // 3번째는 12월
+    for (let month = 0; month < 12; month++) {
       const categoryHeaders = [];
       
       for (let category = 0; category < CATEGORIES.length; category++) {
@@ -92,38 +91,26 @@ const SalesPerformanceTable = () => {
       }
       
       monthHeaders.push({
-        label: `${MONTHS[monthIndex]}월`,
+        label: `${MONTHS[month]}월`,
         colspan: categoryHeaders.reduce((acc, curr) => acc + curr.colspan, 0)
       });
     }
     
+    // 모든 월에 대한 헤더 생성
+    const allColumnHeaders: any[] = [];
+    for (let month = 0; month < 12; month++) {
+      // 각 월별로 카테고리 헤더 추가
+      for (let category = 0; category < 5; category++) {
+        allColumnHeaders.push({label: 'Qty', colspan: 1});
+        allColumnHeaders.push({label: 'Amt', colspan: 1});
+      }
+      // 비고 열 추가
+      allColumnHeaders.push({label: '', colspan: 1});
+    }
+    
     return [
       monthHeaders,
-      [
-        // 1월 서브헤더
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 전년
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 계획
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 실행
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 속보
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 전망
-        {label: '', colspan: 1}, // 비고
-        
-        // 2월 서브헤더
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 전년
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 계획
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 실행
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 속보
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 전망
-        {label: '', colspan: 1}, // 비고
-        
-        // 12월 서브헤더
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 전년
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 계획
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 실행
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 속보
-        {label: 'Qty', colspan: 1}, {label: 'Amt', colspan: 1}, // 전망
-        {label: '', colspan: 1}, // 비고
-      ]
+      allColumnHeaders
     ];
   };
 
@@ -219,7 +206,7 @@ const SalesPerformanceTable = () => {
             colHeaders={true}
             width="100%"
             height="calc(100vh - 200px)"
-            colWidths={50}
+            colWidths={45}
             fixedColumnsLeft={1}
             fixedRowsTop={0}
             manualColumnResize={true}
