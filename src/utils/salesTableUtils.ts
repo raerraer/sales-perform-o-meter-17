@@ -133,18 +133,54 @@ export const createCellsSettingsFunction = (data: any[], isEditMode: boolean, or
     const cellProperties: any = {};
     
     // 국가 행 스타일 (첫번째 열이 국가명이고 col이 0인 경우)
-    if (col === 0 && COUNTRIES.includes(data[row][0])) {
+    const isCountryRow = col === 0 && COUNTRIES.includes(data[row][0]);
+    if (isCountryRow) {
       cellProperties.className = 'font-bold bg-gray-200';
     }
     
-    // 비고 열은 항상 수정 가능 (읽기 모드에서도)
-    const isRemarksColumn = (col - 1) % 11 === 10; // 각 월의 11번째 열은 비고
+    // 비고 열 처리 (각 월의 11번째 열은 비고)
+    const isRemarksColumn = (col - 1) % 11 === 10;
+    
     if (isRemarksColumn) {
+      // 비고 열은 항상 수정 가능 (읽기 모드에서도)
       cellProperties.readOnly = false;
+      
+      // 비고 열은 텍스트만 입력 가능하도록 설정
+      if (isEditMode) {
+        cellProperties.type = 'text';
+        // 국가 행의 비고는 수정 가능
+      }
     } 
     // 수정 모드가 아닌 경우 비고 외 모든 셀을 읽기 전용으로 설정
     else if (!isEditMode) {
       cellProperties.readOnly = true;
+    }
+    // 수정 모드일 때 추가 설정
+    else {
+      // 국가 행의 데이터 셀은 항상 읽기 전용 (자동 계산)
+      if (isCountryRow && col > 0) {
+        cellProperties.readOnly = true;
+      }
+      
+      // Qty, Amt 열은 숫자만 입력 가능하도록 설정
+      if (!isRemarksColumn && col > 0) {
+        // Qty 열 (홀수 컬럼)
+        if ((col - 1) % 2 === 0) {
+          cellProperties.type = 'numeric';
+          cellProperties.numericFormat = {
+            pattern: '0',
+            culture: 'ko-KR'
+          };
+        } 
+        // Amt 열 (짝수 컬럼)
+        else {
+          cellProperties.type = 'numeric';
+          cellProperties.numericFormat = {
+            pattern: '0,0',
+            culture: 'ko-KR'
+          };
+        }
+      }
     }
 
     // 변경된 셀에 하이라이트 적용
