@@ -103,7 +103,7 @@
     text-align: center !important;
   }
 
-  /* 숫자 데이터 정렬 (Qty, Amt는 중앙 정렬) */
+  /* 1~12월 Qty, Amt 중앙 정렬 */
   .handsontable td:not(:first-child):not(:nth-child(11n+0)) {
     text-align: center !important;
   }
