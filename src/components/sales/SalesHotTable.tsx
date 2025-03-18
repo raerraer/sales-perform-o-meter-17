@@ -65,9 +65,9 @@ const SalesHotTable = ({
         autoWrapCol={true}
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
-        hiddenColumns: {
+        hiddenColumns={{
           indicators: true
-        }
+        }}
         className="sales-performance-table text-center"
       />
       <style dangerouslySetInnerHTML={{ __html: `
