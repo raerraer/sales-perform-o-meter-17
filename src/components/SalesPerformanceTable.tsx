@@ -28,7 +28,7 @@ const SalesPerformanceTable = () => {
         onSaveChanges={saveChanges}
       />
 
-      <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 overflow-auto">
+      <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 overflow-auto relative" style={{ zIndex: 10 }}>
         <div className="relative overflow-auto" style={{ maxWidth: '100%' }}>
           <HotTable
             ref={hotRef}

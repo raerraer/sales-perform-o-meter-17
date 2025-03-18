@@ -81,13 +81,13 @@ const SalesTableHeader = ({
 
   return (
     <div className="flex flex-wrap justify-between items-center mb-4 px-4 gap-2">
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center z-50 relative">
         {/* 연도 선택 */}
         <Select value={year} onValueChange={setYear}>
           <SelectTrigger className="w-24">
             <SelectValue placeholder="연도" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[9999]">
             {years.map((y) => (
               <SelectItem key={y} value={y}>
                 {y}
@@ -101,7 +101,7 @@ const SalesTableHeader = ({
           <SelectTrigger className="w-20">
             <SelectValue placeholder="월" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[9999]">
             {months.map((m) => (
               <SelectItem key={m} value={m}>
                 {m}월
@@ -115,7 +115,7 @@ const SalesTableHeader = ({
           <SelectTrigger className="w-20">
             <SelectValue placeholder="주차" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[9999]">
             {weeks.map((w) => (
               <SelectItem key={w} value={w}>
                 {w}
@@ -129,7 +129,7 @@ const SalesTableHeader = ({
           <SelectTrigger className="w-24">
             <SelectValue placeholder="버전" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[9999]">
             {versions.map((v) => (
               <SelectItem key={v} value={v}>
                 {v}
@@ -160,7 +160,7 @@ const SalesTableHeader = ({
         </Button>
       </div>
 
-      <div className="space-x-2">
+      <div className="space-x-2 z-50 relative">
         {isEditMode ? (
           <>
             <Button 

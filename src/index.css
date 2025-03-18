@@ -155,3 +155,19 @@
 .sales-performance-table {
   overflow-x: auto;
 }
+
+/* Select 컴포넌트가 테이블과 다른 요소 위에 표시되도록 z-index 설정 */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+/* 셀렉트 메뉴의 z-index 향상 */
+.radix-select-content {
+  z-index: 9999 !important;
+}
+
+/* radix-ui 팝오버와 드롭다운 z-index 조정 */
+.radix-dropdown-content,
+.radix-popover-content {
+  z-index: 9999 !important;
+}
