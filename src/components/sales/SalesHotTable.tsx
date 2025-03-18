@@ -2,7 +2,6 @@
 import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.min.css';
 import { generateComplexHeaders } from '@/utils/salesTableUtils';
-import { useEffect } from 'react';
 
 interface SalesHotTableProps {
   hotRef: React.RefObject<any>;
@@ -19,25 +18,6 @@ const SalesHotTable = ({
   getCellsSettings,
   afterChange
 }: SalesHotTableProps) => {
-  
-  useEffect(() => {
-    // 테이블이 렌더링된 후 비고 열을 모두 숨기는 함수
-    if (hotRef.current && hotRef.current.hotInstance) {
-      const hot = hotRef.current.hotInstance;
-      
-      // 비고 열 인덱스 계산 (각 월별로 11번째 열이 비고 열임)
-      const remarkColumns = Array.from({ length: 12 }, (_, i) => (i * 11) + 10 + 1); // +1은 첫 번째 열(모델명) 때문
-      
-      // 비고 열 모두 숨기기
-      hot.updateSettings({
-        hiddenColumns: {
-          columns: remarkColumns,
-          indicators: true
-        }
-      });
-    }
-  }, [hotRef.current]);
-
   return (
     <div className="relative overflow-auto" style={{ maxWidth: '100%' }}>
       <HotTable
@@ -65,9 +45,6 @@ const SalesHotTable = ({
         autoWrapCol={true}
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
-        hiddenColumns={{
-          indicators: true
-        }}
         className="sales-performance-table text-center"
       />
       <style dangerouslySetInnerHTML={{ __html: `
@@ -93,14 +70,6 @@ const SalesHotTable = ({
           background-color: #e5e7eb !important;
           text-align: center !important;
           font-weight: bold !important;
-        }
-        /* Hidden column indicators 스타일 */
-        .handsontable .columnSorting.hiddenColumn {
-          display: inline-block !important;
-          position: relative !important;
-        }
-        .handsontable th .hiddenColumn {
-          display: inline-block !important;
         }
       `}} />
     </div>
