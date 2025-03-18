@@ -18,39 +18,38 @@ export interface SalesVersionsHookReturn {
 }
 
 export function useSalesVersions(): SalesVersionsHookReturn {
-  const initialData = generateInitialData();
+  // 초기 데이터를 한 번만 생성하도록 수정
+  const [initialData] = useState(() => {
+    const data = generateInitialData();
+    return JSON.parse(JSON.stringify(data)); // 깊은 복사로 초기 데이터 저장
+  });
+
   const [versions, setVersions] = useState<string[]>(["rev1"]);
   const [currentVersion, setCurrentVersion] = useState<string>("rev1");
-  const [versionData, setVersionData] = useState<VersionData>({
+  const [versionData, setVersionData] = useState<VersionData>(() => ({
     "rev1": JSON.parse(JSON.stringify(initialData)) // 깊은 복사로 초기 데이터 저장
-  });
+  }));
   
   // 현재 버전이 최신 버전인지 확인
   const isLatestVersion = currentVersion === versions[versions.length - 1];
 
-  // 새 버전 저장 핸들러 - 항상 새 버전으로 데이터 저장 (기존 버전 데이터 유지)
+  // 새 버전 저장 핸들러 - 기존 버전 데이터를 보존하면서 새 버전 데이터 저장
   const saveNewVersion = (data: any[]): string | null => {
     try {
-      // 전달받은 데이터 깊은 복사 생성 (참조 문제 방지)
+      // 전달받은 데이터 깊은 복사 생성
       const newVersionData = JSON.parse(JSON.stringify(data));
       
       // 새 버전 번호 생성
       const versionNum = versions.length + 1;
       const newVersion = `rev${versionNum}`;
       
-      // 버전 데이터 업데이트 - 모든 기존 버전 데이터 유지하면서 새 버전 추가
       setVersionData(prev => {
-        // 기존 데이터를 깊은 복사로 보존
-        const updatedVersionData = JSON.parse(JSON.stringify(prev));
-        // 새 버전 데이터 추가
+        const updatedVersionData = { ...prev };
         updatedVersionData[newVersion] = newVersionData;
         return updatedVersionData;
       });
       
-      // 버전 목록에 새 버전 추가
       setVersions(prev => [...prev, newVersion]);
-      
-      // 새 버전명 반환
       return newVersion;
     } catch (error) {
       console.error("새 버전 저장 중 오류 발생:", error);
@@ -61,6 +60,13 @@ export function useSalesVersions(): SalesVersionsHookReturn {
 
   // 특정 버전의 데이터 업데이트 (현재 선택된 버전의 데이터만 업데이트)
   const updateVersionData = (version: string, data: any[]) => {
+    // rev1은 수정 불가능
+    if (version === 'rev1') {
+      console.error('초기 버전(rev1)은 수정할 수 없습니다.');
+      toast.error('초기 버전(rev1)은 수정할 수 없습니다.');
+      return;
+    }
+
     if (!versions.includes(version)) {
       console.error(`업데이트할 버전이 존재하지 않습니다: ${version}`);
       toast.error(`${version} 버전이 존재하지 않아 데이터를 업데이트할 수 없습니다.`);
@@ -72,9 +78,7 @@ export function useSalesVersions(): SalesVersionsHookReturn {
       const updatedData = JSON.parse(JSON.stringify(data));
       
       setVersionData(prev => {
-        // 기존 데이터 깊은 복사
-        const updatedVersionData = JSON.parse(JSON.stringify(prev));
-        // 특정 버전 데이터만 업데이트
+        const updatedVersionData = { ...prev };
         updatedVersionData[version] = updatedData;
         return updatedVersionData;
       });
