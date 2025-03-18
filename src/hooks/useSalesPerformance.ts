@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { generateInitialData, createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from "sonner";
@@ -53,8 +52,8 @@ const useSalesPerformance = () => {
   useEffect(() => {
     if (versionData[currentVersion]) {
       setData(JSON.parse(JSON.stringify(versionData[currentVersion])));
-      // 버전 변경 시 changedCells 초기화
-      setChangedCells(new Set());
+      // 버전 변경 시에는 changedCells를 초기화하지 않음
+      // 저장된 하이라이팅이 계속 표시되도록 함
     }
   }, [currentVersion, versionData]);
   
@@ -74,7 +73,7 @@ const useSalesPerformance = () => {
       setData(JSON.parse(JSON.stringify(originalData)));
       setIsEditMode(false);
       setOriginalData([]);
-      setChangedCells(new Set()); // 하이라이팅 초기화
+      // 편집 취소 시에도 changedCells는 유지 (저장된 하이라이팅 유지)
       toast.info("편집이 취소되었습니다.");
     }
   };
@@ -82,7 +81,7 @@ const useSalesPerformance = () => {
   const saveChanges = () => {
     // 변경사항 확인
     const changes: CellChange[] = [];
-    const newChangedCells = new Set<string>();
+    const newChangedCells = new Set<string>(changedCells); // 기존 하이라이팅된 셀 유지
     
     data.forEach((row, rowIndex) => {
       row.forEach((cell: any, colIndex: number) => {
@@ -108,7 +107,7 @@ const useSalesPerformance = () => {
 
     // 실제 저장 전 사용자에게 확인
     if (confirm("변경사항을 저장하시겠습니까?")) {
-      // 변경된 셀 하이라이팅 설정
+      // 변경된 셀 하이라이팅 설정 (기존 하이라이팅과 새로운 하이라이팅 병합)
       setChangedCells(newChangedCells);
       
       // 변경 이력에 추가
@@ -134,7 +133,8 @@ const useSalesPerformance = () => {
   // 새 버전 저장 핸들러
   const handleSaveNewVersion = () => {
     saveNewVersion(data, changedCells);
-    setChangedCells(new Set()); // 변경사항 하이라이팅 제거
+    setChangedCells(new Set()); // 새 버전 저장 시 하이라이팅 제거
+    toast.success("새 버전 저장 완료. 하이라이팅이 제거되었습니다.");
   };
 
   // 특정 버전으로 이동하는 함수
@@ -148,7 +148,7 @@ const useSalesPerformance = () => {
     
     // 변경사항이 있을 때만 데이터 업데이트
     if (changes && changes.length > 0) {
-      // 변경된 셀 좌표 추가 - 수정 모드에서만 하이라이팅
+      // 변경된 셀 좌표 추가 - 수정 모드에서만 임시 하이라이팅
       const newChangedCells = new Set(changedCells);
       
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {

@@ -134,12 +134,13 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
   return function(row: number, col: number) {
     // 기본 설정
     const settings: any = {
-      readOnly: !isEditMode
+      readOnly: !isEditMode,
+      className: 'cell-center' // 모든 셀에 중앙 정렬 클래스 추가
     };
 
     // 국가 행 특별 스타일링
     if (COUNTRIES.includes(data[row][0])) {
-      settings.className = 'country-row';
+      settings.className = 'country-row cell-center';
       settings.readOnly = true; // 국가 행은 항상 읽기 전용
     }
 
@@ -167,19 +168,33 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       }
     }
 
+    // 비고 열은 왼쪽 정렬
+    if (isRemarksColumn) {
+      settings.className = settings.className.replace('cell-center', 'cell-left');
+    }
+
+    // 첫 번째 열(국가/모델명)은 오른쪽 정렬
+    if (col === 0) {
+      settings.className = settings.className.replace('cell-center', 'cell-right');
+      
+      // 국가 행의 첫 번째 열은 중앙 정렬
+      if (COUNTRIES.includes(data[row][0])) {
+        settings.className = settings.className.replace('cell-right', 'cell-center');
+      }
+    }
+
     // 변경된 셀 하이라이팅
     if (changedCells && changedCells.has(`${row},${col}`)) {
-      settings.className = settings.className 
-        ? `${settings.className} highlight-cell` 
-        : 'highlight-cell';
+      // className에 highlight-cell 추가
+      settings.className = `${settings.className} highlight-cell`;
       
-      // 배경색 직접 설정 (더 눈에 띄게)
+      // 강조 효과를 위한 커스텀 렌더러
       settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
-        // 기본 셀 렌더러 호출
+        // 기본 렌더러 호출
         Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
         
-        // 하이라이팅 스타일 적용
-        td.style.backgroundColor = '#fffcd8'; // 연한 노란색 배경
+        // 하이라이팅 스타일 적용 (배경 노란색, 텍스트 굵게)
+        td.style.backgroundColor = '#fffcd8';
         td.style.fontWeight = 'bold';
       };
     }
