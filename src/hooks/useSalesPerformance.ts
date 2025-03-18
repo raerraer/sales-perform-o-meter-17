@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from 'sonner';
@@ -54,6 +53,27 @@ const useSalesPerformance = () => {
   const afterChange = (changes: any, source: string) => {
     originalAfterChange(changes, source, data, setData, isEditMode, originalData);
   };
+  
+  // 초기 테이블 로드 후 비고 열 숨기기
+  useEffect(() => {
+    // 테이블이 로드된 후 비고 열을 숨김
+    if (!isInitialLoad && hotRef.current && hotRef.current.hotInstance) {
+      const hot = hotRef.current.hotInstance;
+      
+      // 각 월별 비고 열 인덱스 계산 (첫 번째 열은 모델명)
+      const remarkColumns = Array.from({ length: 12 }, (_, i) => (i * 11) + 10 + 1);
+      
+      // 비고 열 숨기기 
+      setTimeout(() => {
+        hot.updateSettings({
+          hiddenColumns: {
+            columns: remarkColumns,
+            indicators: true
+          }
+        });
+      }, 500); // 테이블이 완전히 렌더링 된 후 실행하기 위해 약간의 지연 추가
+    }
+  }, [isInitialLoad, hotRef.current]);
   
   useEffect(() => {
     if (!isInitialLoad || previousVersion !== currentVersion) {
