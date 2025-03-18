@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { generateInitialData, createCellsSettingsFunction, COUNTRIES } from '@/utils/salesTableUtils';
 import { toast } from "sonner";
@@ -12,12 +13,16 @@ interface CellChange {
 interface VersionHistory {
   version: string;
   date: string;
+  year: string;
+  month: string;
+  week: string;
   changes: CellChange[];
 }
 
 const useSalesPerformance = () => {
   const hotRef = useRef<any>(null);
-  const [data, setData] = useState(generateInitialData());
+  const initialData = useRef(generateInitialData());
+  const [data, setData] = useState(initialData.current);
   const [isEditMode, setIsEditMode] = useState(false);
   const [originalData, setOriginalData] = useState<any[]>([]);
   const [changedCells, setChangedCells] = useState<Set<string>>(new Set());
@@ -25,6 +30,34 @@ const useSalesPerformance = () => {
   const [currentVersion, setCurrentVersion] = useState<string>("rev1");
   const [versionHistory, setVersionHistory] = useState<VersionHistory[]>([]);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [versionData, setVersionData] = useState<Record<string, any[]>>({
+    "rev1": initialData.current
+  });
+  
+  // 현재 연도, 월, 주차 상태 관리
+  const [currentYear, setCurrentYear] = useState<string>("");
+  const [currentMonth, setCurrentMonth] = useState<string>("");
+  const [currentWeek, setCurrentWeek] = useState<string>("");
+
+  // 초기화 시 현재 날짜 정보 설정
+  useEffect(() => {
+    const now = new Date();
+    setCurrentYear(now.getFullYear().toString());
+    setCurrentMonth((now.getMonth() + 1).toString().padStart(2, '0'));
+    
+    // 현재 날짜의 주차 계산
+    const oneJan = new Date(now.getFullYear(), 0, 1);
+    const numberOfDays = Math.floor((now.getTime() - oneJan.getTime()) / (24 * 60 * 60 * 1000));
+    const currentWeek = `W${Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7)}`;
+    setCurrentWeek(currentWeek);
+  }, []);
+  
+  // 버전 변경 시 해당 버전의 데이터로 업데이트
+  useEffect(() => {
+    if (versionData[currentVersion]) {
+      setData(JSON.parse(JSON.stringify(versionData[currentVersion])));
+    }
+  }, [currentVersion]);
   
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용
   const getCellsSettings = () => {
@@ -81,9 +114,18 @@ const useSalesPerformance = () => {
       // 변경 이력에 추가
       const newHistory: VersionHistory = {
         version: currentVersion,
-        date: new Date().toLocaleString(),
+        date: new Date().toISOString(),
+        year: currentYear,
+        month: currentMonth,
+        week: currentWeek,
         changes
       };
+      
+      // 현재 버전의 데이터 업데이트
+      setVersionData(prev => ({
+        ...prev,
+        [currentVersion]: JSON.parse(JSON.stringify(data))
+      }));
       
       setVersionHistory(prev => [...prev, newHistory]);
       toast.success("변경사항이 저장되었습니다.");
@@ -102,6 +144,12 @@ const useSalesPerformance = () => {
     // 새 버전 번호 생성
     const versionNum = versions.length + 1;
     const newVersion = `rev${versionNum}`;
+    
+    // 버전 데이터 저장
+    setVersionData(prev => ({
+      ...prev,
+      [newVersion]: JSON.parse(JSON.stringify(data))
+    }));
     
     // 버전 추가
     setVersions(prev => [...prev, newVersion]);
@@ -223,7 +271,8 @@ const useSalesPerformance = () => {
     saveNewVersion,
     showHistoryDialog,
     toggleHistoryDialog,
-    versionHistory
+    versionHistory,
+    versionData
   };
 };
 

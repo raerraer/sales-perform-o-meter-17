@@ -157,7 +157,7 @@ const SalesTableHeader = ({
 
       <div className="flex space-x-2 z-50 relative">
         {isEditMode ? (
-          <>
+          <div className="flex space-x-2">
             <Button 
               variant="outline" 
               onClick={onToggleEditMode} 
@@ -173,7 +173,7 @@ const SalesTableHeader = ({
               <Save className="h-4 w-4" />
               저장
             </Button>
-          </>
+          </div>
         ) : (
           <Button 
             onClick={onToggleEditMode} 
