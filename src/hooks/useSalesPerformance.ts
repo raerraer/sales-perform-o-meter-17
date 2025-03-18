@@ -56,51 +56,51 @@ const useSalesPerformance = () => {
     originalAfterChange(changes, source, data, setData, isEditMode, originalData);
   };
   
-  // 버전 변경 시 해당 버전의 데이터로 업데이트
+  // 버전 데이터를 불러오는 효과 처리
   useEffect(() => {
-    // 버전이 실제로 변경됐을 때만 처리 (첫 로드 및 실제 버전 선택 변경 시)
-    if (previousVersion !== currentVersion || isInitialLoad) {
-      setPreviousVersion(currentVersion);
-      
-      // 버전 데이터 적용
-      if (versionData && currentVersion && versionData[currentVersion]) {
-        // 깊은 복사를 통해 새로운 데이터 객체 생성
-        try {
-          const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
+    if (!isInitialLoad && previousVersion !== currentVersion) {
+      try {
+        // 버전 데이터가 있는지 확인
+        if (versionData && versionData[currentVersion]) {
+          // 깊은 복사로 데이터 사본 생성
+          const versionDataCopy = JSON.parse(JSON.stringify(versionData[currentVersion]));
           
-          // 데이터 구조 확인
-          if (Array.isArray(deepCopyData)) {
-            setData(deepCopyData);
+          // 데이터 구조 검증
+          if (Array.isArray(versionDataCopy)) {
+            // 데이터가 유효한 경우에만 설정
+            setData(versionDataCopy);
+            setPreviousVersion(currentVersion);
             
-            // 최초 로드 시에는 토스트 메시지 표시하지 않음
-            if (!isInitialLoad) {
-              toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
-            } else {
-              setIsInitialLoad(false);
+            // 편집 모드였다면 종료
+            if (isEditMode) {
+              setIsEditMode(false);
+              setOriginalData([]);
+              setChangedCells(new Set());
             }
+            
+            toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
           } else {
-            console.error('데이터 형식 오류:', deepCopyData);
-            toast.error('데이터 형식이 올바르지 않습니다.');
+            throw new Error(`${currentVersion} 버전의 데이터 형식이 올바르지 않습니다.`);
           }
-        } catch (error) {
-          console.error('버전 데이터 처리 중 오류 발생:', error);
-          toast.error('버전 데이터 처리 중 오류가 발생했습니다.');
+        } else {
+          throw new Error(`${currentVersion} 버전 데이터가 존재하지 않습니다.`);
         }
-      } else {
-        // 데이터가 없는 버전인 경우 rev1 데이터로 복구
-        if (versionData["rev1"]) {
-          try {
-            const rev1Data = JSON.parse(JSON.stringify(versionData["rev1"]));
-            setData(rev1Data);
-            toast.warning(`${currentVersion} 버전 데이터가 없어 rev1 데이터를 표시합니다.`);
-          } catch (error) {
-            console.error('rev1 데이터 복원 중 오류 발생:', error);
-            toast.error('기본 데이터 복원 중 오류가 발생했습니다.');
-          }
+      } catch (error) {
+        console.error(`버전 데이터 로드 오류:`, error);
+        toast.error(`${currentVersion} 버전 데이터를 불러오는 데 실패했습니다.`);
+        
+        // 오류 발생 시 초기 버전(rev1)으로 복구 시도
+        if (currentVersion !== 'rev1' && versionData['rev1']) {
+          setCurrentVersion('rev1');
         }
       }
     }
-  }, [currentVersion, versionData, isInitialLoad, previousVersion, setPreviousVersion, setData, setIsInitialLoad]);
+    
+    // 초기 로드 상태 해제
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [currentVersion, versionData, isInitialLoad]);
 
   // 편집 모드 토글 핸들러
   const handleToggleEditMode = () => {
@@ -132,29 +132,17 @@ const useSalesPerformance = () => {
 
   // 특정 버전으로 이동하는 함수
   const moveToVersion = (version: string) => {
-    // 현재 편집 모드인 경우, 편집 모드를 종료
-    if (isEditMode) {
-      setIsEditMode(false);
-      setOriginalData([]);
-      setChangedCells(new Set());
-    }
-    
-    // 버전 전환 - 버전 데이터를 직접 확인하고 적용
-    if (versionData[version]) {
-      try {
-        // 깊은 복사를 통해 새 데이터 객체 생성
-        const versionDataCopy = JSON.parse(JSON.stringify(versionData[version]));
-        // 데이터 설정
-        setData(versionDataCopy);
-        // 현재 버전 업데이트
-        setCurrentVersion(version);
-        toast.info(`${version} 버전 데이터를 불러왔습니다.`);
-      } catch (error) {
-        console.error(`${version} 버전 데이터 로드 중 오류 발생:`, error);
-        toast.error(`${version} 버전 데이터 로드에 실패했습니다.`);
+    // 선택한 버전이 현재 버전과 다른 경우에만 처리
+    if (version !== currentVersion) {
+      // 직접 버전 데이터 로드 함수 호출
+      moveToVersionHandler(version, setCurrentVersion, versionData, setData);
+      
+      // 편집 모드였다면 종료
+      if (isEditMode) {
+        setIsEditMode(false);
+        setOriginalData([]);
+        setChangedCells(new Set());
       }
-    } else {
-      toast.error(`${version} 버전 데이터를 찾을 수 없습니다.`);
     }
   };
 

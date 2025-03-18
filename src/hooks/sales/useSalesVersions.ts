@@ -24,32 +24,21 @@ export function useSalesVersions(): SalesVersionsHookReturn {
     "rev1": initialData
   });
 
-  // 버전 변경 시 해당 버전의 데이터 존재 여부 확인
-  useEffect(() => {
-    if (!versionData[currentVersion]) {
-      console.error(`버전 데이터가 없습니다: ${currentVersion}`);
-      
-      // 데이터가 없는 버전을 선택한 경우, rev1으로 돌아가기
-      if (versionData["rev1"]) {
-        setCurrentVersion("rev1");
-        toast.error(`${currentVersion} 버전 데이터가 없습니다. rev1 버전으로 돌아갑니다.`);
-      }
-    }
-  }, [currentVersion, versionData]);
-
   // 새 버전 저장 핸들러 - 항상 새 버전으로 데이터 저장 (기존 버전 데이터 유지)
   const saveNewVersion = (data: any[]): string | null => {
     try {
+      // 전달받은 데이터 깊은 복사 생성 (참조 문제 방지)
+      const newVersionData = JSON.parse(JSON.stringify(data));
+      
       // 새 버전 번호 생성
       const versionNum = versions.length + 1;
       const newVersion = `rev${versionNum}`;
       
-      // 깊은 복사로 데이터 저장
-      const newVersionData = JSON.parse(JSON.stringify(data));
-      
       // 버전 데이터 업데이트 - 모든 기존 버전 데이터 유지하면서 새 버전 추가
       setVersionData(prev => {
-        const updatedVersionData = { ...prev };
+        // 기존 데이터를 깊은 복사로 보존
+        const updatedVersionData = JSON.parse(JSON.stringify(prev));
+        // 새 버전 데이터 추가
         updatedVersionData[newVersion] = newVersionData;
         return updatedVersionData;
       });
@@ -76,9 +65,13 @@ export function useSalesVersions(): SalesVersionsHookReturn {
     
     try {
       // 깊은 복사를 통해 데이터 업데이트
+      const updatedData = JSON.parse(JSON.stringify(data));
+      
       setVersionData(prev => {
-        const updatedVersionData = { ...prev };
-        updatedVersionData[version] = JSON.parse(JSON.stringify(data));
+        // 기존 데이터 깊은 복사
+        const updatedVersionData = JSON.parse(JSON.stringify(prev));
+        // 특정 버전 데이터만 업데이트
+        updatedVersionData[version] = updatedData;
         return updatedVersionData;
       });
     } catch (error) {
