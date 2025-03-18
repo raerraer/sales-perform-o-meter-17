@@ -48,7 +48,7 @@ const SalesHotTable = ({
         // 전체 테이블 가운데 정렬 설정
         className="sales-performance-table text-center"
       />
-      <style jsx global>
+      <style>
         {`
         .sales-performance-table .cell-center {
           text-align: center !important;
