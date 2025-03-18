@@ -14,6 +14,7 @@ const useSalesPerformance = () => {
   const [originalData, setOriginalData] = useState<any[]>([]);
   const [changedCells, setChangedCells] = useState<Set<string>>(new Set());
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [previousVersion, setPreviousVersion] = useState<string | null>(null);
   
   // 현재 연도, 월, 주차 상태 관리
   const [currentYear, setCurrentYear] = useState<string>("");
@@ -52,30 +53,31 @@ const useSalesPerformance = () => {
   
   // 버전 변경 시 해당 버전의 데이터로 업데이트
   useEffect(() => {
-    if (versionData[currentVersion]) {
-      // 깊은 복사를 통해 새로운 데이터 객체 생성
-      const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
-      setData(deepCopyData);
+    // 버전이 실제로 변경됐을 때만 처리 (첫 로드 및 실제 버전 선택 변경 시)
+    if (previousVersion !== currentVersion || isInitialLoad) {
+      setPreviousVersion(currentVersion);
       
-      // 버전 변경 시 하이라이팅 초기화
-      setChangedCells(new Set());
-      
-      // 최초 로드 시에만 토스트 메시지 표시
-      if (!isInitialLoad) {
-        toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
+      if (versionData[currentVersion]) {
+        // 깊은 복사를 통해 새로운 데이터 객체 생성
+        const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
+        setData(deepCopyData);
+        
+        // 최초 로드 시에는 토스트 메시지 표시하지 않음
+        if (!isInitialLoad) {
+          toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
+        } else {
+          setIsInitialLoad(false);
+        }
       } else {
-        setIsInitialLoad(false);
-      }
-    } else {
-      // 데이터가 없는 버전인 경우 rev1 데이터로 복구
-      if (versionData["rev1"]) {
-        const rev1Data = JSON.parse(JSON.stringify(versionData["rev1"]));
-        setData(rev1Data);
-        setChangedCells(new Set());
-        toast.warning(`${currentVersion} 버전 데이터가 없어 rev1 데이터를 표시합니다.`);
+        // 데이터가 없는 버전인 경우 rev1 데이터로 복구
+        if (versionData["rev1"]) {
+          const rev1Data = JSON.parse(JSON.stringify(versionData["rev1"]));
+          setData(rev1Data);
+          toast.warning(`${currentVersion} 버전 데이터가 없어 rev1 데이터를 표시합니다.`);
+        }
       }
     }
-  }, [currentVersion, versionData, isInitialLoad]);
+  }, [currentVersion, versionData, isInitialLoad, previousVersion]);
   
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용
   const getCellsSettings = () => {
@@ -128,7 +130,7 @@ const useSalesPerformance = () => {
 
     // 실제 저장 전 사용자에게 확인
     if (confirm("변경사항을 저장하시겠습니까?")) {
-      // 변경된 셀 하이라이팅 설정 (수정된 셀만 하이라이팅)
+      // 변경된 셀 하이라이팅 설정 (수정된 셀만 하이라이팅 - 저장 후에도 유지)
       setChangedCells(newChangedCells);
       
       // 변경 이력에 추가
@@ -176,25 +178,28 @@ const useSalesPerformance = () => {
     
     // 변경사항이 있을 때만 데이터 업데이트
     if (changes && changes.length > 0) {
-      // 새로운 임시 변경 셀 집합 (기존 하이라이팅은 유지)
+      // 현재 셀의 하이라이팅 상태를 복사
       const tmpChangedCells = new Set<string>(changedCells);
       
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
-        // 실제 값이 변경된 경우에만 하이라이팅 적용
+        // 값이 실제로 변경된 경우만 처리
         if (oldValue !== newValue) {
-          // 원본 데이터와 비교하여 실제로 변경된 경우에만 하이라이팅
+          const cellKey = `${row},${prop}`;
+          
+          // 원본 데이터와 비교하여 실제로 변경된 경우에만 하이라이팅 적용
           if (originalData[row][prop] !== newValue) {
-            tmpChangedCells.add(`${row},${prop}`);
+            tmpChangedCells.add(cellKey);
           } else {
-            // 원본 데이터와 같아지면 하이라이팅 제거
-            tmpChangedCells.delete(`${row},${prop}`);
+            // 원본 데이터와 동일해진 경우는 하이라이팅 제거
+            tmpChangedCells.delete(cellKey);
           }
         }
       });
       
-      // 실시간으로 하이라이팅 적용
+      // 하이라이팅 상태 업데이트
       setChangedCells(tmpChangedCells);
       
+      // 데이터 업데이트 (셀 값 계산 로직 적용)
       const updatedData = handleDataChange(changes, data);
       setData(updatedData);
     }
