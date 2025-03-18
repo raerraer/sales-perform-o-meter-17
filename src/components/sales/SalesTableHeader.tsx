@@ -26,6 +26,7 @@ interface SalesTableHeaderProps {
   onVersionChange: (version: string) => void;
   onSaveNewVersion: () => void;
   onShowHistory: () => void;
+  isLatestVersion: boolean;
 }
 
 const SalesTableHeader = ({
@@ -36,7 +37,8 @@ const SalesTableHeader = ({
   currentVersion,
   onVersionChange,
   onSaveNewVersion,
-  onShowHistory
+  onShowHistory,
+  isLatestVersion
 }: SalesTableHeaderProps) => {
   // 현재 날짜 정보 가져오기
   const [year, setYear] = useState<string>("");
@@ -137,7 +139,7 @@ const SalesTableHeader = ({
         <Button 
           variant="outline" 
           onClick={onSaveNewVersion}
-          disabled={isEditMode}
+          disabled={isEditMode || !isLatestVersion}
           className="flex gap-1 items-center"
         >
           <FilePlus className="h-4 w-4" />
@@ -177,7 +179,12 @@ const SalesTableHeader = ({
         ) : (
           <Button 
             onClick={onToggleEditMode} 
-            className="bg-blue-600 hover:bg-blue-700 text-white flex gap-1 items-center"
+            disabled={!isLatestVersion}
+            className={`${
+              isLatestVersion 
+                ? "bg-blue-600 hover:bg-blue-700" 
+                : "bg-gray-400 cursor-not-allowed"
+            } text-white flex gap-1 items-center`}
           >
             <Edit className="h-4 w-4" />
             수정 모드

@@ -21,7 +21,8 @@ const SalesPerformanceTable = () => {
     toggleHistoryDialog,
     versionHistory,
     versionData,
-    moveToVersion
+    moveToVersion,
+    isLatestVersion
   } = useSalesPerformance();
 
   return (
@@ -35,6 +36,7 @@ const SalesPerformanceTable = () => {
         onVersionChange={moveToVersion}
         onSaveNewVersion={saveNewVersion}
         onShowHistory={toggleHistoryDialog}
+        isLatestVersion={isLatestVersion}
       />
 
       <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 overflow-auto relative" style={{ zIndex: 10 }}>

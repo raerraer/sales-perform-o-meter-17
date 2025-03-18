@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from 'sonner';
 import { useSalesVersions } from './sales/useSalesVersions';
@@ -41,7 +41,8 @@ const useSalesPerformance = () => {
     setCurrentVersion, 
     versionData, 
     saveNewVersion, 
-    updateVersionData 
+    updateVersionData,
+    isLatestVersion
   } = useSalesVersions();
   
   const { 
@@ -58,10 +59,12 @@ const useSalesPerformance = () => {
   
   // 버전 데이터를 불러오는 효과 처리
   useEffect(() => {
-    if (!isInitialLoad && previousVersion !== currentVersion) {
+    if (!isInitialLoad || previousVersion !== currentVersion) {
       try {
         // 버전 데이터가 있는지 확인
         if (versionData && versionData[currentVersion]) {
+          console.log(`${currentVersion} 버전 데이터 로드:`, versionData[currentVersion]);
+          
           // 깊은 복사로 데이터 사본 생성
           const versionDataCopy = JSON.parse(JSON.stringify(versionData[currentVersion]));
           
@@ -104,11 +107,21 @@ const useSalesPerformance = () => {
 
   // 편집 모드 토글 핸들러
   const handleToggleEditMode = () => {
+    // 최신 버전만 편집 가능
+    if (!isLatestVersion) {
+      toast.warning("이전 버전은 수정할 수 없습니다. 최신 버전만 수정 가능합니다.");
+      return;
+    }
     toggleEditMode(data, originalData, setOriginalData, setData, setChangedCells);
   };
 
   // 변경사항 저장 핸들러
   const handleSaveChanges = () => {
+    // 최신 버전만 저장 가능
+    if (!isLatestVersion) {
+      toast.warning("이전 버전은 저장할 수 없습니다. 최신 버전만 수정 가능합니다.");
+      return;
+    }
     saveChanges(
       data, 
       originalData, 
@@ -127,6 +140,11 @@ const useSalesPerformance = () => {
 
   // 새 버전 저장 핸들러
   const handleSaveNewVersion = () => {
+    // 최신 버전만 저장 가능
+    if (!isLatestVersion) {
+      toast.warning("이전 버전에서는 새 버전을 생성할 수 없습니다. 최신 버전에서만 새 버전 생성이 가능합니다.");
+      return;
+    }
     saveNewVersionHandler(data, saveNewVersion, setCurrentVersion, setChangedCells);
   };
 
@@ -134,21 +152,27 @@ const useSalesPerformance = () => {
   const moveToVersion = (version: string) => {
     // 선택한 버전이 현재 버전과 다른 경우에만 처리
     if (version !== currentVersion) {
-      // 직접 버전 데이터 로드 함수 호출
-      moveToVersionHandler(version, setCurrentVersion, versionData, setData);
-      
-      // 편집 모드였다면 종료
+      // 편집 모드인 경우 확인
       if (isEditMode) {
-        setIsEditMode(false);
-        setOriginalData([]);
-        setChangedCells(new Set());
+        if (confirm("편집 중인 내용이 있습니다. 버전을 변경하면 편집 내용이 모두 삭제됩니다. 계속하시겠습니까?")) {
+          // 직접 버전 데이터 로드 함수 호출
+          moveToVersionHandler(version, setCurrentVersion, versionData, setData);
+          
+          // 편집 모드 종료
+          setIsEditMode(false);
+          setOriginalData([]);
+          setChangedCells(new Set());
+        }
+      } else {
+        // 편집 모드가 아닌 경우 바로 전환
+        moveToVersionHandler(version, setCurrentVersion, versionData, setData);
       }
     }
   };
 
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용
   const getCellsSettings = () => {
-    return createCellsSettingsFunction(data, isEditMode, originalData, changedCells);
+    return createCellsSettingsFunction(data, isEditMode && isLatestVersion, originalData, changedCells);
   };
 
   return {
@@ -167,7 +191,8 @@ const useSalesPerformance = () => {
     toggleHistoryDialog,
     versionHistory,
     versionData,
-    moveToVersion
+    moveToVersion,
+    isLatestVersion
   };
 };
 

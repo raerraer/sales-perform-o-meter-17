@@ -14,6 +14,7 @@ export interface SalesVersionsHookReturn {
   versionData: VersionData;
   saveNewVersion: (data: any[]) => string | null;
   updateVersionData: (version: string, data: any[]) => void;
+  isLatestVersion: boolean;
 }
 
 export function useSalesVersions(): SalesVersionsHookReturn {
@@ -21,8 +22,11 @@ export function useSalesVersions(): SalesVersionsHookReturn {
   const [versions, setVersions] = useState<string[]>(["rev1"]);
   const [currentVersion, setCurrentVersion] = useState<string>("rev1");
   const [versionData, setVersionData] = useState<VersionData>({
-    "rev1": initialData
+    "rev1": JSON.parse(JSON.stringify(initialData)) // 깊은 복사로 초기 데이터 저장
   });
+  
+  // 현재 버전이 최신 버전인지 확인
+  const isLatestVersion = currentVersion === versions[versions.length - 1];
 
   // 새 버전 저장 핸들러 - 항상 새 버전으로 데이터 저장 (기존 버전 데이터 유지)
   const saveNewVersion = (data: any[]): string | null => {
@@ -86,6 +90,7 @@ export function useSalesVersions(): SalesVersionsHookReturn {
     setCurrentVersion,
     versionData,
     saveNewVersion,
-    updateVersionData
+    updateVersionData,
+    isLatestVersion
   };
 }
