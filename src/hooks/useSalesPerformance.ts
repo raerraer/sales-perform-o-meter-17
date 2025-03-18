@@ -53,6 +53,8 @@ const useSalesPerformance = () => {
   useEffect(() => {
     if (versionData[currentVersion]) {
       setData(JSON.parse(JSON.stringify(versionData[currentVersion])));
+      // 버전 변경 시 changedCells 초기화
+      setChangedCells(new Set());
     }
   }, [currentVersion, versionData]);
   
@@ -72,6 +74,7 @@ const useSalesPerformance = () => {
       setData(JSON.parse(JSON.stringify(originalData)));
       setIsEditMode(false);
       setOriginalData([]);
+      setChangedCells(new Set()); // 하이라이팅 초기화
       toast.info("편집이 취소되었습니다.");
     }
   };
@@ -79,6 +82,7 @@ const useSalesPerformance = () => {
   const saveChanges = () => {
     // 변경사항 확인
     const changes: CellChange[] = [];
+    const newChangedCells = new Set<string>();
     
     data.forEach((row, rowIndex) => {
       row.forEach((cell: any, colIndex: number) => {
@@ -89,6 +93,9 @@ const useSalesPerformance = () => {
             oldValue: originalData[rowIndex][colIndex],
             newValue: cell
           });
+          
+          // 변경된 셀 좌표 추가
+          newChangedCells.add(`${rowIndex},${colIndex}`);
         }
       });
     });
@@ -101,11 +108,7 @@ const useSalesPerformance = () => {
 
     // 실제 저장 전 사용자에게 확인
     if (confirm("변경사항을 저장하시겠습니까?")) {
-      // 변경된 셀 하이라이팅을 위한 셀 좌표 저장
-      const newChangedCells = new Set<string>();
-      changes.forEach(change => {
-        newChangedCells.add(`${change.row},${change.col}`);
-      });
+      // 변경된 셀 하이라이팅 설정
       setChangedCells(newChangedCells);
       
       // 변경 이력에 추가
@@ -128,17 +131,34 @@ const useSalesPerformance = () => {
     }
   };
 
-  // 새 버전 저장 핸들러 (내부 함수만 호출)
+  // 새 버전 저장 핸들러
   const handleSaveNewVersion = () => {
     saveNewVersion(data, changedCells);
     setChangedCells(new Set()); // 변경사항 하이라이팅 제거
   };
 
+  // 특정 버전으로 이동하는 함수
+  const moveToVersion = (version: string) => {
+    setCurrentVersion(version);
+    toast.info(`${version} 버전으로 이동했습니다.`);
+  };
+
   const afterChange = (changes: any, source: string) => {
-    if (source === 'loadData') return;
+    if (source === 'loadData' || !isEditMode) return;
     
     // 변경사항이 있을 때만 데이터 업데이트
     if (changes && changes.length > 0) {
+      // 변경된 셀 좌표 추가 - 수정 모드에서만 하이라이팅
+      const newChangedCells = new Set(changedCells);
+      
+      changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
+        if (oldValue !== newValue) {
+          newChangedCells.add(`${row},${prop}`);
+        }
+      });
+      
+      setChangedCells(newChangedCells);
+      
       const updatedData = handleDataChange(changes, data);
       setData(updatedData);
     }
@@ -159,7 +179,8 @@ const useSalesPerformance = () => {
     showHistoryDialog,
     toggleHistoryDialog,
     versionHistory,
-    versionData
+    versionData,
+    moveToVersion
   };
 };
 

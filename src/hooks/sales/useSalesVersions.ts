@@ -42,7 +42,7 @@ export function useSalesVersions(): SalesVersionsHookReturn {
     const versionNum = versions.length + 1;
     const newVersion = `rev${versionNum}`;
     
-    // 버전 데이터 저장
+    // 버전 데이터 저장 (깊은 복사)
     setVersionData(prev => ({
       ...prev,
       [newVersion]: JSON.parse(JSON.stringify(data))

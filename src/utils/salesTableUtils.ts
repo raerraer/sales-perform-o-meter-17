@@ -1,3 +1,4 @@
+
 // 테이블에 사용할 상수값 정의
 export const MONTHS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 export const CATEGORIES = ['전년', '계획', '실행', '속보', '전망', '비고'];
@@ -169,6 +170,16 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       settings.className = settings.className 
         ? `${settings.className} highlight-cell` 
         : 'highlight-cell';
+      
+      // 배경색 직접 설정 (더 눈에 띄게)
+      settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+        // 기본 셀 렌더러 호출
+        Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+        
+        // 하이라이팅 스타일 적용
+        td.style.backgroundColor = '#fffcd8'; // 연한 노란색 배경
+        td.style.fontWeight = 'bold';
+      };
     }
 
     return settings;

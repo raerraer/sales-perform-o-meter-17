@@ -40,3 +40,15 @@
 .read-the-docs {
   color: #888;
 }
+
+/* 영업실적표의 하이라이트 셀 스타일 */
+.highlight-cell {
+  background-color: #fffcd8 !important; /* 연한 노란색 배경 */
+  font-weight: bold !important;
+}
+
+/* 국가 행 스타일 */
+.country-row {
+  background-color: #f0f5ff !important;
+  font-weight: bold;
+}

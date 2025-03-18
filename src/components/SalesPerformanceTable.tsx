@@ -13,7 +13,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp, Eye } from 'lucide-react';
 
 // 모든 Handsontable 모듈 등록
 registerAllModules();
@@ -34,7 +35,8 @@ const SalesPerformanceTable = () => {
     showHistoryDialog,
     toggleHistoryDialog,
     versionHistory,
-    versionData
+    versionData,
+    moveToVersion
   } = useSalesPerformance();
 
   // 접기/펼치기 상태 관리
@@ -122,19 +124,36 @@ const SalesPerformanceTable = () => {
                 
                 return (
                   <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center mb-2 cursor-pointer" onClick={() => toggleExpand(history.version)}>
-                      {isExpanded ? (
-                        <ChevronUp className="h-4 w-4 mr-2 text-gray-500" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
-                      )}
-                      <div className="flex-1 grid grid-cols-5 gap-2">
-                        <div>{history.year}년</div>
-                        <div>{history.month}월</div>
-                        <div>{history.week}</div>
-                        <div className="font-semibold">{history.version}</div>
-                        <div className="text-sm text-gray-500">{formattedDate}</div>
+                    <div className="flex items-center mb-2">
+                      <div 
+                        className="flex items-center cursor-pointer flex-1" 
+                        onClick={() => toggleExpand(history.version)}
+                      >
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4 mr-2 text-gray-500" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+                        )}
+                        <div className="flex-1 grid grid-cols-5 gap-2">
+                          <div>{history.year}년</div>
+                          <div>{history.month}월</div>
+                          <div>{history.week}</div>
+                          <div className="font-semibold">{history.version}</div>
+                          <div className="text-sm text-gray-500">{formattedDate}</div>
+                        </div>
                       </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="ml-2 flex items-center gap-1"
+                        onClick={() => {
+                          moveToVersion(history.version);
+                          toggleHistoryDialog();
+                        }}
+                      >
+                        <Eye className="h-3 w-3" />
+                        확인하기
+                      </Button>
                     </div>
                     
                     {isExpanded && (
@@ -154,9 +173,10 @@ const SalesPerformanceTable = () => {
                             <tbody>
                               {history.changes.map((change, changeIndex) => {
                                 // 셀 위치로부터 국가와 모델 정보 추출
-                                const countryAndModel = versionData[history.version] && 
-                                                      versionData[history.version][change.row] && 
-                                                      versionData[history.version][change.row][0] || '알 수 없음';
+                                const rowData = versionData[history.version] && 
+                                                versionData[history.version][change.row];
+                                
+                                const item = rowData ? rowData[0] : '알 수 없음';
                                 
                                 // 열 인덱스로부터 QTY/AMT 구분 추출
                                 const isAmtColumn = change.col % 2 === 0;
@@ -164,7 +184,7 @@ const SalesPerformanceTable = () => {
                                 
                                 return (
                                   <tr key={changeIndex} className="border-t">
-                                    <td className="px-2 py-1">{countryAndModel}</td>
+                                    <td className="px-2 py-1">{item}</td>
                                     <td className="px-2 py-1">-</td>
                                     <td className="px-2 py-1">{valueType}</td>
                                     <td className="px-2 py-1">{change.oldValue || '(빈 값)'}</td>
