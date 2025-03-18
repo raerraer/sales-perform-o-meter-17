@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from "sonner";
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { useSalesVersions } from './sales/useSalesVersions';
@@ -63,7 +63,9 @@ const useSalesPerformance = () => {
     toggleHistoryDialog
   } = useSalesHistory();
   
-  // 버전 변경 시 해당 버전의 데이터로 업데이트
+  // 버전 변경 시 해당 버전의 데이터로 업데이트 (최초 한 번만 토스트 메시지 표시)
+  const [initialLoad, setInitialLoad] = useState(true);
+
   useEffect(() => {
     if (versionData[currentVersion]) {
       // 깊은 복사를 통해 새로운 데이터 객체 생성
@@ -73,9 +75,14 @@ const useSalesPerformance = () => {
       // 버전 변경 시 하이라이팅 초기화
       clearHighlighting();
       
-      toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
+      // 최초 로드 시에만 토스트 메시지 표시
+      if (!initialLoad) {
+        toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
+      } else {
+        setInitialLoad(false);
+      }
     }
-  }, [currentVersion, versionData, setData, clearHighlighting]);
+  }, [currentVersion, versionData, setData, clearHighlighting, initialLoad]);
   
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용
   const getCellsSettings = () => {
@@ -125,7 +132,9 @@ const useSalesPerformance = () => {
 
   // afterChange 핸들러 (래핑)
   const wrappedAfterChange = (changes: any, source: string) => {
-    baseAfterChange(changes, source, isEditMode, originalData, updateHighlighting);
+    if (source !== 'loadData') {  // loadData일 때는 업데이트 하이라이팅 처리 안함
+      baseAfterChange(changes, source, isEditMode, originalData, updateHighlighting);
+    }
   };
 
   // 특정 버전으로 이동하는 핸들러
