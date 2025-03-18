@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -159,7 +160,7 @@ const SalesTableHeader = ({
         </Button>
       </div>
 
-      <div className="space-x-2 z-50 relative">
+      <div className="flex space-x-2 z-50 relative">
         {isEditMode ? (
           <>
             <Button 
