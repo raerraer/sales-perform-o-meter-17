@@ -38,7 +38,6 @@ const SalesHotTable = ({
         nestedHeaders={generateComplexHeaders()}
         cells={getCellsSettings()}
         wordWrap={false}
-        className="sales-performance-table"
         stretchH="none"
         rowHeights={28}
         outsideClickDeselects={false}
@@ -49,7 +48,8 @@ const SalesHotTable = ({
         // 전체 테이블 가운데 정렬 설정
         className="sales-performance-table text-center"
       />
-      <style jsx global>{`
+      <style jsx global>
+        {`
         .sales-performance-table .cell-center {
           text-align: center !important;
         }
@@ -73,7 +73,8 @@ const SalesHotTable = ({
           text-align: center !important;
           font-weight: bold !important;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
