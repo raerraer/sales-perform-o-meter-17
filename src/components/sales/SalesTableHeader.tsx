@@ -14,24 +14,34 @@ import {
   RotateCcw,
   FilePlus,
   ArrowLeft,
+  History,
 } from "lucide-react";
 
 interface SalesTableHeaderProps {
   isEditMode: boolean;
   onToggleEditMode: () => void;
   onSaveChanges: () => void;
+  versions: string[];
+  currentVersion: string;
+  onVersionChange: (version: string) => void;
+  onSaveNewVersion: () => void;
+  onShowHistory: () => void;
 }
 
 const SalesTableHeader = ({
   isEditMode,
   onToggleEditMode,
-  onSaveChanges
+  onSaveChanges,
+  versions,
+  currentVersion,
+  onVersionChange,
+  onSaveNewVersion,
+  onShowHistory
 }: SalesTableHeaderProps) => {
   // 현재 날짜 정보 가져오기
   const [year, setYear] = useState<string>("");
   const [month, setMonth] = useState<string>("");
   const [week, setWeek] = useState<string>("");
-  const [version, setVersion] = useState<string>("rev1");
 
   // 연도 리스트 생성 (현재 연도부터 3년 전까지)
   const currentYear = new Date().getFullYear();
@@ -45,9 +55,6 @@ const SalesTableHeader = ({
 
   // 주차 리스트 생성 (1~52주)
   const weeks = Array.from({ length: 52 }, (_, i) => `W${i + 1}`);
-
-  // 버전 리스트 생성
-  const versions = ["rev1", "rev2", "rev3", "rev4", "rev5"];
 
   // 현재 날짜 기준으로 연도, 월, 주차 설정
   useEffect(() => {
@@ -66,18 +73,6 @@ const SalesTableHeader = ({
     setMonth(currentMonth);
     setWeek(`W${currentWeek}`);
   }, []);
-
-  // 새 버전 저장 핸들러
-  const handleNewVersionSave = () => {
-    // 새 버전 저장 로직 구현
-    alert("새 버전이 저장되었습니다.");
-  };
-
-  // 변경 이력 핸들러
-  const handleChangeHistory = () => {
-    // 변경 이력 보기 로직 구현
-    alert("변경 이력을 확인합니다.");
-  };
 
   return (
     <div className="flex flex-wrap justify-between items-center mb-4 px-4 gap-2">
@@ -125,7 +120,7 @@ const SalesTableHeader = ({
         </Select>
 
         {/* 버전 선택 */}
-        <Select value={version} onValueChange={setVersion}>
+        <Select value={currentVersion} onValueChange={onVersionChange}>
           <SelectTrigger className="w-24">
             <SelectValue placeholder="버전" />
           </SelectTrigger>
@@ -141,7 +136,7 @@ const SalesTableHeader = ({
         {/* 새 버전 저장 버튼 */}
         <Button 
           variant="outline" 
-          onClick={handleNewVersionSave}
+          onClick={onSaveNewVersion}
           disabled={isEditMode}
           className="flex gap-1 items-center"
         >
@@ -152,10 +147,10 @@ const SalesTableHeader = ({
         {/* 변경 이력 버튼 */}
         <Button 
           variant="outline" 
-          onClick={handleChangeHistory}
+          onClick={onShowHistory}
           className="flex gap-1 items-center"
         >
-          <RotateCcw className="h-4 w-4" />
+          <History className="h-4 w-4" />
           변경 이력
         </Button>
       </div>

@@ -1,17 +1,34 @@
-
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { generateInitialData, createCellsSettingsFunction, COUNTRIES } from '@/utils/salesTableUtils';
 import { toast } from "sonner";
+
+interface CellChange {
+  row: number;
+  col: number;
+  oldValue: any;
+  newValue: any;
+}
+
+interface VersionHistory {
+  version: string;
+  date: string;
+  changes: CellChange[];
+}
 
 const useSalesPerformance = () => {
   const hotRef = useRef<any>(null);
   const [data, setData] = useState(generateInitialData());
   const [isEditMode, setIsEditMode] = useState(false);
   const [originalData, setOriginalData] = useState<any[]>([]);
+  const [changedCells, setChangedCells] = useState<Set<string>>(new Set());
+  const [versions, setVersions] = useState<string[]>(["rev1"]);
+  const [currentVersion, setCurrentVersion] = useState<string>("rev1");
+  const [versionHistory, setVersionHistory] = useState<VersionHistory[]>([]);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
   
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용
   const getCellsSettings = () => {
-    return createCellsSettingsFunction(data, isEditMode, originalData);
+    return createCellsSettingsFunction(data, isEditMode, originalData, changedCells);
   };
 
   const toggleEditMode = () => {
@@ -31,11 +48,22 @@ const useSalesPerformance = () => {
 
   const saveChanges = () => {
     // 변경사항 확인
-    const hasChanges = data.some((row, rowIndex) => 
-      row.some((cell: any, colIndex: number) => cell !== originalData[rowIndex][colIndex])
-    );
+    const changes: CellChange[] = [];
+    
+    data.forEach((row, rowIndex) => {
+      row.forEach((cell: any, colIndex: number) => {
+        if (cell !== originalData[rowIndex][colIndex]) {
+          changes.push({
+            row: rowIndex,
+            col: colIndex,
+            oldValue: originalData[rowIndex][colIndex],
+            newValue: cell
+          });
+        }
+      });
+    });
 
-    if (!hasChanges) {
+    if (changes.length === 0) {
       toast.info("변경사항이 없습니다.");
       setIsEditMode(false);
       return;
@@ -43,10 +71,51 @@ const useSalesPerformance = () => {
 
     // 실제 저장 전 사용자에게 확인
     if (confirm("변경사항을 저장하시겠습니까?")) {
+      // 변경된 셀 하이라이팅을 위한 셀 좌표 저장
+      const newChangedCells = new Set<string>();
+      changes.forEach(change => {
+        newChangedCells.add(`${change.row},${change.col}`);
+      });
+      setChangedCells(newChangedCells);
+      
+      // 변경 이력에 추가
+      const newHistory: VersionHistory = {
+        version: currentVersion,
+        date: new Date().toLocaleString(),
+        changes
+      };
+      
+      setVersionHistory(prev => [...prev, newHistory]);
       toast.success("변경사항이 저장되었습니다.");
       setIsEditMode(false);
       setOriginalData([]);
     }
+  };
+
+  // 새 버전 저장 핸들러
+  const saveNewVersion = () => {
+    if (changedCells.size === 0) {
+      toast.info("변경된 내용이 없습니다.");
+      return;
+    }
+    
+    // 새 버전 번호 생성
+    const versionNum = versions.length + 1;
+    const newVersion = `rev${versionNum}`;
+    
+    // 버전 추가
+    setVersions(prev => [...prev, newVersion]);
+    setCurrentVersion(newVersion);
+    
+    // 변경사항 하이라이팅 제거
+    setChangedCells(new Set());
+    
+    toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
+  };
+
+  // 변경 이력 팝업 표시
+  const toggleHistoryDialog = () => {
+    setShowHistoryDialog(prev => !prev);
   };
 
   // 국가 행에 대한 합계 재계산 함수
@@ -147,7 +216,14 @@ const useSalesPerformance = () => {
     getCellsSettings,
     toggleEditMode,
     saveChanges,
-    afterChange
+    afterChange,
+    versions,
+    currentVersion,
+    setCurrentVersion,
+    saveNewVersion,
+    showHistoryDialog,
+    toggleHistoryDialog,
+    versionHistory
   };
 };
 

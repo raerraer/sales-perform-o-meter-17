@@ -1,4 +1,3 @@
-
 // 테이블에 사용할 상수값 정의
 export const MONTHS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 export const CATEGORIES = ['전년', '계획', '실행', '속보', '전망', '비고'];
@@ -127,69 +126,51 @@ export const generateComplexHeaders = () => {
   return headers;
 };
 
-// 셀 설정 함수 생성기
-export const createCellsSettingsFunction = (data: any[], isEditMode: boolean, originalData: any[]) => {
-  return (row: number, col: number, prop: any) => {
-    const cellProperties: any = {};
-    
-    // 국가 행 스타일 (첫번째 열이 국가명이고 col이 0인 경우)
-    const isCountryRow = col === 0 && COUNTRIES.includes(data[row][0]);
-    if (isCountryRow || (data[row] && COUNTRIES.includes(data[row][0]))) {
-      cellProperties.className = 'country-row';
+// 셀 스타일 설정 함수 (하이라이팅 기능 추가)
+export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, originalData: any[][], changedCells?: Set<string>) => {
+  return function(row: number, col: number) {
+    // 기본 설정
+    const settings: any = {
+      readOnly: !isEditMode
+    };
+
+    // 국가 행 특별 스타일링
+    if (COUNTRIES.includes(data[row][0])) {
+      settings.className = 'country-row';
+      settings.readOnly = true; // 국가 행은 항상 읽기 전용
     }
-    
-    // 비고 열 처리 (각 월의 11번째 열은 비고)
+
+    // 폰트 설정
+    settings.fontFamily = 'Pretendard';
+    settings.fontSize = '13px';
+
+    // 비고 열이 아닌 경우 수치 데이터 포맷 적용
     const isRemarksColumn = (col - 1) % 11 === 10;
-    
-    if (isRemarksColumn) {
-      // 비고 열은 항상 수정 가능 (읽기 모드에서도)
-      cellProperties.readOnly = false;
-      
-      // 비고 열은 텍스트만 입력 가능하도록 설정
-      if (isEditMode) {
-        cellProperties.type = 'text';
-        // 국가 행의 비고는 수정 가능
-      }
-    } 
-    // 수정 모드가 아닌 경우 비고 외 모든 셀을 읽기 전용으로 설정
-    else if (!isEditMode) {
-      cellProperties.readOnly = true;
-    }
-    // 수정 모드일 때 추가 설정
-    else {
-      // 국가 행의 데이터 셀은 항상 읽기 전용 (자동 계산)
-      if (isCountryRow && col > 0) {
-        cellProperties.readOnly = true;
-      }
-      
-      // Qty, Amt 열은 숫자만 입력 가능하도록 설정
-      if (!isRemarksColumn && col > 0) {
-        // Qty 열 (홀수 컬럼)
-        if ((col - 1) % 2 === 0) {
-          cellProperties.type = 'numeric';
-          cellProperties.numericFormat = {
-            pattern: '0',
-            culture: 'ko-KR'
-          };
-        } 
-        // Amt 열 (짝수 컬럼)
-        else {
-          cellProperties.type = 'numeric';
-          cellProperties.numericFormat = {
-            pattern: '0,0',
-            culture: 'ko-KR'
-          };
-        }
+    if (!isRemarksColumn && col > 0) {
+      if ((col - 1) % 2 === 0) {
+        // Qty 열: 숫자 형식
+        settings.type = 'numeric';
+        settings.numericFormat = {
+          pattern: '0,0',
+          culture: 'ko-KR'
+        };
+      } else {
+        // Amt 열: 통화 형식
+        settings.type = 'numeric';
+        settings.numericFormat = {
+          pattern: '0,0',
+          culture: 'ko-KR'
+        };
       }
     }
 
-    // 변경된 셀에 하이라이트 적용
-    if (isEditMode && originalData.length > 0 && originalData[row] && data[row]) {
-      if (originalData[row][col] !== data[row][col] && data[row][col] !== '') {
-        cellProperties.className = (cellProperties.className || '') + ' highlight-cell';
-      }
+    // 변경된 셀 하이라이팅
+    if (changedCells && changedCells.has(`${row},${col}`)) {
+      settings.className = settings.className 
+        ? `${settings.className} highlight-cell` 
+        : 'highlight-cell';
     }
-    
-    return cellProperties;
+
+    return settings;
   };
 };
