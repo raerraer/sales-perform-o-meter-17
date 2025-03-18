@@ -22,7 +22,7 @@ const useSalesPerformance = () => {
     setIsInitialLoad
   } = useTableState();
   
-  const { isEditMode, toggleEditMode, saveChanges } = useEditMode();
+  const { isEditMode, setIsEditMode, toggleEditMode, saveChanges } = useEditMode();
   
   const { currentYear, currentMonth, currentWeek } = useDateFilter();
   
@@ -95,8 +95,7 @@ const useSalesPerformance = () => {
       data, 
       originalData, 
       changedCells, 
-      setChangedCells, 
-      setIsEditMode => { /* stub implementation */ }, 
+      setChangedCells,
       setOriginalData, 
       updateVersionData, 
       currentVersion, 
