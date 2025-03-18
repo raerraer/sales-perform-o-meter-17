@@ -45,11 +45,9 @@ const SalesHotTable = ({
         autoWrapCol={true}
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
-        // 전체 테이블 가운데 정렬 설정
         className="sales-performance-table text-center"
       />
-      <style>
-        {`
+      <style>{`
         .sales-performance-table .cell-center {
           text-align: center !important;
         }
@@ -73,8 +71,7 @@ const SalesHotTable = ({
           text-align: center !important;
           font-weight: bold !important;
         }
-        `}
-      </style>
+      `}</style>
     </div>
   );
 };

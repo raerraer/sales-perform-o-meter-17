@@ -52,8 +52,14 @@ const useSalesPerformance = () => {
   // 버전 변경 시 해당 버전의 데이터로 업데이트
   useEffect(() => {
     if (versionData[currentVersion]) {
-      setData(JSON.parse(JSON.stringify(versionData[currentVersion])));
-      // 버전 변경 시에는 기존 하이라이팅 유지
+      // 깊은 복사를 통해 새로운 데이터 객체 생성
+      const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
+      setData(deepCopyData);
+      
+      // 버전 변경 시 하이라이팅 초기화
+      setChangedCells(new Set());
+      
+      toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
     }
   }, [currentVersion, versionData]);
   
@@ -73,8 +79,8 @@ const useSalesPerformance = () => {
       setData(JSON.parse(JSON.stringify(originalData)));
       setIsEditMode(false);
       setOriginalData([]);
+      setChangedCells(new Set()); // 하이라이팅 완전히 제거
       
-      // 수정 모드 취소 시 임시 하이라이팅 제거 (1. 요구사항)
       toast.info("편집이 취소되었습니다. 변경 내용이 취소되었습니다.");
     }
   };
@@ -147,7 +153,6 @@ const useSalesPerformance = () => {
   // 특정 버전으로 이동하는 함수 (3. 요구사항)
   const moveToVersion = (version: string) => {
     setCurrentVersion(version);
-    toast.info(`${version} 버전으로 이동했습니다.`);
   };
 
   const afterChange = (changes: any, source: string) => {
