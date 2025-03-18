@@ -6,7 +6,7 @@ export interface UseEditModeReturn {
   isEditMode: boolean;
   setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>;
   toggleEditMode: (currentData: any[][], originalData: any[][], setOriginalData: React.Dispatch<React.SetStateAction<any[][]>>, setData: React.Dispatch<React.SetStateAction<any[][]>>, setChangedCells: React.Dispatch<React.SetStateAction<Set<string>>>) => void;
-  saveChanges: (data: any[][], originalData: any[][], changedCells: Set<string>, setChangedCells: React.Dispatch<React.SetStateAction<Set<string>>>, setOriginalData: React.Dispatch<React.SetStateAction<any[][]>>, updateVersionData: (version: string, data: any[]) => void, currentVersion: string, addVersionHistory: (history: any) => void, currentYear: string, currentMonth: string, currentWeek: string) => void;
+  saveChanges: (data: any[][], originalData: any[][], changedCells: Set<string>, setChangedCells: React.Dispatch<React.SetStateAction<Set<string>>>, setOriginalData: React.Dispatch<React.SetStateAction<any[][]>>, updateVersionData: (version: string, data: any[]) => void, currentVersion: string, addVersionHistory: (history: any) => void, currentYear: string, currentMonth: string, currentWeek: string, setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>) => void;
 }
 
 export const useEditMode = (): UseEditModeReturn => {
@@ -46,7 +46,8 @@ export const useEditMode = (): UseEditModeReturn => {
     addVersionHistory: (history: any) => void,
     currentYear: string,
     currentMonth: string,
-    currentWeek: string
+    currentWeek: string,
+    setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
     // 변경사항 확인
     const changes: { row: number; col: number; oldValue: any; newValue: any }[] = [];
