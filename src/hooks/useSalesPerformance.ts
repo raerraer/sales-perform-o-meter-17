@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { generateInitialData, createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from "sonner";
@@ -52,8 +53,7 @@ const useSalesPerformance = () => {
   useEffect(() => {
     if (versionData[currentVersion]) {
       setData(JSON.parse(JSON.stringify(versionData[currentVersion])));
-      // 버전 변경 시에는 changedCells를 초기화하지 않음
-      // 저장된 하이라이팅이 계속 표시되도록 함
+      // 버전 변경 시에는 기존 하이라이팅 유지
     }
   }, [currentVersion, versionData]);
   
@@ -69,12 +69,13 @@ const useSalesPerformance = () => {
       setIsEditMode(true);
       toast.info("편집 모드로 전환되었습니다.");
     } else {
-      // 편집 취소
+      // 편집 취소 시 원본 데이터로 복원하고 하이라이팅 제거
       setData(JSON.parse(JSON.stringify(originalData)));
       setIsEditMode(false);
       setOriginalData([]);
-      // 편집 취소 시에도 changedCells는 유지 (저장된 하이라이팅 유지)
-      toast.info("편집이 취소되었습니다.");
+      
+      // 수정 모드 취소 시 임시 하이라이팅 제거 (1. 요구사항)
+      toast.info("편집이 취소되었습니다. 변경 내용이 취소되었습니다.");
     }
   };
 
@@ -132,12 +133,18 @@ const useSalesPerformance = () => {
 
   // 새 버전 저장 핸들러
   const handleSaveNewVersion = () => {
-    saveNewVersion(data, changedCells);
-    setChangedCells(new Set()); // 새 버전 저장 시 하이라이팅 제거
-    toast.success("새 버전 저장 완료. 하이라이팅이 제거되었습니다.");
+    // 새 버전 생성 및 저장
+    const newVersion = saveNewVersion(data, changedCells);
+    
+    // 새 버전으로 자동 전환 (2. 요구사항)
+    setCurrentVersion(newVersion);
+    
+    // 하이라이팅 제거
+    setChangedCells(new Set());
+    toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
   };
 
-  // 특정 버전으로 이동하는 함수
+  // 특정 버전으로 이동하는 함수 (3. 요구사항)
   const moveToVersion = (version: string) => {
     setCurrentVersion(version);
     toast.info(`${version} 버전으로 이동했습니다.`);
@@ -149,15 +156,13 @@ const useSalesPerformance = () => {
     // 변경사항이 있을 때만 데이터 업데이트
     if (changes && changes.length > 0) {
       // 변경된 셀 좌표 추가 - 수정 모드에서만 임시 하이라이팅
-      const newChangedCells = new Set(changedCells);
+      const tmpChangedCells = new Set<string>();
       
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
         if (oldValue !== newValue) {
-          newChangedCells.add(`${row},${prop}`);
+          tmpChangedCells.add(`${row},${prop}`);
         }
       });
-      
-      setChangedCells(newChangedCells);
       
       const updatedData = handleDataChange(changes, data);
       setData(updatedData);
