@@ -44,6 +44,15 @@ export function useSalesVersions(): SalesVersionsHookReturn {
       const versionNum = versions.length + 1;
       const newVersion = `rev${versionNum}`;
       
+      // 현재 버전과 데이터 비교
+      const currentVersionData = versionData[currentVersion];
+      const hasChanges = JSON.stringify(currentVersionData) !== JSON.stringify(data);
+      
+      if (!hasChanges) {
+        toast.info("현재 버전과 동일한 데이터입니다. 새 버전이 생성되지 않았습니다.");
+        return null;
+      }
+      
       // 버전 데이터 저장 (깊은 복사)
       const newVersionData = JSON.parse(JSON.stringify(data));
       
