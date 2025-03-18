@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from 'sonner';
@@ -107,6 +108,8 @@ const useSalesPerformance = () => {
       toast.warning("이전 버전은 저장할 수 없습니다. 최신 버전만 수정 가능합니다.");
       return;
     }
+    
+    // 먼저 현재 버전에 변경사항 저장
     saveChanges(
       data, 
       originalData, 
@@ -121,14 +124,22 @@ const useSalesPerformance = () => {
       currentWeek,
       setIsEditMode
     );
-  };
-
-  const handleSaveNewVersion = () => {
-    if (!isLatestVersion) {
-      toast.warning("이전 버전에서는 새 버전을 생성할 수 없습니다. 최신 버전에서만 새 버전 생성이 가능합니다.");
-      return;
+    
+    // 변경된 내용이 있다면 새 버전으로 저장
+    if (changedCells.size > 0) {
+      // 저장 후 새 버전 생성
+      const newVersion = saveNewVersion(data);
+      
+      if (newVersion) {
+        // 새로운 버전으로 전환
+        setCurrentVersion(newVersion);
+        
+        // 변경 셀 하이라이트 초기화
+        setChangedCells(new Set());
+        
+        toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
+      }
     }
-    saveNewVersionHandler(data, saveNewVersion, setCurrentVersion, setChangedCells);
   };
 
   const moveToVersion = (version: string) => {
@@ -156,7 +167,7 @@ const useSalesPerformance = () => {
         }
       } catch (error) {
         console.error(`버전 전환 중 오류 발생:`, error);
-        toast.error(`${version} 버전으로 전환하는 중 오류가 발생했��니다.`);
+        toast.error(`${version} 버전으로 전환하는 중 오류가 발생했습니다.`);
       }
     }
   };
@@ -176,7 +187,6 @@ const useSalesPerformance = () => {
     versions,
     currentVersion,
     setCurrentVersion,
-    saveNewVersion: handleSaveNewVersion,
     showHistoryDialog,
     toggleHistoryDialog,
     versionHistory,

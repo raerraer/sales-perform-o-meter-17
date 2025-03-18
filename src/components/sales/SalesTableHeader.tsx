@@ -11,8 +11,6 @@ import {
 import {
   Edit,
   Save,
-  RotateCcw,
-  FilePlus,
   ArrowLeft,
   History,
 } from "lucide-react";
@@ -24,7 +22,6 @@ interface SalesTableHeaderProps {
   versions: string[];
   currentVersion: string;
   onVersionChange: (version: string) => void;
-  onSaveNewVersion: () => void;
   onShowHistory: () => void;
   isLatestVersion: boolean;
 }
@@ -36,7 +33,6 @@ const SalesTableHeader = ({
   versions,
   currentVersion,
   onVersionChange,
-  onSaveNewVersion,
   onShowHistory,
   isLatestVersion
 }: SalesTableHeaderProps) => {
@@ -134,17 +130,6 @@ const SalesTableHeader = ({
             ))}
           </SelectContent>
         </Select>
-
-        {/* 새 버전 저장 버튼 */}
-        <Button 
-          variant="outline" 
-          onClick={onSaveNewVersion}
-          disabled={isEditMode || !isLatestVersion}
-          className="flex gap-1 items-center"
-        >
-          <FilePlus className="h-4 w-4" />
-          새 버전 저장
-        </Button>
 
         {/* 변경 이력 버튼 */}
         <Button 

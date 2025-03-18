@@ -16,7 +16,6 @@ const SalesPerformanceTable = () => {
     versions,
     currentVersion,
     setCurrentVersion,
-    saveNewVersion,
     showHistoryDialog,
     toggleHistoryDialog,
     versionHistory,
@@ -34,7 +33,6 @@ const SalesPerformanceTable = () => {
         versions={versions}
         currentVersion={currentVersion}
         onVersionChange={moveToVersion}
-        onSaveNewVersion={saveNewVersion}
         onShowHistory={toggleHistoryDialog}
         isLatestVersion={isLatestVersion}
       />
