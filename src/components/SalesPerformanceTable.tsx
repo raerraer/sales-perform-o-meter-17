@@ -32,7 +32,7 @@ const SalesPerformanceTable = () => {
         onSaveChanges={saveChanges}
         versions={versions}
         currentVersion={currentVersion}
-        onVersionChange={setCurrentVersion}
+        onVersionChange={moveToVersion}
         onSaveNewVersion={saveNewVersion}
         onShowHistory={toggleHistoryDialog}
       />

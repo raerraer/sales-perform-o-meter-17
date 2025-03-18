@@ -102,7 +102,8 @@ const useSalesPerformance = () => {
       addVersionHistory, 
       currentYear, 
       currentMonth, 
-      currentWeek
+      currentWeek,
+      setIsEditMode
     );
   };
 
@@ -113,7 +114,7 @@ const useSalesPerformance = () => {
 
   // 특정 버전으로 이동하는 함수
   const moveToVersion = (version: string) => {
-    moveToVersionHandler(version, setCurrentVersion);
+    moveToVersionHandler(version, setCurrentVersion, versionData, setData);
   };
 
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용

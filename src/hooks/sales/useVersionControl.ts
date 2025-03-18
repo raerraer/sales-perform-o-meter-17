@@ -13,7 +13,9 @@ export interface UseVersionControlReturn {
   ) => void;
   moveToVersion: (
     version: string, 
-    setCurrentVersion: (version: string) => void
+    setCurrentVersion: (version: string) => void,
+    versionData: Record<string, any[]>,
+    setData: React.Dispatch<React.SetStateAction<any[][]>>
   ) => void;
 }
 
@@ -54,9 +56,25 @@ export const useVersionControl = (): UseVersionControlReturn => {
   // 특정 버전으로 이동하는 함수
   const moveToVersion = (
     version: string, 
-    setCurrentVersion: (version: string) => void
+    setCurrentVersion: (version: string) => void,
+    versionData: Record<string, any[]>,
+    setData: React.Dispatch<React.SetStateAction<any[][]>>
   ) => {
-    setCurrentVersion(version);
+    // 선택한 버전의 데이터가 존재하는지 확인
+    if (versionData[version]) {
+      // 버전 데이터를 깊은 복사로 불러오기
+      const versionDataCopy = JSON.parse(JSON.stringify(versionData[version]));
+      
+      // 테이블 데이터 업데이트
+      setData(versionDataCopy);
+      
+      // 현재 버전 상태 업데이트
+      setCurrentVersion(version);
+      
+      toast.info(`${version} 버전 데이터를 불러왔습니다.`);
+    } else {
+      toast.error(`${version} 버전 데이터를 찾을 수 없습니다.`);
+    }
   };
 
   return {
