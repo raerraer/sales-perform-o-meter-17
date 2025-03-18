@@ -1,4 +1,6 @@
 
+import Handsontable from 'handsontable';
+
 // 테이블에 사용할 상수값 정의
 export const MONTHS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 export const CATEGORIES = ['전년', '계획', '실행', '속보', '전망', '비고'];
