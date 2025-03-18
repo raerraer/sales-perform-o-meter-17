@@ -37,7 +37,7 @@ export const useVersionControl = (): UseVersionControlReturn => {
     
     // 사용자에게 확인
     if (confirm("새 버전을 저장하시겠습니까?")) {
-      // 새 버전 생성 및 저장
+      // 새 버전 생성 및 저장 - forceCreate 파라미터를 true로 설정하여 강제로 새 버전 생성
       const newVersion = saveNewVersion(data);
       
       if (newVersion) {

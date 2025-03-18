@@ -44,14 +44,9 @@ export function useSalesVersions(): SalesVersionsHookReturn {
       const versionNum = versions.length + 1;
       const newVersion = `rev${versionNum}`;
       
-      // 현재 버전과 데이터 비교
-      const currentVersionData = versionData[currentVersion];
-      const hasChanges = JSON.stringify(currentVersionData) !== JSON.stringify(data);
-      
-      if (!hasChanges) {
-        toast.info("현재 버전과 동일한 데이터입니다. 새 버전이 생성되지 않았습니다.");
-        return null;
-      }
+      // 현재 버전과 데이터 비교 로직은 제거합니다
+      // 하이라이팅된 셀이 있다면 이미 변경된 내용이 있는 것으로 간주하기 때문에
+      // useVersionControl에서 이미 확인했으므로 여기서는 중복 체크하지 않습니다
       
       // 버전 데이터 저장 (깊은 복사)
       const newVersionData = JSON.parse(JSON.stringify(data));
