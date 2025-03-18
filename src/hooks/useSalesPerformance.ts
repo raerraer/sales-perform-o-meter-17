@@ -56,7 +56,7 @@ const useSalesPerformance = () => {
       const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
       setData(deepCopyData);
       
-      // 버전 변경 시 하이라이팅 초기화
+      // 버전 변경 시 하이라이팅 초기화 (rev1 선택 시에도 변경 전 데이터가 정상적으로 조회되도록)
       setChangedCells(new Set());
       
       toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
@@ -75,7 +75,7 @@ const useSalesPerformance = () => {
       setIsEditMode(true);
       toast.info("편집 모드로 전환되었습니다.");
     } else {
-      // 편집 취소 시 원본 데이터로 복원하고 하이라이팅 제거
+      // 편집 취소 시 원본 데이터로 복원하고 하이라이팅 제거 (2. 하이라이팅 해제 Case)
       setData(JSON.parse(JSON.stringify(originalData)));
       setIsEditMode(false);
       setOriginalData([]);
@@ -100,7 +100,7 @@ const useSalesPerformance = () => {
             newValue: cell
           });
           
-          // 변경된 셀 좌표 추가
+          // 변경된 셀 좌표 추가 (1. 하이라이팅 설정 Case - 저장 시 하이라이팅 유지)
           newChangedCells.add(`${rowIndex},${colIndex}`);
         }
       });
@@ -140,17 +140,19 @@ const useSalesPerformance = () => {
   // 새 버전 저장 핸들러
   const handleSaveNewVersion = () => {
     // 새 버전 생성 및 저장
-    const newVersion = saveNewVersion(data, changedCells);
+    const newVersion = saveNewVersion(data);
     
-    // 새 버전으로 자동 전환 (2. 요구사항)
-    setCurrentVersion(newVersion);
-    
-    // 하이라이팅 제거
-    setChangedCells(new Set());
-    toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
+    if (newVersion) {
+      // 새 버전으로 자동 전환
+      setCurrentVersion(newVersion);
+      
+      // 새 버전 저장 시 하이라이팅 제거 (2. 하이라이팅 해제 Case)
+      setChangedCells(new Set());
+      toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
+    }
   };
 
-  // 특정 버전으로 이동하는 함수 (3. 요구사항)
+  // 특정 버전으로 이동하는 함수
   const moveToVersion = (version: string) => {
     setCurrentVersion(version);
   };
@@ -160,14 +162,17 @@ const useSalesPerformance = () => {
     
     // 변경사항이 있을 때만 데이터 업데이트
     if (changes && changes.length > 0) {
-      // 변경된 셀 좌표 추가 - 수정 모드에서만 임시 하이라이팅
-      const tmpChangedCells = new Set<string>();
+      // 변경된 셀 좌표 추가 - 수정 모드에서 데이터 수정 시 즉시 하이라이팅 (1. 하이라이팅 설정 Case)
+      const tmpChangedCells = new Set<string>(changedCells); // 기존 하이라이팅 유지하면서 새로운 변경 추가
       
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
         if (oldValue !== newValue) {
           tmpChangedCells.add(`${row},${prop}`);
         }
       });
+      
+      // 실시간으로 하이라이팅 적용
+      setChangedCells(tmpChangedCells);
       
       const updatedData = handleDataChange(changes, data);
       setData(updatedData);

@@ -47,7 +47,7 @@ const SalesHotTable = ({
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
       />
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .sales-performance-table .cell-center {
           text-align: center !important;
         }
@@ -71,7 +71,7 @@ const SalesHotTable = ({
           text-align: center !important;
           font-weight: bold !important;
         }
-      `}</style>
+      `}} />
     </div>
   );
 };

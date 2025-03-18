@@ -12,7 +12,7 @@ export interface SalesVersionsHookReturn {
   currentVersion: string;
   setCurrentVersion: (version: string) => void;
   versionData: VersionData;
-  saveNewVersion: (data: any[], changedCells: Set<string>) => string;
+  saveNewVersion: (data: any[]) => string | null;
   updateVersionData: (version: string, data: any[]) => void;
 }
 
@@ -32,27 +32,28 @@ export function useSalesVersions(): SalesVersionsHookReturn {
   }, [currentVersion, versionData]);
 
   // 새 버전 저장 핸들러 - 버전명 반환하도록 수정
-  const saveNewVersion = (data: any[], changedCells: Set<string>): string => {
-    if (changedCells.size === 0) {
-      toast.info("변경된 내용이 없습니다.");
-      return currentVersion; // 현재 버전 반환
-    }
-    
+  const saveNewVersion = (data: any[]): string | null => {
     // 새 버전 번호 생성
     const versionNum = versions.length + 1;
     const newVersion = `rev${versionNum}`;
     
-    // 버전 데이터 저장 (깊은 복사)
-    setVersionData(prev => ({
-      ...prev,
-      [newVersion]: JSON.parse(JSON.stringify(data))
-    }));
-    
-    // 버전 추가
-    setVersions(prev => [...prev, newVersion]);
-    
-    // 새 버전명 반환
-    return newVersion;
+    try {
+      // 버전 데이터 저장 (깊은 복사)
+      setVersionData(prev => ({
+        ...prev,
+        [newVersion]: JSON.parse(JSON.stringify(data))
+      }));
+      
+      // 버전 추가
+      setVersions(prev => [...prev, newVersion]);
+      
+      // 새 버전명 반환
+      return newVersion;
+    } catch (error) {
+      console.error("새 버전 저장 중 오류 발생:", error);
+      toast.error("새 버전 저장에 실패했습니다.");
+      return null;
+    }
   };
 
   // 특정 버전의 데이터 업데이트
