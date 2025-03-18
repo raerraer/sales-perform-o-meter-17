@@ -24,13 +24,13 @@ export function useSalesVersions(): SalesVersionsHookReturn {
     "rev1": initialData
   });
 
-  // 버전 변경 시 해당 버전의 데이터로 업데이트
+  // 버전 변경 시 해당 버전의 데이터 존재 여부 확인
   useEffect(() => {
     if (!versionData[currentVersion]) {
       console.error(`버전 데이터가 없습니다: ${currentVersion}`);
       
-      // rev1으로 돌아가기 (기본 버전이 없는 경우 방지)
-      if (currentVersion !== "rev1" && versionData["rev1"]) {
+      // 데이터가 없는 버전을 선택한 경우(특히 rev1 이전 버전), rev1으로 돌아가기
+      if (versionData["rev1"]) {
         setCurrentVersion("rev1");
         toast.error(`${currentVersion} 버전 데이터가 없습니다. rev1 버전으로 돌아갑니다.`);
       }
@@ -47,12 +47,13 @@ export function useSalesVersions(): SalesVersionsHookReturn {
       // 버전 데이터 저장 (깊은 복사)
       const newVersionData = JSON.parse(JSON.stringify(data));
       
+      // 버전 데이터 업데이트 - 모든 기존 버전 데이터 유지하면서 새 버전 추가
       setVersionData(prev => ({
         ...prev,
         [newVersion]: newVersionData
       }));
       
-      // 버전 추가
+      // 버전 목록에 새 버전 추가
       setVersions(prev => [...prev, newVersion]);
       
       // 새 버전명 반환

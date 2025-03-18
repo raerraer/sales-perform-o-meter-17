@@ -13,6 +13,7 @@ const useSalesPerformance = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [originalData, setOriginalData] = useState<any[]>([]);
   const [changedCells, setChangedCells] = useState<Set<string>>(new Set());
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   // 현재 연도, 월, 주차 상태 관리
   const [currentYear, setCurrentYear] = useState<string>("");
@@ -56,12 +57,25 @@ const useSalesPerformance = () => {
       const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
       setData(deepCopyData);
       
-      // 버전 변경 시 하이라이팅 초기화 (rev1 선택 시에도 변경 전 데이터가 정상적으로 조회되도록)
+      // 버전 변경 시 하이라이팅 초기화
       setChangedCells(new Set());
       
-      toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
+      // 최초 로드 시에만 토스트 메시지 표시
+      if (!isInitialLoad) {
+        toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
+      } else {
+        setIsInitialLoad(false);
+      }
+    } else {
+      // 데이터가 없는 버전인 경우 rev1 데이터로 복구
+      if (versionData["rev1"]) {
+        const rev1Data = JSON.parse(JSON.stringify(versionData["rev1"]));
+        setData(rev1Data);
+        setChangedCells(new Set());
+        toast.warning(`${currentVersion} 버전 데이터가 없어 rev1 데이터를 표시합니다.`);
+      }
     }
-  }, [currentVersion, versionData]);
+  }, [currentVersion, versionData, isInitialLoad]);
   
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용
   const getCellsSettings = () => {
