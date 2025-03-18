@@ -75,7 +75,7 @@ const useSalesPerformance = () => {
       setIsEditMode(true);
       toast.info("편집 모드로 전환되었습니다.");
     } else {
-      // 편집 취소 시 원본 데이터로 복원하고 하이라이팅 제거 (2. 하이라이팅 해제 Case)
+      // 편집 취소 시 원본 데이터로 복원하고 하이라이팅 제거
       setData(JSON.parse(JSON.stringify(originalData)));
       setIsEditMode(false);
       setOriginalData([]);
@@ -88,7 +88,7 @@ const useSalesPerformance = () => {
   const saveChanges = () => {
     // 변경사항 확인
     const changes: CellChange[] = [];
-    const newChangedCells = new Set<string>(changedCells); // 기존 하이라이팅된 셀 유지
+    const newChangedCells = new Set<string>();
     
     data.forEach((row, rowIndex) => {
       row.forEach((cell: any, colIndex: number) => {
@@ -100,7 +100,7 @@ const useSalesPerformance = () => {
             newValue: cell
           });
           
-          // 변경된 셀 좌표 추가 (1. 하이라이팅 설정 Case - 저장 시 하이라이팅 유지)
+          // 변경된 셀 좌표 추가 (수정된 셀만 하이라이팅)
           newChangedCells.add(`${rowIndex},${colIndex}`);
         }
       });
@@ -114,7 +114,7 @@ const useSalesPerformance = () => {
 
     // 실제 저장 전 사용자에게 확인
     if (confirm("변경사항을 저장하시겠습니까?")) {
-      // 변경된 셀 하이라이팅 설정 (기존 하이라이팅과 새로운 하이라이팅 병합)
+      // 변경된 셀 하이라이팅 설정 (수정된 셀만 하이라이팅)
       setChangedCells(newChangedCells);
       
       // 변경 이력에 추가
@@ -146,7 +146,7 @@ const useSalesPerformance = () => {
       // 새 버전으로 자동 전환
       setCurrentVersion(newVersion);
       
-      // 새 버전 저장 시 하이라이팅 제거 (2. 하이라이팅 해제 Case)
+      // 새 버전 저장 시 하이라이팅 제거
       setChangedCells(new Set());
       toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
     }
@@ -162,12 +162,19 @@ const useSalesPerformance = () => {
     
     // 변경사항이 있을 때만 데이터 업데이트
     if (changes && changes.length > 0) {
-      // 변경된 셀 좌표 추가 - 수정 모드에서 데이터 수정 시 즉시 하이라이팅 (1. 하이라이팅 설정 Case)
-      const tmpChangedCells = new Set<string>(changedCells); // 기존 하이라이팅 유지하면서 새로운 변경 추가
+      // 새로운 임시 변경 셀 집합 (기존 하이라이팅은 유지)
+      const tmpChangedCells = new Set<string>(changedCells);
       
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
+        // 실제 값이 변경된 경우에만 하이라이팅 적용
         if (oldValue !== newValue) {
-          tmpChangedCells.add(`${row},${prop}`);
+          // 원본 데이터와 비교하여 실제로 변경된 경우에만 하이라이팅
+          if (originalData[row][prop] !== newValue) {
+            tmpChangedCells.add(`${row},${prop}`);
+          } else {
+            // 원본 데이터와 같아지면 하이라이팅 제거
+            tmpChangedCells.delete(`${row},${prop}`);
+          }
         }
       });
       
