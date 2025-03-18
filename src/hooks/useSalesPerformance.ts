@@ -9,14 +9,43 @@ import { useHighlighting } from './sales/useHighlighting';
 import { useDateContext } from './sales/useDateContext';
 import { useTableData } from './sales/useTableData';
 
+/**
+ * 통합된 판매 실적 데이터 관리 훅
+ * 여러 서브 훅들을 조합하여 판매 데이터의 조회, 수정, 버전 관리 기능을 제공
+ */
 const useSalesPerformance = () => {
-  // 분리된 훅들 사용
-  const { hotRef, data, setData, afterChange: baseAfterChange } = useTableData();
-  const { isEditMode, originalData, toggleEditMode: baseToggleEditMode, saveChanges: baseSaveChanges } = useEditMode();
-  const { changedCells, setChangedCells, clearHighlighting, updateHighlighting } = useHighlighting();
-  const { currentYear, currentMonth, currentWeek } = useDateContext();
+  // 1. 데이터 & 테이블 관련 훅
+  const { 
+    hotRef, 
+    data, 
+    setData, 
+    afterChange: baseAfterChange 
+  } = useTableData();
+
+  // 2. 편집 모드 관련 훅
+  const { 
+    isEditMode, 
+    originalData, 
+    toggleEditMode: baseToggleEditMode, 
+    saveChanges: baseSaveChanges 
+  } = useEditMode();
+
+  // 3. 하이라이팅 관련 훅
+  const { 
+    changedCells, 
+    setChangedCells, 
+    clearHighlighting, 
+    updateHighlighting 
+  } = useHighlighting();
+
+  // 4. 날짜 컨텍스트 훅
+  const { 
+    currentYear, 
+    currentMonth, 
+    currentWeek 
+  } = useDateContext();
   
-  // 기존 훅 사용
+  // 5. 버전 관리 훅
   const { 
     versions, 
     currentVersion, 
@@ -26,6 +55,7 @@ const useSalesPerformance = () => {
     updateVersionData 
   } = useSalesVersions();
   
+  // 6. 버전 이력 관리 훅
   const { 
     versionHistory, 
     addVersionHistory, 
@@ -40,7 +70,7 @@ const useSalesPerformance = () => {
       const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
       setData(deepCopyData);
       
-      // 버전 변경 시 하이라이팅 초기화 (rev1 선택 시에도 변경 전 데이터가 정상적으로 조회되도록)
+      // 버전 변경 시 하이라이팅 초기화
       clearHighlighting();
       
       toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
@@ -52,7 +82,7 @@ const useSalesPerformance = () => {
     return createCellsSettingsFunction(data, isEditMode, originalData, changedCells);
   };
 
-  // 편집 모드 토글 시 원본 데이터 백업/복원
+  // 편집 모드 토글 핸들러 (래핑)
   const toggleEditMode = () => {
     if (!isEditMode) {
       // 원본 데이터 백업
@@ -67,7 +97,7 @@ const useSalesPerformance = () => {
     baseToggleEditMode();
   };
 
-  // 변경사항 저장
+  // 변경사항 저장 핸들러 (래핑)
   const saveChanges = () => {
     baseSaveChanges(
       data, 
@@ -82,31 +112,28 @@ const useSalesPerformance = () => {
     );
   };
 
-  // 새 버전 저장 핸들러
+  // 새 버전 저장 핸들러 (래핑)
   const handleSaveNewVersion = () => {
-    // 새 버전 생성 및 저장
     const newVersion = baseSaveNewVersion(data);
     
     if (newVersion) {
-      // 새 버전으로 자동 전환
       setCurrentVersion(newVersion);
-      
-      // 새 버전 저장 시 하이라이팅 제거
       clearHighlighting();
       toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
     }
   };
 
-  // afterChange 함수 래핑
+  // afterChange 핸들러 (래핑)
   const wrappedAfterChange = (changes: any, source: string) => {
     baseAfterChange(changes, source, isEditMode, originalData, updateHighlighting);
   };
 
-  // 특정 버전으로 이동하는 함수
+  // 특정 버전으로 이동하는 핸들러
   const moveToVersion = (version: string) => {
     setCurrentVersion(version);
   };
 
+  // 필요한 기능들을 모두 반환
   return {
     hotRef,
     data,
