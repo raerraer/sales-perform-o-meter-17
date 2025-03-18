@@ -39,7 +39,7 @@ export const useVersionControl = (): UseVersionControlReturn => {
     
     // 사용자에게 확인
     if (confirm("새 버전을 저장하시겠습니까?")) {
-      // 새 버전 생성 및 저장 - forceCreate 파라미터를 true로 설정하여 강제로 새 버전 생성
+      // 새 버전 생성 및 저장 - 강제로 새 버전 생성
       const newVersion = saveNewVersion(data);
       
       if (newVersion) {
@@ -62,16 +62,21 @@ export const useVersionControl = (): UseVersionControlReturn => {
   ) => {
     // 선택한 버전의 데이터가 존재하는지 확인
     if (versionData[version]) {
-      // 버전 데이터를 깊은 복사로 불러오기
-      const versionDataCopy = JSON.parse(JSON.stringify(versionData[version]));
-      
-      // 테이블 데이터 업데이트
-      setData(versionDataCopy);
-      
-      // 현재 버전 상태 업데이트
-      setCurrentVersion(version);
-      
-      toast.info(`${version} 버전 데이터를 불러왔습니다.`);
+      try {
+        // 버전 데이터를 깊은 복사로 불러오기
+        const versionDataCopy = JSON.parse(JSON.stringify(versionData[version]));
+        
+        // 테이블 데이터 업데이트
+        setData(versionDataCopy);
+        
+        // 현재 버전 상태 업데이트
+        setCurrentVersion(version);
+        
+        toast.info(`${version} 버전 데이터를 불러왔습니다.`);
+      } catch (error) {
+        console.error("버전 데이터 로드 중 오류 발생:", error);
+        toast.error(`${version} 버전 데이터 로드 중 오류가 발생했습니다.`);
+      }
     } else {
       toast.error(`${version} 버전 데이터를 찾을 수 없습니다.`);
     }

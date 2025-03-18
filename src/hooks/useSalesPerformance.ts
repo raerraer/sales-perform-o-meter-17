@@ -62,23 +62,41 @@ const useSalesPerformance = () => {
     if (previousVersion !== currentVersion || isInitialLoad) {
       setPreviousVersion(currentVersion);
       
-      if (versionData[currentVersion]) {
+      // 버전 데이터 적용
+      if (versionData && currentVersion && versionData[currentVersion]) {
         // 깊은 복사를 통해 새로운 데이터 객체 생성
-        const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
-        setData(deepCopyData);
-        
-        // 최초 로드 시에는 토스트 메시지 표시하지 않음
-        if (!isInitialLoad) {
-          toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
-        } else {
-          setIsInitialLoad(false);
+        try {
+          const deepCopyData = JSON.parse(JSON.stringify(versionData[currentVersion]));
+          
+          // 데이터 구조 확인
+          if (Array.isArray(deepCopyData)) {
+            setData(deepCopyData);
+            
+            // 최초 로드 시에는 토스트 메시지 표시하지 않음
+            if (!isInitialLoad) {
+              toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
+            } else {
+              setIsInitialLoad(false);
+            }
+          } else {
+            console.error('데이터 형식 오류:', deepCopyData);
+            toast.error('데이터 형식이 올바르지 않습니다.');
+          }
+        } catch (error) {
+          console.error('버전 데이터 처리 중 오류 발생:', error);
+          toast.error('버전 데이터 처리 중 오류가 발생했습니다.');
         }
       } else {
         // 데이터가 없는 버전인 경우 rev1 데이터로 복구
         if (versionData["rev1"]) {
-          const rev1Data = JSON.parse(JSON.stringify(versionData["rev1"]));
-          setData(rev1Data);
-          toast.warning(`${currentVersion} 버전 데이터가 없어 rev1 데이터를 표시합니다.`);
+          try {
+            const rev1Data = JSON.parse(JSON.stringify(versionData["rev1"]));
+            setData(rev1Data);
+            toast.warning(`${currentVersion} 버전 데이터가 없어 rev1 데이터를 표시합니다.`);
+          } catch (error) {
+            console.error('rev1 데이터 복원 중 오류 발생:', error);
+            toast.error('기본 데이터 복원 중 오류가 발생했습니다.');
+          }
         }
       }
     }
@@ -114,7 +132,30 @@ const useSalesPerformance = () => {
 
   // 특정 버전으로 이동하는 함수
   const moveToVersion = (version: string) => {
-    moveToVersionHandler(version, setCurrentVersion, versionData, setData);
+    // 현재 편집 모드인 경우, 편집 모드를 종료
+    if (isEditMode) {
+      setIsEditMode(false);
+      setOriginalData([]);
+      setChangedCells(new Set());
+    }
+    
+    // 버전 전환 - 버전 데이터를 직접 확인하고 적용
+    if (versionData[version]) {
+      try {
+        // 깊은 복사를 통해 새 데이터 객체 생성
+        const versionDataCopy = JSON.parse(JSON.stringify(versionData[version]));
+        // 데이터 설정
+        setData(versionDataCopy);
+        // 현재 버전 업데이트
+        setCurrentVersion(version);
+        toast.info(`${version} 버전 데이터를 불러왔습니다.`);
+      } catch (error) {
+        console.error(`${version} 버전 데이터 로드 중 오류 발생:`, error);
+        toast.error(`${version} 버전 데이터 로드에 실패했습니다.`);
+      }
+    } else {
+      toast.error(`${version} 버전 데이터를 찾을 수 없습니다.`);
+    }
   };
 
   // 현재 보기 모드에 따라 셀 설정을 다르게 적용

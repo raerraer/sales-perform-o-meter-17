@@ -44,18 +44,15 @@ export function useSalesVersions(): SalesVersionsHookReturn {
       const versionNum = versions.length + 1;
       const newVersion = `rev${versionNum}`;
       
-      // 현재 버전과 데이터 비교 로직은 제거합니다
-      // 하이라이팅된 셀이 있다면 이미 변경된 내용이 있는 것으로 간주하기 때문에
-      // useVersionControl에서 이미 확인했으므로 여기서는 중복 체크하지 않습니다
-      
-      // 버전 데이터 저장 (깊은 복사)
+      // 깊은 복사로 데이터 저장
       const newVersionData = JSON.parse(JSON.stringify(data));
       
       // 버전 데이터 업데이트 - 모든 기존 버전 데이터 유지하면서 새 버전 추가
-      setVersionData(prev => ({
-        ...prev,
-        [newVersion]: newVersionData
-      }));
+      setVersionData(prev => {
+        const updatedVersionData = { ...prev };
+        updatedVersionData[newVersion] = newVersionData;
+        return updatedVersionData;
+      });
       
       // 버전 목록에 새 버전 추가
       setVersions(prev => [...prev, newVersion]);
@@ -79,10 +76,11 @@ export function useSalesVersions(): SalesVersionsHookReturn {
     
     try {
       // 깊은 복사를 통해 데이터 업데이트
-      setVersionData(prev => ({
-        ...prev,
-        [version]: JSON.parse(JSON.stringify(data))
-      }));
+      setVersionData(prev => {
+        const updatedVersionData = { ...prev };
+        updatedVersionData[version] = JSON.parse(JSON.stringify(data));
+        return updatedVersionData;
+      });
     } catch (error) {
       console.error(`${version} 버전 데이터 업데이트 중 오류 발생:`, error);
       toast.error(`${version} 버전 데이터 업데이트에 실패했습니다.`);
