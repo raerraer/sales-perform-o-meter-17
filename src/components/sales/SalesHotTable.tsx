@@ -46,7 +46,7 @@ const SalesHotTable = ({
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
-        tableClassName="aria-rowindex='3'"
+        tableClassName="aria-rowindex=3"
       />
       <style dangerouslySetInnerHTML={{ __html: `
         .sales-performance-table .cell-center {
