@@ -1,4 +1,8 @@
 
+/**
+ * 데이터 변환을 위한 유틸리티 함수들
+ */
+
 import { parseNumericValue } from './dataTransformers';
 
 /**
@@ -49,6 +53,7 @@ export const addMonthlyDataToModelRow = (modelRow: any[], monthCount: number, ca
   for (let month = 0; month < monthCount; month++) {
     // 카테고리별 데이터 생성
     for (let category = 0; category < categoryCount; category++) {
+      // 모든 월(짝수/홀수)에 대해 일관된 방식으로 랜덤 데이터 생성
       const { qty, amt } = generateRandomData();
       updatedRow.push(qty.toString());
       updatedRow.push(amt);

@@ -50,16 +50,15 @@ export function calculateTotalSums(data: any[]): any[] {
         // 비고 열은 계산에서 제외
         if ((col - 1) % 11 === 10) continue;
         
-        // Qty 열 또는 Amt 열인지 확인하여 합계 계산
+        // 모든 열에 대해 동일한 방식으로 합계 계산
+        const sum = regionModelRows.reduce((acc, rowIdx) => {
+          return acc + parseNumericValue(updatedData[rowIdx][col], 0);
+        }, 0);
+        
+        // Qty 열 또는 Amt 열인지 확인하여 적절한 형식으로 값 설정
         if ((col - 1) % 2 === 0) { // Qty 열
-          const sum = regionModelRows.reduce((acc, rowIdx) => {
-            return acc + parseNumericValue(updatedData[rowIdx][col], 0);
-          }, 0);
           updatedData[modelRowIdx][col] = sum.toString();
         } else { // Amt 열
-          const sum = regionModelRows.reduce((acc, rowIdx) => {
-            return acc + parseNumericValue(updatedData[rowIdx][col], 0);
-          }, 0);
           updatedData[modelRowIdx][col] = sum.toLocaleString();
         }
       }
@@ -70,16 +69,15 @@ export function calculateTotalSums(data: any[]): any[] {
       // 비고 열은 계산에서 제외
       if ((col - 1) % 11 === 10) continue;
       
-      // Qty 열 또는 Amt 열인지 확인하여 합계 계산
+      // 모든 열에 대해 동일한 방식으로 합계 계산
+      const sum = totalModelRows.reduce((acc, rowIdx) => {
+        return acc + parseNumericValue(updatedData[rowIdx][col], 0);
+      }, 0);
+      
+      // Qty 열 또는 Amt 열인지 확인하여 적절한 형식으로 값 설정
       if ((col - 1) % 2 === 0) { // Qty 열
-        const sum = totalModelRows.reduce((acc, rowIdx) => {
-          return acc + parseNumericValue(updatedData[rowIdx][col], 0);
-        }, 0);
         updatedData[totalIndex][col] = sum.toString();
       } else { // Amt 열
-        const sum = totalModelRows.reduce((acc, rowIdx) => {
-          return acc + parseNumericValue(updatedData[rowIdx][col], 0);
-        }, 0);
         updatedData[totalIndex][col] = sum.toLocaleString();
       }
     }

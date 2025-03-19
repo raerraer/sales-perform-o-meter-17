@@ -34,25 +34,36 @@ export const calculateTotalModelData = (regionModelDataMap: {[key: string]: any[
         for (let i = 1; i < regionModelRow.length; i++) {
           // 비고 열은 건너뜀
           const isRemark = (i - 1) % 11 === 10;
-          if (isRemark) continue;
+          if (isRemark) {
+            // 비고 열은 그대로 유지
+            continue;
+          }
           
           // Amt 열인지 확인
           const isAmtColumn = (i - 1) % 2 === 1;
           
-          // 합계 계산 및 업데이트
-          const existingValue = totalModelData[modelIndex][i];
-          const newValue = regionModelRow[i];
+          // 기존 값과 새 값 파싱
+          let value1 = 0;
+          let value2 = 0;
           
+          // 문자열 값 추출 및 수치화
           if (isAmtColumn) {
             // Amt 열은 콤마가 포함된 문자열
-            const value1 = parseFloat(existingValue.replace(/,/g, '')) || 0;
-            const value2 = parseFloat(newValue.replace(/,/g, '')) || 0;
-            totalModelData[modelIndex][i] = (value1 + value2).toLocaleString();
+            value1 = parseFloat(String(totalModelData[modelIndex][i]).replace(/,/g, '')) || 0;
+            value2 = parseFloat(String(regionModelRow[i]).replace(/,/g, '')) || 0;
           } else {
             // Qty 열은 일반 숫자 문자열
-            const value1 = parseFloat(existingValue) || 0;
-            const value2 = parseFloat(newValue) || 0;
-            totalModelData[modelIndex][i] = (value1 + value2).toString();
+            value1 = parseFloat(String(totalModelData[modelIndex][i])) || 0;
+            value2 = parseFloat(String(regionModelRow[i])) || 0;
+          }
+          
+          // 합산 및 형식화
+          const sum = value1 + value2;
+          
+          if (isAmtColumn) {
+            totalModelData[modelIndex][i] = sum.toLocaleString();
+          } else {
+            totalModelData[modelIndex][i] = sum.toString();
           }
         }
       }
