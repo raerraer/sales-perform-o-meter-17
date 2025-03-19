@@ -136,11 +136,16 @@ const configureModelRowSettings = (settings: any, data: any[][], row: number, is
     case 'LEVEL3':
       settings.className = 'level-3-model cell-center';
       settings.readOnly = !isEditMode;
+      
+      // 기본 렌더러
+      const baseRenderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
+      
+      // 변경된 셀 하이라이팅 추가 커스텀 렌더러
       settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
-        const baseRenderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
+        // 기본 스타일 적용
         baseRenderer.call(this, instance, td, row, col, prop, value, cellProperties);
         
-        // 변경된 셀 하이라이팅
+        // 변경된 셀 하이라이팅 적용
         if (changedCells && changedCells.has(`${row},${col}`)) {
           td.style.backgroundColor = '#fffcd8'; // 연한 노란색 배경
           td.style.fontWeight = 'bold';
@@ -192,26 +197,20 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
     // 셀 정렬 설정
     settings.className = `${settings.className.replace(/cell-(center|left|right)/, '')} ${getCellAlignmentClass(col, row, data)}`.trim();
 
-    // 변경된 셀 하이라이팅 (이미 처리되지 않은 경우만)
+    // 변경된 셀 하이라이팅 (기본 하이라이팅 처리)
     if (changedCells && changedCells.has(`${row},${col}`) && !settings.renderer) {
-      // className에 highlight-cell 추가
-      settings.className = `${settings.className} highlight-cell`;
+      // 기본 렌더러 저장
+      const baseRenderer = settings.renderer || Handsontable.renderers.TextRenderer;
       
-      // 기본 렌더러가 이미 설정되어 있으면 그 위에 하이라이팅 추가
-      if (typeof settings.renderer === 'function') {
-        const baseRenderer = settings.renderer;
-        settings.renderer = createHighlightRenderer(baseRenderer);
-      } else {
-        // 강조 효과를 위한 커스텀 렌더러
-        settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
-          // 기본 렌더러 호출
-          Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
-          
-          // 하이라이팅 스타일 적용 (배경 노란색, 텍스트 굵게)
-          td.style.backgroundColor = '#fffcd8';
-          td.style.fontWeight = 'bold';
-        };
-      }
+      // 하이라이팅 렌더러 설정
+      settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+        // 기본 렌더러 호출
+        baseRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+        
+        // 하이라이팅 스타일 적용
+        td.style.backgroundColor = '#fffcd8'; // 연한 노란색 배경
+        td.style.fontWeight = 'bold';
+      };
     }
 
     return settings;

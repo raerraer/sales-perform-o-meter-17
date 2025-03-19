@@ -10,12 +10,13 @@
  * @returns 변환된 숫자
  */
 export const parseNumericValue = (value: any, defaultValue: number = 0): number => {
+  // null, undefined, 빈 문자열인 경우 기본값 반환
   if (value === null || value === undefined || value === '') return defaultValue;
   
-  // "2"와 같은 표시 값 처리
-  if (value === "2") return defaultValue;
-  
+  // 문자열로 변환 후 콤마 제거
   const strValue = String(value).replace(/,/g, '');
+  
+  // 숫자로 변환
   const numValue = Number(strValue);
   
   // NaN인 경우만 기본값 반환, 0은 유효한 값으로 처리
@@ -39,9 +40,8 @@ export const formatWithComma = (value: number): string => {
  * @returns 변환된 값 (숫자 문자열)
  */
 export const formatQtyValue = (value: any): string => {
+  // 0을 포함한 모든 숫자값 처리
   const numValue = parseNumericValue(value);
-  
-  // 0은 유효한 값으로 허용
   return numValue.toString();
 };
 
@@ -51,8 +51,7 @@ export const formatQtyValue = (value: any): string => {
  * @returns 변환된 값 (천 단위 구분자 적용)
  */
 export const formatAmtValue = (value: any): string => {
+  // 0을 포함한 모든 숫자값 처리
   const numValue = parseNumericValue(value);
-  
-  // 0은 유효한 값으로 허용
   return formatWithComma(numValue);
 };

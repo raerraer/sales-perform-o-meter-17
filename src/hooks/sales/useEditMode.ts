@@ -107,8 +107,8 @@ export const useEditMode = (): UseEditModeReturn => {
       
       addVersionHistory(newHistory);
       
-      // 저장 시 하이라이팅 명시적으로 제거
-      console.log("하이라이팅 초기화");
+      // 저장 시 하이라이팅 초기화 (모든 셀의 하이라이팅 제거)
+      console.log("저장 완료 - 하이라이팅 초기화");
       setChangedCells(new Set());
       
       toast.success("변경사항이 저장되었습니다.");

@@ -31,26 +31,37 @@ export const useHighlighting = (): UseHighlightingReturn => {
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
         const cellKey = `${row},${prop}`;
         
-        // 안전하게 문자열로 변환 (null, undefined 처리)
-        const normalizedOldValue = oldValue !== null && oldValue !== undefined ? String(oldValue).replace(/,/g, '') : '';
-        const normalizedNewValue = newValue !== null && newValue !== undefined ? String(newValue).replace(/,/g, '') : '';
-        
-        // 값이 실제로 변경된 경우에만 처리 (콤마 제거 후 비교)
-        if (normalizedOldValue !== normalizedNewValue) {
-          // 원본 데이터와 비교
-          if (originalData && originalData[row]) {
-            const originalValue = originalData[row][prop] !== null && originalData[row][prop] !== undefined 
-              ? String(originalData[row][prop]).replace(/,/g, '') 
+        // 값이 실제로 변경된 경우에만 하이라이팅 적용
+        if (originalData && originalData.length > 0) {
+          // 원본 데이터가 존재하는 경우에만 처리
+          if (originalData[row]) {
+            const originalValue = originalData[row][prop];
+            
+            // 문자열로 변환하여 정확히 비교 (콤마 제거)
+            const strOriginal = originalValue !== null && originalValue !== undefined 
+              ? String(originalValue).replace(/,/g, '') 
+              : '';
+              
+            const strNewValue = newValue !== null && newValue !== undefined 
+              ? String(newValue).replace(/,/g, '') 
               : '';
             
-            if (originalValue !== normalizedNewValue) {
-              // 원본과 다르면 하이라이팅 추가 (변경됨)
+            // 원본 값과 다른 경우에만 하이라이팅 추가
+            if (strOriginal !== strNewValue) {
               newChangedCells.add(cellKey);
-              console.log(`하이라이팅 추가: 셀 ${cellKey}, 원본값: ${originalValue}, 새값: ${normalizedNewValue}`);
+              console.log(`하이라이팅 추가: 셀 ${cellKey}`, {
+                원본값: originalValue,
+                새값: newValue,
+                문자원본: strOriginal,
+                문자새값: strNewValue
+              });
             } else {
-              // 원본과 같아지면 하이라이팅 제거 (원래대로 돌아옴)
+              // 원본과 동일하면 하이라이팅 제거
               newChangedCells.delete(cellKey);
-              console.log(`하이라이팅 제거: 셀 ${cellKey}, 원본으로 복원`);
+              console.log(`하이라이팅 제거: 셀 ${cellKey}`, {
+                원본값: originalValue,
+                새값: newValue
+              });
             }
           }
         }
