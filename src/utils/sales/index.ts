@@ -4,3 +4,11 @@ export * from './constants';
 export * from './dataGenerator';
 export * from './headerGenerator';
 export * from './cellSettings';
+
+// 추가된 유틸리티 내보내기
+export * from './validators';
+export * from './dataTransformers';
+export * from './countryCalculations';
+export * from './regionCalculations';
+export * from './totalCalculations';
+export * from './dataChangeHandler';
