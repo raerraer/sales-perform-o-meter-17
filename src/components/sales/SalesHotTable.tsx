@@ -128,6 +128,7 @@ const SalesHotTable = ({
         
         .handsontable .ht_clone_left {
           z-index: 102;
+          height: auto !important; /* 높이 제한 제거하여 전체 행 표시 */
         }
         
         .handsontable .ht_clone_top_left_corner {
@@ -145,15 +146,10 @@ const SalesHotTable = ({
           height: 84px !important; /* 3행 고정 (28px * 3) */
         }
         
-        /* 좌측 첫 번째 열의 상단 3행만 고정 */
+        /* 좌측 첫 번째 열 스크롤 설정 - 전체 높이 표시되도록 수정 */
         .handsontable .ht_clone_left .wtHolder {
           overflow: hidden;
-          height: 84px !important; /* 3행만 고정 (28px * 3) */
-        }
-        
-        /* 좌측 열 높이 제한 */
-        .handsontable .ht_clone_left {
-          height: 84px !important; /* 3행만 보이도록 높이 제한 */
+          height: auto !important; /* 전체 높이로 설정하여 모든 행 표시 */
         }
         
         /* 좌측 상단 모서리 (교차 부분) 설정 */
@@ -164,6 +160,22 @@ const SalesHotTable = ({
         
         .handsontable .ht_clone_top_left_corner {
           height: 84px !important; /* 3행만 보이도록 높이 제한 */
+        }
+
+        /* 고정된 열이 스크롤할 때 보이도록 설정 */
+        .handsontable .wtHolder {
+          position: relative;
+        }
+        
+        /* 왼쪽 고정 열의 배경색 설정 (스크롤 영역과 구분되도록) */
+        .handsontable .ht_clone_left td {
+          background-color: #ffffff;
+        }
+        
+        /* 고정된 모서리 부분 스타일링 */
+        .handsontable .ht_clone_top_left_corner .wtHolder {
+          border-right: 2px solid #ccc;
+          border-bottom: 2px solid #ccc;
         }
       `}} />
     </div>
