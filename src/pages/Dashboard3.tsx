@@ -11,8 +11,21 @@ import { Link } from "react-router-dom"
 // Current month for highlighting
 const CURRENT_MONTH = 5; // June (index 5)
 
+// 타입 정의 추가
+interface CountryStatsData {
+  qty: number;
+  amt: number;
+}
+
+interface MonthlyData {
+  month: string;
+  monthIndex: number;
+  isCurrent: boolean;
+  countries: Record<string, CountryStatsData>;
+}
+
 const Dashboard3 = () => {
-  const [countryData, setCountryData] = useState<any[]>([]);
+  const [countryData, setCountryData] = useState<MonthlyData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   
@@ -73,7 +86,7 @@ const Dashboard3 = () => {
       const forecastAmtColIdx = baseColIdx + 9;
       
       // Get country data
-      const countryStats: Record<string, { qty: number, amt: number }> = {};
+      const countryStats: Record<string, CountryStatsData> = {};
       
       Object.entries(countryIndices).forEach(([country, index]) => {
         countryStats[country] = {
