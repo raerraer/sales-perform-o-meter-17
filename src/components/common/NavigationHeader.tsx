@@ -27,34 +27,14 @@ export const NavigationHeader = () => {
                 영업실적표
               </Link>
               <Link 
-                to="/dashboard1" 
+                to="/dashboard" 
                 className={`text-sm font-medium px-1 py-2 border-b-2 ${
-                  isActive('/dashboard1') 
+                  isActive('/dashboard') 
                     ? 'text-blue-600 border-blue-600' 
                     : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-400'
                 }`}
               >
-                대시보드1
-              </Link>
-              <Link 
-                to="/dashboard2" 
-                className={`text-sm font-medium px-1 py-2 border-b-2 ${
-                  isActive('/dashboard2') 
-                    ? 'text-blue-600 border-blue-600' 
-                    : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-400'
-                }`}
-              >
-                대시보드2
-              </Link>
-              <Link 
-                to="/dashboard3" 
-                className={`text-sm font-medium px-1 py-2 border-b-2 ${
-                  isActive('/dashboard3') 
-                    ? 'text-blue-600 border-blue-600' 
-                    : 'text-gray-600 border-transparent hover:text-blue-600 hover:border-blue-400'
-                }`}
-              >
-                대시보드3
+                대시보드
               </Link>
             </div>
           </div>
@@ -68,9 +48,7 @@ export const NavigationHeader = () => {
               }}
             >
               <option value="/">영업실적표</option>
-              <option value="/dashboard1">대시보드1</option>
-              <option value="/dashboard2">대시보드2</option>
-              <option value="/dashboard3">대시보드3</option>
+              <option value="/dashboard">대시보드</option>
             </select>
           </div>
         </nav>
