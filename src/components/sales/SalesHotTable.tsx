@@ -59,7 +59,7 @@ const SalesHotTable = memo(({
     autoRowSize: false,
     maxRows: data.length, // 최대 행 제한으로 성능 최적화
     observeDOMVisibility: true, // DOM 가시성 관찰로 최적화
-    preventOverflow: 'horizontal'
+    preventOverflow: 'horizontal' as const // 타입 캐스팅을 사용하여 문제 해결
   }), [isEditMode, data.length]);
   
   return (
