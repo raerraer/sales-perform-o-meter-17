@@ -18,8 +18,8 @@ export const getSalesTableStyles = () => `
   /* 레벨별 스타일 업데이트 - 새로운 색상 스키마 */
   /* Level 1: 총 합계 */
   .sales-performance-table .level-1-row {
-    background-color: #1e2761 !important; /* 총 합계 다크 블루 */
-    color: #ffffff !important; /* 흰색 */
+    background-color: #F0F3F4 !important; /* 총 합계 - 밝은 회색 */
+    color: #000000 !important; /* 짙은 검정 */
     font-weight: bold !important;
   }
   
@@ -30,10 +30,17 @@ export const getSalesTableStyles = () => `
     font-weight: bold !important;
   }
   
-  /* Level 2: 지역 그룹 */
-  .sales-performance-table .level-2-row {
-    background-color: #333333 !important; /* 지역 다크 그레이 */
-    color: #ffffff !important; /* 흰색 */
+  /* Level 2: 미주 지역 그룹 */
+  .sales-performance-table .level-2-america {
+    background-color: #375E97 !important; /* 미주 - 짙은 파란색 */
+    color: #FFFFFF !important; /* 순백색 */
+    font-weight: bold !important;
+  }
+  
+  /* Level 2: 구주 지역 그룹 */
+  .sales-performance-table .level-2-europe {
+    background-color: #FB6542 !important; /* 구주 - 짙은 오렌지 */
+    color: #FFFFFF !important; /* 순백색 */
     font-weight: bold !important;
   }
   
@@ -44,10 +51,17 @@ export const getSalesTableStyles = () => `
     font-weight: bold !important;
   }
   
-  /* Level 3: 국가 그룹 */
-  .sales-performance-table .level-3-row {
-    background-color: #f2f2f2 !important; /* 국가 연한 그레이 */
-    color: #000000 !important; /* 검정 */
+  /* Level 3: 미주 국가 그룹 (미국, 캐나다) */
+  .sales-performance-table .level-3-america {
+    background-color: #89ABE3 !important; /* 미국, 캐나다 - 중간 파란색 */
+    color: #000000 !important; /* 짙은 검정 */
+    font-weight: bold !important;
+  }
+  
+  /* Level 3: 구주 국가 그룹 (영국, 이태리) */
+  .sales-performance-table .level-3-europe {
+    background-color: #FFBB00 !important; /* 영국, 이태리 - 중간 오렌지 */
+    color: #000000 !important; /* 짙은 검정 */
     font-weight: bold !important;
   }
   

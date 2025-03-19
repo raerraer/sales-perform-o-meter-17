@@ -18,11 +18,11 @@ export const REGION_COUNTRIES = {
   '구주': ['영국', '이태리']
 };
 
-// 레벨별 스타일 색상 (새로운 색상 스키마 적용)
+// 레벨별 스타일 색상 (요청한 새로운 색상 스키마 적용)
 export const LEVEL_STYLES = {
   LEVEL1: {
-    background: '#1e2761', // 총 합계 다크 블루
-    font: '#ffffff',      // 흰색
+    background: '#F0F3F4', // 총 합계 - 밝은 회색
+    font: '#000000',      // 짙은 검정
     fontWeight: 'bold'
   },
   LEVEL1_MODEL: {
@@ -30,9 +30,14 @@ export const LEVEL_STYLES = {
     font: '#000000',      // 검정
     fontWeight: 'bold'
   },
-  LEVEL2: {
-    background: '#333333', // 지역(미주, 구주) 다크 그레이
-    font: '#ffffff',      // 흰색
+  LEVEL2_AMERICA: {
+    background: '#375E97', // 미주 - 짙은 파란색
+    font: '#FFFFFF',      // 순백색
+    fontWeight: 'bold'
+  },
+  LEVEL2_EUROPE: {
+    background: '#FB6542', // 구주 - 짙은 오렌지
+    font: '#FFFFFF',      // 순백색
     fontWeight: 'bold'
   },
   LEVEL2_MODEL: {
@@ -40,9 +45,14 @@ export const LEVEL_STYLES = {
     font: '#000000',      // 검정
     fontWeight: 'bold'
   },
-  LEVEL3: {
-    background: '#f2f2f2', // 국가(미국, 캐나다...) 연한 그레이
-    font: '#000000',      // 검정
+  LEVEL3_AMERICA: {
+    background: '#89ABE3', // 미국, 캐나다 - 중간 파란색
+    font: '#000000',      // 짙은 검정
+    fontWeight: 'bold'
+  },
+  LEVEL3_EUROPE: {
+    background: '#FFBB00', // 영국, 이태리 - 중간 오렌지
+    font: '#000000',      // 짙은 검정
     fontWeight: 'bold'
   },
   LEVEL3_MODEL: {
