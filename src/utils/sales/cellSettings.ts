@@ -82,44 +82,18 @@ const configureTotalRowSettings = (settings: any) => {
 };
 
 // 지역 행 설정
-const configureRegionRowSettings = (settings: any, data: any[][], row: number) => {
-  const regionName = data[row][0];
-  
-  if (regionName === '미주') {
-    settings.className = `level-2-america cell-center`;
-    settings.readOnly = true;
-    settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL2_AMERICA);
-  } else if (regionName === '구주') {
-    settings.className = `level-2-europe cell-center`;
-    settings.readOnly = true;
-    settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL2_EUROPE);
-  } else {
-    settings.className = `level-2-row cell-center`;
-    settings.readOnly = true;
-    settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL2_MODEL);
-  }
-  
+const configureRegionRowSettings = (settings: any) => {
+  settings.className = `level-2-row cell-center`;
+  settings.readOnly = true; // 지역 행은 항상 읽기 전용
+  settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL2);
   return settings;
 };
 
 // 국가 행 설정
-const configureCountryRowSettings = (settings: any, data: any[][], row: number) => {
-  const countryName = data[row][0];
-  
-  if (REGION_COUNTRIES['미주'].includes(countryName)) {
-    settings.className = `level-3-america cell-center`;
-    settings.readOnly = true;
-    settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_AMERICA);
-  } else if (REGION_COUNTRIES['구주'].includes(countryName)) {
-    settings.className = `level-3-europe cell-center`;
-    settings.readOnly = true;
-    settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_EUROPE);
-  } else {
-    settings.className = `level-3-row cell-center`;
-    settings.readOnly = true;
-    settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3);
-  }
-  
+const configureCountryRowSettings = (settings: any) => {
+  settings.className = `level-3-row cell-center`;
+  settings.readOnly = true; // 국가 행은 항상 읽기 전용
+  settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3);
   return settings;
 };
 
@@ -133,28 +107,9 @@ const findParentLevel = (data: any[][], row: number) => {
     if (parentValue === LEVELS.TOTAL) {
       return { level: 'LEVEL1', readOnly: true };
     } else if (LEVELS.REGIONS.includes(parentValue)) {
-      return { 
-        level: 'LEVEL2', 
-        readOnly: true, 
-        region: parentValue 
-      };
+      return { level: 'LEVEL2', readOnly: true };
     } else if (COUNTRIES.includes(parentValue)) {
-      const countryName = parentValue;
-      let region = '';
-      
-      // 국가별 지역 그룹 확인
-      if (REGION_COUNTRIES['미주'].includes(countryName)) {
-        region = '미주';
-      } else if (REGION_COUNTRIES['구주'].includes(countryName)) {
-        region = '구주';
-      }
-      
-      return { 
-        level: 'LEVEL3', 
-        readOnly: false,
-        region: region,
-        country: countryName
-      };
+      return { level: 'LEVEL3', readOnly: false }; // 국가 모델만 편집 가능
     }
     
     parentRow--;
@@ -165,7 +120,7 @@ const findParentLevel = (data: any[][], row: number) => {
 
 // 모델 행 설정
 const configureModelRowSettings = (settings: any, data: any[][], row: number, isEditMode: boolean, changedCells?: Set<string>) => {
-  const { level, readOnly, region } = findParentLevel(data, row);
+  const { level, readOnly } = findParentLevel(data, row);
   
   switch (level) {
     case 'LEVEL1':
@@ -217,10 +172,10 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       configureTotalRowSettings(settings);
     } 
     else if (LEVELS.REGIONS.includes(data[row][0])) {
-      configureRegionRowSettings(settings, data, row);
+      configureRegionRowSettings(settings);
     }
     else if (COUNTRIES.includes(data[row][0])) {
-      configureCountryRowSettings(settings, data, row);
+      configureCountryRowSettings(settings);
     }
     else {
       // 모델 행인지 확인 (모델1 또는 모델2)
