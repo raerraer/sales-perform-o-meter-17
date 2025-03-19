@@ -1,5 +1,5 @@
 
-import { COUNTRIES, COUNTRY_GROUPS } from '@/utils/sales/constants';
+import { COUNTRIES } from '@/utils/salesTableUtils';
 
 export function recalculateCountryTotals(newData: any[]): any[] {
   const updatedData = [...newData];
@@ -15,7 +15,7 @@ export function recalculateCountryTotals(newData: any[]): any[] {
       // 해당 국가의 모델 행 범위 찾기
       const modelRows: number[] = [];
       let j = i + 1;
-      while (j < updatedData.length && !COUNTRIES.includes(updatedData[j][0]) && !updatedData[j][0].startsWith('#')) {
+      while (j < updatedData.length && !COUNTRIES.includes(updatedData[j][0])) {
         modelRows.push(j);
         j++;
       }
@@ -37,76 +37,6 @@ export function recalculateCountryTotals(newData: any[]): any[] {
             return acc + (Number(amtValue) || 0);
           }, 0);
           updatedData[currentCountryIndex][col] = sum.toLocaleString();
-        }
-      }
-    }
-  }
-  
-  // 국가 그룹 합계 재계산
-  for (const [groupName, groupCountries] of Object.entries(COUNTRY_GROUPS)) {
-    // 그룹 행 찾기
-    const groupIndex = updatedData.findIndex(row => row[0] === `#${groupName}`);
-    if (groupIndex !== -1) {
-      // 그룹에 속한 국가 행 찾기
-      const countryRows: number[] = [];
-      for (let i = 0; i < updatedData.length; i++) {
-        if (groupCountries.includes(updatedData[i][0])) {
-          countryRows.push(i);
-        }
-      }
-      
-      // 각 셀에 대해 합계 계산
-      for (let col = 1; col < updatedData[groupIndex].length; col++) {
-        // 비고 열은 계산에서 제외
-        if ((col - 1) % 11 === 10) continue;
-        
-        // Qty 열 또는 Amt 열인지 확인하여 합계 계산
-        if ((col - 1) % 2 === 0) { // Qty 열
-          const sum = countryRows.reduce((acc, rowIdx) => {
-            return acc + (Number(updatedData[rowIdx][col]) || 0);
-          }, 0);
-          updatedData[groupIndex][col] = sum.toString();
-        } else { // Amt 열
-          const sum = countryRows.reduce((acc, rowIdx) => {
-            const amtValue = updatedData[rowIdx][col] ? updatedData[rowIdx][col].toString().replace(/,/g, '') : '0';
-            return acc + (Number(amtValue) || 0);
-          }, 0);
-          updatedData[groupIndex][col] = sum.toLocaleString();
-        }
-      }
-    }
-    
-    // 모델별 그룹 합계 재계산
-    for (const model of ['모델1', '모델2']) {
-      // 모델 그룹 행 찾기
-      const modelGroupIndex = updatedData.findIndex(row => row[0] === `##${model}`);
-      if (modelGroupIndex !== -1) {
-        // 해당 그룹의 국가별 모델 행 찾기
-        const modelRows: number[] = [];
-        for (let i = 0; i < updatedData.length; i++) {
-          if (groupCountries.includes(updatedData[i-1]?.[0]) && updatedData[i][0] === model) {
-            modelRows.push(i);
-          }
-        }
-        
-        // 각 셀에 대해 합계 계산
-        for (let col = 1; col < updatedData[modelGroupIndex].length; col++) {
-          // 비고 열은 계산에서 제외
-          if ((col - 1) % 11 === 10) continue;
-          
-          // Qty 열 또는 Amt 열인지 확인하여 합계 계산
-          if ((col - 1) % 2 === 0) { // Qty 열
-            const sum = modelRows.reduce((acc, rowIdx) => {
-              return acc + (Number(updatedData[rowIdx][col]) || 0);
-            }, 0);
-            updatedData[modelGroupIndex][col] = sum.toString();
-          } else { // Amt 열
-            const sum = modelRows.reduce((acc, rowIdx) => {
-              const amtValue = updatedData[rowIdx][col] ? updatedData[rowIdx][col].toString().replace(/,/g, '') : '0';
-              return acc + (Number(amtValue) || 0);
-            }, 0);
-            updatedData[modelGroupIndex][col] = sum.toLocaleString();
-          }
         }
       }
     }
@@ -153,6 +83,6 @@ export function handleDataChange(changes: any, data: any[]): any[] {
     }
   });
   
-  // 국가 행 합계 재계산 및 그룹 합계 재계산
+  // 국가 행 합계 재계산
   return recalculateCountryTotals(newData);
 }

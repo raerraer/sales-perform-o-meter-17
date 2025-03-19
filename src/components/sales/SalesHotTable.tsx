@@ -65,18 +65,6 @@ const SalesHotTable = ({
           background-color: #f3f4f6 !important;
           font-weight: bold !important;
         }
-        /* 국가 그룹 행 스타일 */
-        .sales-performance-table .country-group-row {
-          background-color: #e5e7eb !important;
-          font-weight: bold !important;
-          color: #111827 !important;
-        }
-        /* 모델 그룹 행 스타일 */
-        .sales-performance-table .model-group-row {
-          background-color: #f0f1f3 !important;
-          font-weight: bold !important;
-          color: #4b5563 !important;
-        }
         /* 헤더 스타일 */
         .sales-performance-table th {
           background-color: #e5e7eb !important;
