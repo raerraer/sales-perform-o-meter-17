@@ -29,7 +29,9 @@ export function recalculateCountryTotals(newData: any[]): any[] {
           updatedData[countryIndex][col] = sum.toString();
         } else { // Amt 열
           const sum = modelRows.reduce((acc, rowIdx) => {
-            const amtValue = updatedData[rowIdx][col] ? updatedData[rowIdx][col].toString().replace(/,/g, '') : '0';
+            // 문자열이 아닌 경우 안전하게 처리 (null, undefined 등)
+            const cellValue = updatedData[rowIdx][col];
+            const amtValue = cellValue ? cellValue.toString().replace(/,/g, '') : '0';
             return acc + (Number(amtValue) || 0);
           }, 0);
           updatedData[countryIndex][col] = sum.toLocaleString();
@@ -93,7 +95,9 @@ export function recalculateCountryTotals(newData: any[]): any[] {
             updatedData[modelRowIdx][col] = sum.toString();
           } else { // Amt 열
             const sum = countryModelRows.reduce((acc, rowIdx) => {
-              const amtValue = updatedData[rowIdx][col] ? updatedData[rowIdx][col].toString().replace(/,/g, '') : '0';
+              // 문자열이 아닌 경우 안전하게 처리
+              const cellValue = updatedData[rowIdx][col];
+              const amtValue = cellValue ? cellValue.toString().replace(/,/g, '') : '0';
               return acc + (Number(amtValue) || 0);
             }, 0);
             updatedData[modelRowIdx][col] = sum.toLocaleString();
@@ -114,7 +118,9 @@ export function recalculateCountryTotals(newData: any[]): any[] {
           updatedData[regionIndex][col] = sum.toString();
         } else { // Amt 열
           const sum = regionModelRows.reduce((acc, rowIdx) => {
-            const amtValue = updatedData[rowIdx][col] ? updatedData[rowIdx][col].toString().replace(/,/g, '') : '0';
+            // 문자열이 아닌 경우 안전하게 처리
+            const cellValue = updatedData[rowIdx][col];
+            const amtValue = cellValue ? cellValue.toString().replace(/,/g, '') : '0';
             return acc + (Number(amtValue) || 0);
           }, 0);
           updatedData[regionIndex][col] = sum.toLocaleString();
@@ -171,7 +177,9 @@ export function recalculateCountryTotals(newData: any[]): any[] {
           updatedData[modelRowIdx][col] = sum.toString();
         } else { // Amt 열
           const sum = regionModelRows.reduce((acc, rowIdx) => {
-            const amtValue = updatedData[rowIdx][col] ? updatedData[rowIdx][col].toString().replace(/,/g, '') : '0';
+            // 문자열이 아닌 경우 안전하게 처리
+            const cellValue = updatedData[rowIdx][col];
+            const amtValue = cellValue ? cellValue.toString().replace(/,/g, '') : '0';
             return acc + (Number(amtValue) || 0);
           }, 0);
           updatedData[modelRowIdx][col] = sum.toLocaleString();
@@ -192,7 +200,9 @@ export function recalculateCountryTotals(newData: any[]): any[] {
         updatedData[totalIndex][col] = sum.toString();
       } else { // Amt 열
         const sum = totalModelRows.reduce((acc, rowIdx) => {
-          const amtValue = updatedData[rowIdx][col] ? updatedData[rowIdx][col].toString().replace(/,/g, '') : '0';
+          // 문자열이 아닌 경우 안전하게 처리
+          const cellValue = updatedData[rowIdx][col];
+          const amtValue = cellValue ? cellValue.toString().replace(/,/g, '') : '0';
           return acc + (Number(amtValue) || 0);
         }, 0);
         updatedData[totalIndex][col] = sum.toLocaleString();

@@ -113,6 +113,21 @@ const SalesHotTable = ({
           text-align: center !important;
           font-weight: bold !important;
         }
+        
+        /* 상단 좌측 고정 영역 스타일 추가 */
+        .handsontable .ht_clone_top_left_corner .wtHider {
+          z-index: 103;
+        }
+        
+        /* 가로 스크롤시 첫 번째 열 고정 */
+        .handsontable .ht_clone_left .wtHider {
+          z-index: 102;
+        }
+        
+        /* 세로 스크롤시 상단 행 고정 */
+        .handsontable .ht_clone_top .wtHider {
+          z-index: 101;
+        }
       `}} />
     </div>
   );
