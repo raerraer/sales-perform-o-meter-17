@@ -9,7 +9,7 @@ import {
   configureCountryRowSettings, 
   configureModelRowSettings 
 } from './rowLevelSettings';
-import { createHighlightRenderer } from '../renderers/highlightRenderers';
+import { createHighlightRenderer, createModelHighlightRenderer } from '../renderers/highlightRenderers';
 
 /**
  * 메인 셀 설정 함수

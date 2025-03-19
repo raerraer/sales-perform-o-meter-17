@@ -9,7 +9,7 @@ import { calculateTotalSums } from '@/utils/sales/totalCalculations';
  * @param data 처리할 데이터 배열
  * @returns 모든 합계가 계산된 새 배열
  */
-export function recalculateCountryTotals(data: any[]): any[] {
+export function recalculateAllTotals(data: any[]): any[] {
   // 단계별로 계산 진행
   let updatedData = [...data];
   
@@ -38,5 +38,5 @@ export function handleDataChange(changes: any, data: any[]): any[] {
   const newData = processDataChanges(changes, data);
   
   // 2. 모든 레벨의 합계 재계산
-  return recalculateCountryTotals(newData);
+  return recalculateAllTotals(newData);
 }

@@ -36,41 +36,19 @@ const SalesTableHeader = ({
   onShowHistory,
   isLatestVersion
 }: SalesTableHeaderProps) => {
-  // 현재 날짜 정보 가져오기
-  const [year, setYear] = useState<string>("");
-  const [month, setMonth] = useState<string>("");
-  const [week, setWeek] = useState<string>("");
+  // 현재 날짜 정보 설정 (2025년, 3월, W12)
+  const [year, setYear] = useState<string>("2025");
+  const [month, setMonth] = useState<string>("03");
+  const [week, setWeek] = useState<string>("W12");
 
-  // 연도 리스트 생성 (현재 연도부터 3년 전까지)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 4 }, (_, i) => (currentYear - i).toString());
+  // 연도 리스트 생성 (현재만 표시)
+  const years = ["2025"];
 
-  // 월 리스트 생성
-  const months = Array.from({ length: 12 }, (_, i) => {
-    const monthNum = i + 1;
-    return monthNum < 10 ? `0${monthNum}` : monthNum.toString();
-  });
+  // 월 리스트 생성 (현재만 표시)
+  const months = ["03"];
 
-  // 주차 리스트 생성 (1~52주)
-  const weeks = Array.from({ length: 52 }, (_, i) => `W${i + 1}`);
-
-  // 현재 날짜 기준으로 연도, 월, 주차 설정
-  useEffect(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    
-    // 월 포맷팅 (01~12)
-    const currentMonth = (now.getMonth() + 1).toString().padStart(2, "0");
-    
-    // 현재 날짜의 주차 계산
-    const oneJan = new Date(now.getFullYear(), 0, 1);
-    const numberOfDays = Math.floor((now.getTime() - oneJan.getTime()) / (24 * 60 * 60 * 1000));
-    const currentWeek = Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7);
-    
-    setYear(currentYear);
-    setMonth(currentMonth);
-    setWeek(`W${currentWeek}`);
-  }, []);
+  // 주차 리스트 생성 (현재만 표시)
+  const weeks = ["W12"];
 
   return (
     <div className="flex flex-wrap justify-between items-center mb-4 px-4 gap-2">

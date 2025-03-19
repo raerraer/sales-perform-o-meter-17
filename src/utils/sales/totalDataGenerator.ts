@@ -21,7 +21,7 @@ export const calculateTotalModelData = (regionModelDataMap: {[key: string]: any[
     if (!regionModelData) return;
     
     // 각 모델별 처리
-    MODELS.forEach((_, modelIndex) => {
+    MODELS.forEach((model, modelIndex) => {
       const regionModelRow = regionModelData[modelIndex];
       
       // 모델 데이터가 비어있으면 초기화

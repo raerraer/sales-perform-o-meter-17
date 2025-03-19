@@ -45,7 +45,7 @@ export function calculateTotalSums(data: any[]): any[] {
         }
       });
       
-      // 각 셀에 대해 합계 계산
+      // 각 셀에 대해 합계 계산 (지역 모델 행 합계)
       for (let col = 1; col < updatedData[modelRowIdx].length; col++) {
         // 비고 열은 계산에서 제외
         if ((col - 1) % 11 === 10) continue;

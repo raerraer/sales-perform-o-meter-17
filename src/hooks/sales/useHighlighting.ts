@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
-import { processDataChanges } from '@/utils/sales/dataChangeHandler';
-import { recalculateCountryTotals } from '@/utils/sales/useSalesDataCalculation';
+import { handleDataChange } from '@/utils/sales/useSalesDataCalculation';
 
 export interface UseHighlightingReturn {
   changedCells: Set<string>;
@@ -38,62 +37,6 @@ export const useHighlighting = (): UseHighlightingReturn => {
   };
 
   /**
-   * 하이라이팅 상태를 업데이트하는 함수
-   * @param changes 변경된 셀 정보
-   * @param originalData 원본 데이터
-   * @returns 업데이트된 하이라이팅 셀 집합
-   */
-  const updateHighlightedCells = (
-    changes: [number, any, any, any][], 
-    originalData: any[][]
-  ): Set<string> => {
-    const newChangedCells = new Set<string>(changedCells);
-    
-    changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
-      const cellKey = `${row},${prop}`;
-      
-      // 원본 데이터가 존재하는 경우에만 처리
-      if (originalData && originalData.length > 0 && originalData[row]) {
-        const originalValue = originalData[row][prop];
-        
-        if (isValueDifferentFromOriginal(originalValue, newValue)) {
-          // 원본 값과 다른 경우 하이라이팅 추가
-          newChangedCells.add(cellKey);
-          console.log(`하이라이팅 추가: 셀 ${cellKey}`, {
-            원본값: originalValue,
-            새값: newValue
-          });
-        } else {
-          // 원본과 동일하면 하이라이팅 제거
-          newChangedCells.delete(cellKey);
-          console.log(`하이라이팅 제거: 셀 ${cellKey}`, {
-            원본값: originalValue,
-            새값: newValue
-          });
-        }
-      }
-    });
-    
-    return newChangedCells;
-  };
-
-  /**
-   * 데이터 변경 처리 함수
-   * @param changes 변경된 셀 정보
-   * @param data 현재 데이터
-   * @returns 업데이트된 데이터
-   */
-  const handleDataChanges = (changes: any, data: any[][]): any[][] => {
-    if (!changes || changes.length === 0) return data;
-    
-    // 1. 데이터 변경 처리 (유효성 검사 및 포맷팅)
-    const processedData = processDataChanges(changes, data);
-    
-    // 2. 모든 레벨의 합계 재계산
-    return recalculateCountryTotals(processedData);
-  };
-
-  /**
    * 셀 변경 처리 함수
    * @param changes 변경된 셀 정보
    * @param source 데이터 소스
@@ -117,13 +60,38 @@ export const useHighlighting = (): UseHighlightingReturn => {
     if (changes && changes.length > 0) {
       // 편집 모드에서만 하이라이팅 상태 업데이트
       if (isEditMode) {
-        // 하이라이팅 상태 업데이트
-        const newChangedCells = updateHighlightedCells(changes, originalData);
+        const newChangedCells = new Set<string>(changedCells);
+        
+        changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
+          const cellKey = `${row},${prop}`;
+          
+          // 원본 데이터가 존재하는 경우에만 처리
+          if (originalData && originalData.length > 0 && originalData[row]) {
+            const originalValue = originalData[row][prop];
+            
+            if (isValueDifferentFromOriginal(originalValue, newValue)) {
+              // 원본 값과 다른 경우 하이라이팅 추가
+              newChangedCells.add(cellKey);
+              console.log(`하이라이팅 추가: 셀 ${cellKey}`, {
+                원본값: originalValue,
+                새값: newValue
+              });
+            } else {
+              // 원본과 동일하면 하이라이팅 제거
+              newChangedCells.delete(cellKey);
+              console.log(`하이라이팅 제거: 셀 ${cellKey}`, {
+                원본값: originalValue,
+                새값: newValue
+              });
+            }
+          }
+        });
+        
         setChangedCells(newChangedCells);
       }
       
       // 데이터 업데이트 (셀 값 계산 로직 적용) - 편집 모드 여부와 관계 없이 항상 실행
-      const updatedData = handleDataChanges(changes, data);
+      const updatedData = handleDataChange(changes, data);
       setData(updatedData);
     }
   };
