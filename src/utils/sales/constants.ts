@@ -18,21 +18,26 @@ export const REGION_COUNTRIES = {
   '구주': ['영국', '이태리']
 };
 
-// 레벨별 스타일 색상
+// 레벨별 스타일 색상 (업데이트됨)
 export const LEVEL_STYLES = {
   LEVEL1: {
-    background: '#f0e6ff', // 연한 보라색
-    font: '#6E59A5',
+    background: '#2C3E50', // 다크 슬레이트 블루 계열
+    font: '#FFFFFF',  // 흰색 폰트로 가독성 향상
     fontWeight: 'bold'
   },
   LEVEL2: {
-    background: '#e6f2ff', // 연한 파란색
-    font: '#0EA5E9',
+    background: '#AED6F1', // 연한 파스텔 블루 계열
+    font: '#2C3E50',  // 다크 슬레이트 블루 계열 폰트로 대비 효과
     fontWeight: 'bold'
   },
   LEVEL3: {
-    background: '#f3f4f6', // 기존 국가 행 색상
-    font: '#1E293B',
+    background: '#FAD7A0', // 따뜻한 파스텔 피치 계열
+    font: '#34495E',  // 짙은 슬레이트 블루 계열 폰트
     fontWeight: 'bold'
+  },
+  LEVEL4: {
+    background: '#F8F9FA', // 아주 연한 그레이
+    font: '#333333',  // 짙은 그레이 폰트
+    fontWeight: 'normal'
   }
 };

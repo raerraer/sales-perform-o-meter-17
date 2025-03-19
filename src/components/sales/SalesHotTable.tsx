@@ -63,35 +63,52 @@ const SalesHotTable = ({
           font-weight: bold !important;
         }
         
-        /* 레벨별 스타일 */
+        /* 레벨별 스타일 업데이트 - 새로운 색상 스키마 */
+        /* Level 1: 총 합계 */
         .sales-performance-table .level-1-row {
-          background-color: #f0e6ff !important; /* 연한 보라색 */
-          color: #6E59A5 !important;
+          background-color: #2C3E50 !important; /* 다크 슬레이트 블루 */
+          color: #FFFFFF !important; /* 흰색 폰트 */
           font-weight: bold !important;
         }
         
-        .sales-performance-table .level-2-row {
-          background-color: #e6f2ff !important; /* 연한 파란색 */
-          color: #0EA5E9 !important;
-          font-weight: bold !important;
-        }
-        
-        .sales-performance-table .level-3-row {
-          background-color: #f3f4f6 !important; /* 기존 국가 행 색상 */
-          font-weight: bold !important;
-        }
-        
+        /* Level 1: 총 합계 모델 */
         .sales-performance-table .level-1-model {
-          background-color: #f8f2ff !important; /* 더 연한 보라색 */
+          background-color: #34495E !important; /* 약간 밝은 다크 슬레이트 블루 */
+          color: #FFFFFF !important;
+          font-weight: bold !important;
         }
         
+        /* Level 2: 지역 그룹 */
+        .sales-performance-table .level-2-row {
+          background-color: #AED6F1 !important; /* 연한 파스텔 블루 */
+          color: #2C3E50 !important; /* 다크 슬레이트 블루 폰트 */
+          font-weight: bold !important;
+        }
+        
+        /* Level 2: 지역 모델 */
         .sales-performance-table .level-2-model {
-          background-color: #f0f8ff !important; /* 더 연한 파란색 */
+          background-color: #D6EAF8 !important; /* 밝은 파스텔 블루 */
+          color: #2C3E50 !important;
+          font-weight: bold !important;
+        }
+        
+        /* Level 3: 국가 그룹 */
+        .sales-performance-table .level-3-row {
+          background-color: #FAD7A0 !important; /* 따뜻한 파스텔 피치 */
+          color: #34495E !important; /* 짙은 슬레이트 블루 폰트 */
+          font-weight: bold !important;
+        }
+        
+        /* Level 4: 실제 데이터 (모델별 세부 데이터) */
+        .sales-performance-table .level-3-model {
+          background-color: #F8F9FA !important; /* 아주 연한 그레이 */
+          color: #333333 !important; /* 짙은 그레이 폰트 */
         }
         
         /* 헤더 스타일 */
         .sales-performance-table th {
-          background-color: #e5e7eb !important;
+          background-color: #EBF5FB !important; /* 매우 연한 파스텔 블루 */
+          color: #2C3E50 !important; /* 다크 슬레이트 블루 폰트 */
           text-align: center !important;
           font-weight: bold !important;
         }

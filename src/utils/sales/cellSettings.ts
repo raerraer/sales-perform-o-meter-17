@@ -70,12 +70,14 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
             settings.className = 'level-1-model cell-center';
             settings.readOnly = true; // 총 합계 모델은 항상 읽기 전용
             
-            // Level 1 스타일 적용 (약간 밝은 색상)
+            // Level 1 모델 스타일 적용
             settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
               Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
-              td.style.backgroundColor = '#f8f2ff'; // 약간 밝은 총 합계 색상
+              // 총 합계 모델은 약간 밝은 Level 1 색상
+              td.style.backgroundColor = '#34495E'; // 약간 밝은 다크 슬레이트 블루
               td.style.color = LEVEL_STYLES.LEVEL1.font;
+              td.style.fontWeight = LEVEL_STYLES.LEVEL1.fontWeight;
             };
             
             break;
@@ -85,12 +87,14 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
             settings.className = 'level-2-model cell-center';
             settings.readOnly = true; // 지역 모델은 항상 읽기 전용
             
-            // Level 2 스타일 적용 (약간 밝은 색상)
+            // Level 2 모델 스타일 적용
             settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
               Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
-              td.style.backgroundColor = '#f0f8ff'; // 약간 밝은 지역 색상
+              // 지역 모델은 약간 밝은 Level 2 색상
+              td.style.backgroundColor = '#D6EAF8'; // 밝은 파스텔 블루
               td.style.color = LEVEL_STYLES.LEVEL2.font;
+              td.style.fontWeight = LEVEL_STYLES.LEVEL2.fontWeight;
             };
             
             break;
@@ -98,19 +102,23 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
           // 국가 모델인 경우
           else if (COUNTRIES.includes(parentValue)) {
             settings.className = 'level-3-model cell-center';
-            settings.readOnly = !isEditMode; // 국가 모델은 편집 모드에서만 수정 가능
+            settings.readOnly = !isEditMode; // 국가 모델만 편집 모드에서 수정 가능
             
-            // 변경된 셀 하이라이팅 로직과 함께 추가
-            if (changedCells && changedCells.has(`${row},${col}`)) {
-              settings.className = `${settings.className} highlight-cell`;
+            // Level 3 모델 스타일 적용 (기본 데이터 영역)
+            settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+              Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
-              settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
-                Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
-                
-                td.style.backgroundColor = '#fffcd8';
+              // 국가 모델은 LEVEL4 스타일 적용 (기본 데이터)
+              td.style.backgroundColor = LEVEL_STYLES.LEVEL4.background;
+              td.style.color = LEVEL_STYLES.LEVEL4.font;
+              td.style.fontWeight = LEVEL_STYLES.LEVEL4.fontWeight;
+              
+              // 변경된 셀 하이라이팅
+              if (changedCells && changedCells.has(`${row},${col}`)) {
+                td.style.backgroundColor = '#fffcd8'; // 연한 노란색 배경
                 td.style.fontWeight = 'bold';
-              };
-            }
+              }
+            };
             
             break;
           }
