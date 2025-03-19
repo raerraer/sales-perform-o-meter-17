@@ -11,7 +11,9 @@ const Index = () => {
       document.documentElement.style.scrollBehavior = 'auto';
     };
   }, []);
-  return <div className="min-h-screen bg-slate-50">
+  
+  return (
+    <div className="min-h-screen bg-slate-50">
       <NavigationHeader />
       
       <main className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -24,6 +26,8 @@ const Index = () => {
           &copy; {new Date().getFullYear()} Sales Perform-O-Meter. All rights reserved.
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -6,7 +5,7 @@ import { Legend, Pie, PieChart, ResponsiveContainer, Sector } from "recharts"
 import { useEffect, useState } from "react"
 import { parseNumericValue } from "@/utils/sales/dataTransformers"
 import { LEVELS, MONTHS, REGION_COUNTRIES } from "@/utils/sales/constants"
-import { Link } from "react-router-dom"
+import NavigationHeader from "@/components/common/NavigationHeader"
 
 // Current month for highlighting
 const CURRENT_MONTH = 5; // June (index 5)
@@ -213,28 +212,10 @@ const Dashboard3 = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold text-gray-800">대시보드 3</h1>
-        </div>
-      </header>
+      <NavigationHeader />
       
       <main className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold text-gray-700">국가별 실적 분석</h2>
-          
-          <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm font-medium text-blue-600 hover:text-blue-800">
-              영업실적표 보기
-            </Link>
-            <Link to="/dashboard1" className="text-sm font-medium text-blue-600 hover:text-blue-800">
-              대시보드 1
-            </Link>
-            <Link to="/dashboard2" className="text-sm font-medium text-blue-600 hover:text-blue-800">
-              대시보드 2
-            </Link>
-          </div>
-        </div>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">국가별 실적 분석</h1>
         
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
@@ -357,6 +338,12 @@ const Dashboard3 = () => {
           </CardContent>
         </Card>
       </main>
+      
+      <footer className="bg-white border-t border-gray-200 py-4 mt-12">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+          &copy; {new Date().getFullYear()} Sales Perform-O-Meter. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 };

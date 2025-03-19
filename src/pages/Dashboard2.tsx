@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -6,6 +5,7 @@ import { Bar, BarChart, Legend, ResponsiveContainer, XAxis, YAxis } from "rechar
 import { useEffect, useState } from "react"
 import { parseNumericValue } from "@/utils/sales/dataTransformers"
 import { LEVELS, MODELS, MONTHS } from "@/utils/sales/constants"
+import NavigationHeader from "@/components/common/NavigationHeader"
 import { Link } from "react-router-dom"
 
 // Current month for highlighting
@@ -157,11 +157,7 @@ const Dashboard2 = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold text-gray-800">대시보드 2</h1>
-        </div>
-      </header>
+      <NavigationHeader />
       
       <main className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -349,6 +345,12 @@ const Dashboard2 = () => {
           </Card>
         </div>
       </main>
+      
+      <footer className="bg-white border-t border-gray-200 py-4 mt-12">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+          &copy; {new Date().getFullYear()} Sales Perform-O-Meter. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 };
