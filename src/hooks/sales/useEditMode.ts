@@ -77,8 +77,8 @@ export const useEditMode = (): UseEditModeReturn => {
 
     // 실제 저장 전 사용자에게 확인
     if (confirm("변경사항을 저장하시겠습니까?")) {
-      // 저장을 하면 하이라이팅 제거 (2번 요구사항)
-      setChangedCells(new Set());
+      // 변경된 셀 하이라이팅 설정 (수정된 셀만 하이라이팅 - 저장 후에도 유지)
+      setChangedCells(newChangedCells);
       
       // 변경 이력에 추가
       const newHistory = {
