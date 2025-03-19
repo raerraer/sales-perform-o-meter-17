@@ -34,34 +34,31 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
     else if (MODELS.includes(data[row][0])) {
       settings.className = 'cell-center';
       
-      // 모든 모델 행에 대해 기본적으로 편집 가능으로 설정
-      settings.readOnly = !isEditMode;
+      // 기본적으로 모델 행은 편집 불가능으로 설정
+      settings.readOnly = true;
       
-      // 국가 아래에 있는지 여부 확인 (상위 행이 국가인 경우에만 편집 가능)
+      // 상위에 국가 행이 있는지 체크
       let prevRow = row - 1;
-      let isUnderCountry = false;
+      let foundCountry = false;
       
       while (prevRow >= 0) {
+        // 상위에 국가 행이 발견되면 편집 가능하게 함
         if (COUNTRIES.includes(data[prevRow][0])) {
-          isUnderCountry = true;
+          foundCountry = true;
           break;
         }
         
-        // 국가 외에 그룹을 만나면 국가 아래가 아님
+        // 그룹 행이 먼저 발견되면 체크 중단 (국가 아래 모델이 아님)
         if (GROUPS.includes(data[prevRow][0])) {
-          isUnderCountry = false;
-          settings.readOnly = true; // 그룹 아래는 편집 불가능
           break;
         }
         
         prevRow--;
       }
       
-      // 국가 아래 있는 모델 행인 경우 (모델1, 모델2 모두)
-      if (isUnderCountry) {
-        settings.readOnly = !isEditMode; // isEditMode가 true일 때만 편집 가능
-      } else {
-        settings.readOnly = true; // 국가 아래가 아니면 편집 불가능
+      // 국가 행 아래에 있는 모델 행인 경우 편집 가능하게 설정
+      if (foundCountry) {
+        settings.readOnly = !isEditMode; // 편집 모드일 때만 편집 가능
       }
     }
 
