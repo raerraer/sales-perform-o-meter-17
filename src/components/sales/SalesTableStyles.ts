@@ -61,4 +61,23 @@ export const getSalesTableStyles = () => `
     text-align: center !important;
     font-weight: bold !important;
   }
+  
+  /* 수정된 셀 하이라이팅 스타일 */
+  .sales-performance-table .modified-cell {
+    background-color: #FEF7CD !important; /* 연한 노란색 배경 */
+    position: relative;
+  }
+  
+  /* 수정된 셀에 작은 표시자 추가 */
+  .sales-performance-table .modified-cell::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 6px 6px 0;
+    border-color: transparent #FFA500 transparent transparent;
+  }
 `;

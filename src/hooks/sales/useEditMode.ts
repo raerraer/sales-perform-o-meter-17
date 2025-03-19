@@ -11,12 +11,14 @@ export const useEditMode = () => {
    * @param originalData 원본 데이터
    * @param setOriginalData 원본 데이터 설정 함수
    * @param setData 데이터 설정 함수
+   * @param clearHighlighting 하이라이팅 초기화 함수
    */
   const toggleEditMode = (
     data: any[][], 
     originalData: any[][], 
     setOriginalData: (data: any[][]) => void,
-    setData: (data: any[][]) => void
+    setData: (data: any[][]) => void,
+    clearHighlighting?: () => void
   ) => {
     if (!isEditMode) {
       // 편집 모드 진입 - 원본 데이터 저장
@@ -32,6 +34,12 @@ export const useEditMode = () => {
           setData(JSON.parse(JSON.stringify(originalData)));
           setOriginalData([]);
           setIsEditMode(false);
+          
+          // 하이라이팅 초기화
+          if (clearHighlighting) {
+            clearHighlighting();
+          }
+          
           toast.info("편집이 취소되었습니다.");
         }
       } else {
@@ -53,6 +61,7 @@ export const useEditMode = () => {
    * @param currentMonth 현재 월
    * @param currentWeek 현재 주
    * @param setIsEditMode 편집 모드 설정 함수
+   * @param clearHighlighting 하이라이팅 초기화 함수
    */
   const saveChanges = (
     data: any[][], 
@@ -65,7 +74,8 @@ export const useEditMode = () => {
     currentYear: string,
     currentMonth: string,
     currentWeek: string,
-    setIsEditMode: (isEditMode: boolean) => void
+    setIsEditMode: (isEditMode: boolean) => void,
+    clearHighlighting?: () => void
   ) => {
     if (!isEditMode) {
       toast.error("편집 모드가 아닙니다.");
@@ -84,6 +94,11 @@ export const useEditMode = () => {
         // 편집 모드 종료 및 상태 초기화
         setOriginalData([]);
         setIsEditMode(false);
+        
+        // 하이라이팅 초기화
+        if (clearHighlighting) {
+          clearHighlighting();
+        }
         
         toast.success("변경사항이 저장되었습니다.");
       } catch (error) {

@@ -9,15 +9,22 @@ import {
   configureCountryRowSettings, 
   configureModelRowSettings 
 } from './rowLevelSettings';
+import { applyHighlightStyle } from '../renderers/highlightRenderers';
 
 /**
  * 메인 셀 설정 함수
  * @param data 데이터 배열
  * @param isEditMode 편집 모드 여부
  * @param originalData 원본 데이터 배열
+ * @param isModifiedCell 셀이 수정되었는지 확인하는 함수
  * @returns 셀 설정 함수
  */
-export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, originalData: any[][]) => {
+export const createCellsSettingsFunction = (
+  data: any[][], 
+  isEditMode: boolean, 
+  originalData: any[][],
+  isModifiedCell?: (row: number, col: number) => boolean
+) => {
   return function(row: number, col: number) {
     // 기본 설정
     const settings: any = {
@@ -51,6 +58,12 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
 
     // 셀 정렬 설정
     settings.className = `${settings.className.replace(/cell-(center|left|right)/, '')} ${getCellAlignmentClass(col, row, data)}`.trim();
+
+    // 하이라이팅 설정 - 현재 셀이 수정된 경우 하이라이팅 적용
+    if (isEditMode && isModifiedCell && isModifiedCell(row, col)) {
+      const highlightSettings = applyHighlightStyle(true, settings.renderer);
+      Object.assign(settings, highlightSettings);
+    }
 
     return settings;
   };

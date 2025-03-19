@@ -10,7 +10,7 @@ export * from './settings/rowLevelSettings';
 export * from './styles/cellAlignment';
 export * from './styles/numericFormats';
 export * from './renderers/levelRenderers';
-// 하이라이팅 기능 제거
+export * from './renderers/highlightRenderers';
 
 // 추가된 유틸리티 내보내기
 export * from './validators';

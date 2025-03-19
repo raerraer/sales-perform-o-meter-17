@@ -25,7 +25,12 @@ const useSalesPerformance = () => {
   
   const { currentYear, currentMonth, currentWeek } = useDateFilter();
   
-  const { afterChange: originalAfterChange } = useHighlighting();
+  const { 
+    afterChange: highlightingAfterChange,
+    modifiedCells,
+    clearHighlighting,
+    isModifiedCell
+  } = useHighlighting();
   
   const { 
     previousVersion, 
@@ -52,7 +57,7 @@ const useSalesPerformance = () => {
   } = useSalesHistory();
 
   const afterChange = (changes: any, source: string) => {
-    originalAfterChange(changes, source, data, setData, isEditMode, originalData);
+    highlightingAfterChange(changes, source, data, setData, isEditMode, originalData);
   };
   
   useEffect(() => {
@@ -70,6 +75,7 @@ const useSalesPerformance = () => {
             if (isEditMode) {
               setIsEditMode(false);
               setOriginalData([]);
+              clearHighlighting();
             }
             
             toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
@@ -99,7 +105,7 @@ const useSalesPerformance = () => {
       toast.warning("이전 버전은 수정할 수 없습니다. 최신 버전만 수정 가능합니다.");
       return;
     }
-    toggleEditMode(data, originalData, setOriginalData, setData);
+    toggleEditMode(data, originalData, setOriginalData, setData, clearHighlighting);
   };
 
   const handleSaveChanges = () => {
@@ -130,7 +136,8 @@ const useSalesPerformance = () => {
       currentYear, 
       currentMonth, 
       currentWeek,
-      setIsEditMode
+      setIsEditMode,
+      clearHighlighting
     );
     
     // 새 버전으로 저장
@@ -151,7 +158,7 @@ const useSalesPerformance = () => {
   };
 
   const getCellsSettings = () => {
-    return createCellsSettingsFunction(data, isEditMode && isLatestVersion, originalData);
+    return createCellsSettingsFunction(data, isEditMode && isLatestVersion, originalData, isModifiedCell);
   };
 
   return {
