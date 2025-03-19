@@ -1,6 +1,6 @@
 
 import Handsontable from 'handsontable';
-import { COUNTRIES } from './constants';
+import { COUNTRIES, LEVELS, LEVEL_STYLES, REGION_COUNTRIES } from './constants';
 
 // 셀 스타일 설정 함수 (하이라이팅 기능 추가)
 export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, originalData: any[][], changedCells?: Set<string>) => {
@@ -11,10 +11,113 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       className: 'cell-center' // 모든 셀에 중앙 정렬 클래스 추가
     };
 
-    // 국가 행 특별 스타일링
-    if (COUNTRIES.includes(data[row][0])) {
-      settings.className = 'country-row cell-center';
+    // 총 합계 스타일 (Level 1)
+    if (data[row][0] === LEVELS.TOTAL) {
+      settings.className = `level-1-row cell-center`;
+      settings.readOnly = true; // 총 합계 행은 항상 읽기 전용
+      
+      // Level 1 스타일 적용
+      settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+        Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+        
+        td.style.backgroundColor = LEVEL_STYLES.LEVEL1.background;
+        td.style.color = LEVEL_STYLES.LEVEL1.font;
+        td.style.fontWeight = LEVEL_STYLES.LEVEL1.fontWeight;
+      };
+    } 
+    // 지역 스타일 (Level 2)
+    else if (LEVELS.REGIONS.includes(data[row][0])) {
+      settings.className = `level-2-row cell-center`;
+      settings.readOnly = true; // 지역 행은 항상 읽기 전용
+      
+      // Level 2 스타일 적용
+      settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+        Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+        
+        td.style.backgroundColor = LEVEL_STYLES.LEVEL2.background;
+        td.style.color = LEVEL_STYLES.LEVEL2.font;
+        td.style.fontWeight = LEVEL_STYLES.LEVEL2.fontWeight;
+      };
+    }
+    // 국가 행 특별 스타일링 (Level 3)
+    else if (COUNTRIES.includes(data[row][0])) {
+      settings.className = `level-3-row cell-center`;
       settings.readOnly = true; // 국가 행은 항상 읽기 전용
+      
+      // Level 3 스타일 적용
+      settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+        Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+        
+        td.style.backgroundColor = LEVEL_STYLES.LEVEL3.background;
+        td.style.color = LEVEL_STYLES.LEVEL3.font;
+        td.style.fontWeight = LEVEL_STYLES.LEVEL3.fontWeight;
+      };
+    }
+    // 모델 행 아래의 레벨 확인 (총합계/지역/국가 모델인지 구분)
+    else {
+      // 모델 행인지 확인 (모델1 또는 모델2)
+      const modelValue = data[row][0];
+      
+      if (modelValue === '모델1' || modelValue === '모델2') {
+        // 모델 행의 상위 행을 확인하여 어떤 레벨에 속하는지 판단
+        let parentRow = row - 1;
+        
+        while (parentRow >= 0) {
+          const parentValue = data[parentRow][0];
+          
+          // 총 합계 모델인 경우
+          if (parentValue === LEVELS.TOTAL) {
+            settings.className = 'level-1-model cell-center';
+            settings.readOnly = true; // 총 합계 모델은 항상 읽기 전용
+            
+            // Level 1 스타일 적용 (약간 밝은 색상)
+            settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+              Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+              
+              td.style.backgroundColor = '#f8f2ff'; // 약간 밝은 총 합계 색상
+              td.style.color = LEVEL_STYLES.LEVEL1.font;
+            };
+            
+            break;
+          }
+          // 지역 모델인 경우
+          else if (LEVELS.REGIONS.includes(parentValue)) {
+            settings.className = 'level-2-model cell-center';
+            settings.readOnly = true; // 지역 모델은 항상 읽기 전용
+            
+            // Level 2 스타일 적용 (약간 밝은 색상)
+            settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+              Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+              
+              td.style.backgroundColor = '#f0f8ff'; // 약간 밝은 지역 색상
+              td.style.color = LEVEL_STYLES.LEVEL2.font;
+            };
+            
+            break;
+          }
+          // 국가 모델인 경우
+          else if (COUNTRIES.includes(parentValue)) {
+            settings.className = 'level-3-model cell-center';
+            settings.readOnly = !isEditMode; // 국가 모델은 편집 모드에서만 수정 가능
+            
+            // 변경된 셀 하이라이팅 로직과 함께 추가
+            if (changedCells && changedCells.has(`${row},${col}`)) {
+              settings.className = `${settings.className} highlight-cell`;
+              
+              settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
+                Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
+                
+                td.style.backgroundColor = '#fffcd8';
+                td.style.fontWeight = 'bold';
+              };
+            }
+            
+            break;
+          }
+          
+          parentRow--;
+        }
+      }
     }
 
     // 폰트 설정
@@ -50,14 +153,14 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
     if (col === 0) {
       settings.className = settings.className.replace('cell-center', 'cell-right');
       
-      // 국가 행의 첫 번째 열은 중앙 정렬
-      if (COUNTRIES.includes(data[row][0])) {
+      // 국가/지역/총 합계 행의 첫 번째 열은 중앙 정렬
+      if (COUNTRIES.includes(data[row][0]) || LEVELS.REGIONS.includes(data[row][0]) || data[row][0] === LEVELS.TOTAL) {
         settings.className = settings.className.replace('cell-right', 'cell-center');
       }
     }
 
-    // 변경된 셀 하이라이팅
-    if (changedCells && changedCells.has(`${row},${col}`)) {
+    // 변경된 셀 하이라이팅 (이미 처리되지 않은 경우만)
+    if (changedCells && changedCells.has(`${row},${col}`) && !settings.renderer) {
       // className에 highlight-cell 추가
       settings.className = `${settings.className} highlight-cell`;
       

@@ -46,6 +46,7 @@ const SalesHotTable = ({
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
+        tableClassName="aria-rowindex=3" // 세로 스크롤시 행 고정
       />
       <style dangerouslySetInnerHTML={{ __html: `
         .sales-performance-table .cell-center {
@@ -61,10 +62,33 @@ const SalesHotTable = ({
           background-color: #fffcd8 !important;
           font-weight: bold !important;
         }
-        .sales-performance-table .country-row {
-          background-color: #f3f4f6 !important;
+        
+        /* 레벨별 스타일 */
+        .sales-performance-table .level-1-row {
+          background-color: #f0e6ff !important; /* 연한 보라색 */
+          color: #6E59A5 !important;
           font-weight: bold !important;
         }
+        
+        .sales-performance-table .level-2-row {
+          background-color: #e6f2ff !important; /* 연한 파란색 */
+          color: #0EA5E9 !important;
+          font-weight: bold !important;
+        }
+        
+        .sales-performance-table .level-3-row {
+          background-color: #f3f4f6 !important; /* 기존 국가 행 색상 */
+          font-weight: bold !important;
+        }
+        
+        .sales-performance-table .level-1-model {
+          background-color: #f8f2ff !important; /* 더 연한 보라색 */
+        }
+        
+        .sales-performance-table .level-2-model {
+          background-color: #f0f8ff !important; /* 더 연한 파란색 */
+        }
+        
         /* 헤더 스타일 */
         .sales-performance-table th {
           background-color: #e5e7eb !important;
