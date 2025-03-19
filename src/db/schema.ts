@@ -6,7 +6,10 @@ interface SalesDataTableSchema {
   id: string;           // 고유 ID (PK)
   version_id: string;   // 버전 ID (FK)
   country_id: string;   // 국가 ID (FK)
-  model_id: string;     // 모델 ID (FK - null 가능, 국가 합계 행인 경우)
+  model_id: string;     // 모델 ID (FK - null 가능, 국가/지역/전체 합계 행인 경우)
+  row_type: 'country' | 'model' | 'region' | 'total';  // 행 타입 (국가, 모델, 지역, 전체 합계)
+  parent_id: string;    // 부모 행 ID (국가/지역/전체에 속한 모델의 경우 해당 부모 ID)
+  display_order: number; // 표시 순서
   
   // 실적 데이터
   month: number;        // 월 (1-12)
@@ -28,15 +31,24 @@ interface VersionSchema {
   month: string;        // 월
   week: string;         // 주차
   is_latest: boolean;   // 최신 버전 여부
+  is_editable: boolean; // 편집 가능 여부 (rev1은 편집 불가)
   description: string;  // 버전 설명 (선택 사항)
   created_at: Date;     // 생성 일시
   created_by: string;   // 생성자 ID (FK)
+}
+
+interface RegionSchema {
+  id: string;           // 고유 ID (PK)
+  name: string;         // 지역명 (예: 미주, 구주)
+  code: string;         // 지역 코드
+  display_order: number;// 표시 순서
 }
 
 interface CountrySchema {
   id: string;           // 고유 ID (PK)
   name: string;         // 국가명 (예: 미국, 캐나다, 영국, 이태리)
   code: string;         // 국가 코드 (예: US, CA, UK, IT)
+  region_id: string;    // 소속 지역 ID (FK)
   display_order: number;// 표시 순서
 }
 
@@ -54,6 +66,7 @@ interface ChangeHistorySchema {
   col: number;          // 변경된 열 인덱스
   old_value: string;    // 이전 값
   new_value: string;    // 변경된 값
+  sales_data_id: string;// 변경된 영업 데이터 ID (FK, 선택 사항)
   changed_at: Date;     // 변경 일시
   changed_by: string;   // 변경자 ID (FK)
 }
@@ -73,6 +86,7 @@ interface UserSchema {
 export type {
   SalesDataTableSchema,
   VersionSchema,
+  RegionSchema,
   CountrySchema,
   ModelSchema,
   ChangeHistorySchema,

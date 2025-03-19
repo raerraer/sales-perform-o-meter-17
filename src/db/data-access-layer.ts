@@ -10,6 +10,7 @@
 import type { 
   SalesDataTableSchema, 
   VersionSchema, 
+  RegionSchema,
   CountrySchema,
   ModelSchema,
   ChangeHistorySchema,
@@ -88,8 +89,9 @@ export const salesDataService = {
   },
   
   // 2차원 배열로 데이터 변환 (UI 표시용)
-  transformToTableFormat(data: SalesDataTableSchema[], countries: CountrySchema[], models: ModelSchema[]): any[][] {
+  transformToTableFormat(data: SalesDataTableSchema[], regions: RegionSchema[], countries: CountrySchema[], models: ModelSchema[]): any[][] {
     // 실제 구현 시에는 현재 애플리케이션의 2D 배열 구조에 맞게 데이터 변환 로직 작성 필요
+    // 데이터를 레벨별로 정렬 (총 합계 -> 지역 -> 국가 -> 모델)
     return [];
   },
   
@@ -97,6 +99,12 @@ export const salesDataService = {
   transformFromTableFormat(tableData: any[][], versionId: string, userId: string): Omit<SalesDataTableSchema, 'id' | 'created_at' | 'updated_at'>[] {
     // 실제 구현 시에는 현재 애플리케이션의 2D 배열 구조에서 DB 구조로 변환하는 로직 작성 필요
     return [];
+  },
+
+  // 회계연도별 합계 계산 (년간 실적 요약용)
+  calculateFiscalYearTotals(data: SalesDataTableSchema[]): {[key: string]: {qty: number, amt: number}} {
+    // DB 구현에 따라 실제 코드 작성 필요
+    return {};
   }
 };
 
@@ -121,6 +129,21 @@ export const changeHistoryService = {
   }
 };
 
+// 지역 관련 함수
+export const regionService = {
+  // 모든 지역 조회
+  async getAllRegions(): Promise<RegionSchema[]> {
+    // DB 구현에 따라 실제 코드 작성 필요
+    return [];
+  },
+  
+  // 특정 지역 조회
+  async getRegionById(id: string): Promise<RegionSchema | null> {
+    // DB 구현에 따라 실제 코드 작성 필요
+    return null;
+  }
+};
+
 // 국가 관련 함수
 export const countryService = {
   // 모든 국가 조회
@@ -133,6 +156,12 @@ export const countryService = {
   async getCountryById(id: string): Promise<CountrySchema | null> {
     // DB 구현에 따라 실제 코드 작성 필요
     return null;
+  },
+  
+  // 특정 지역에 속한 국가 조회
+  async getCountriesByRegion(regionId: string): Promise<CountrySchema[]> {
+    // DB 구현에 따라 실제 코드 작성 필요
+    return [];
   }
 };
 
@@ -169,5 +198,11 @@ export const userService = {
   async createUser(user: Omit<UserSchema, 'id' | 'created_at' | 'updated_at' | 'last_login'>): Promise<UserSchema> {
     // DB 구현에 따라 실제 코드 작성 필요
     return {} as UserSchema;
+  },
+  
+  // 사용자 업데이트
+  async updateUser(id: string, data: Partial<UserSchema>): Promise<UserSchema | null> {
+    // DB 구현에 따라 실제 코드 작성 필요
+    return null;
   }
 };
