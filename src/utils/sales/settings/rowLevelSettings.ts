@@ -1,7 +1,6 @@
 
 import { COUNTRIES, LEVELS, LEVEL_STYLES } from '../constants';
 import { createLevelRenderer } from '../renderers/levelRenderers';
-import { createModelHighlightRenderer } from '../renderers/highlightRenderers';
 
 /**
  * 총 합계 행 설정
@@ -71,10 +70,9 @@ export const findParentLevel = (data: any[][], row: number) => {
  * @param data 데이터 배열
  * @param row 행 인덱스
  * @param isEditMode 편집 모드 여부
- * @param changedCells 변경된 셀 목록
  * @returns 업데이트된 설정 객체
  */
-export const configureModelRowSettings = (settings: any, data: any[][], row: number, isEditMode: boolean, changedCells?: Set<string>) => {
+export const configureModelRowSettings = (settings: any, data: any[][], row: number, isEditMode: boolean) => {
   const { level, readOnly } = findParentLevel(data, row);
   
   switch (level) {
@@ -91,16 +89,7 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
     case 'LEVEL3':
       settings.className = 'level-3-model cell-center';
       settings.readOnly = !isEditMode;
-      
-      // 기본 렌더러
-      let baseRenderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
-      
-      // 변경된 셀 하이라이팅 적용을 위한 커스텀 렌더러
-      if (changedCells) {
-        settings.renderer = createModelHighlightRenderer(baseRenderer, changedCells);
-      } else {
-        settings.renderer = baseRenderer;
-      }
+      settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
       break;
     default:
       // 기본 설정

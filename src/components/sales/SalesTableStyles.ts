@@ -10,10 +10,6 @@ export const getSalesTableStyles = () => `
   .sales-performance-table .cell-left {
     text-align: left !important;
   }
-  .sales-performance-table .highlight-cell {
-    background-color: #fffcd8 !important;
-    font-weight: bold !important;
-  }
   
   /* 레벨별 스타일 업데이트 - 새로운 색상 스키마 */
   /* Level 1: 총 합계 */

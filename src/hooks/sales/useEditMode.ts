@@ -2,118 +2,93 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-export interface UseEditModeReturn {
-  isEditMode: boolean;
-  setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>;
-  toggleEditMode: (currentData: any[][], originalData: any[][], setOriginalData: React.Dispatch<React.SetStateAction<any[][]>>, setData: React.Dispatch<React.SetStateAction<any[][]>>, setChangedCells: React.Dispatch<React.SetStateAction<Set<string>>>) => void;
-  saveChanges: (data: any[][], originalData: any[][], changedCells: Set<string>, setChangedCells: React.Dispatch<React.SetStateAction<Set<string>>>, setOriginalData: React.Dispatch<React.SetStateAction<any[][]>>, updateVersionData: (version: string, data: any[]) => void, currentVersion: string, addVersionHistory: (history: any) => void, currentYear: string, currentMonth: string, currentWeek: string, setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>) => void;
-}
-
-export const useEditMode = (): UseEditModeReturn => {
+export const useEditMode = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
+  /**
+   * 편집 모드 토글 함수
+   * @param data 현재 데이터 
+   * @param originalData 원본 데이터
+   * @param setOriginalData 원본 데이터 설정 함수
+   * @param setData 데이터 설정 함수
+   */
   const toggleEditMode = (
-    currentData: any[][],
-    originalData: any[][],
-    setOriginalData: React.Dispatch<React.SetStateAction<any[][]>>,
-    setData: React.Dispatch<React.SetStateAction<any[][]>>,
-    setChangedCells: React.Dispatch<React.SetStateAction<Set<string>>>
+    data: any[][], 
+    originalData: any[][], 
+    setOriginalData: (data: any[][]) => void,
+    setData: (data: any[][]) => void
   ) => {
     if (!isEditMode) {
-      // 편집 모드로 전환 시 현재 데이터를 백업
-      const deepCopy = JSON.parse(JSON.stringify(currentData));
+      // 편집 모드 진입 - 원본 데이터 저장
+      const deepCopy = JSON.parse(JSON.stringify(data));
       setOriginalData(deepCopy);
       setIsEditMode(true);
-      toast.info("편집 모드로 전환되었습니다.");
+      toast.info("편집 모드가 활성화되었습니다.");
     } else {
-      // 편집 취소 시 원본 데이터로 복원하고 하이라이팅 제거
-      setData(JSON.parse(JSON.stringify(originalData)));
-      setIsEditMode(false);
-      setOriginalData([]);
-      setChangedCells(new Set()); // 하이라이팅 완전히 제거
-      
-      toast.info("편집이 취소되었습니다. 변경 내용이 취소되었습니다.");
+      // 편집 모드 해제 - 원본 데이터로 복원
+      if (originalData.length > 0) {
+        const confirmCancel = window.confirm("편집 모드를 종료하시겠습니까? 저장되지 않은 변경사항은 모두 취소됩니다.");
+        if (confirmCancel) {
+          setData(JSON.parse(JSON.stringify(originalData)));
+          setOriginalData([]);
+          setIsEditMode(false);
+          toast.info("편집이 취소되었습니다.");
+        }
+      } else {
+        setIsEditMode(false);
+        toast.info("편집 모드가 종료되었습니다.");
+      }
     }
   };
 
+  /**
+   * 변경사항 저장 함수
+   * @param data 현재 데이터
+   * @param originalData 원본 데이터
+   * @param setOriginalData 원본 데이터 설정 함수
+   * @param updateVersionData 버전 데이터 업데이트 함수
+   * @param currentVersion 현재 버전
+   * @param addVersionHistory 버전 이력 추가 함수
+   * @param currentYear 현재 연도
+   * @param currentMonth 현재 월
+   * @param currentWeek 현재 주
+   * @param setIsEditMode 편집 모드 설정 함수
+   */
   const saveChanges = (
-    data: any[][],
+    data: any[][], 
     originalData: any[][],
-    changedCells: Set<string>,
-    setChangedCells: React.Dispatch<React.SetStateAction<Set<string>>>,
-    setOriginalData: React.Dispatch<React.SetStateAction<any[][]>>,
-    updateVersionData: (version: string, data: any[]) => void,
+    setOriginalData: (data: any[][]) => void,
+    updateVersionData: (version: string, data: any[][]) => void,
     currentVersion: string,
-    addVersionHistory: (history: any) => void,
+    addVersionHistory: (version: string, year: string, month: string, week: string) => void,
     currentYear: string,
     currentMonth: string,
     currentWeek: string,
-    setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>
+    setIsEditMode: (isEditMode: boolean) => void
   ) => {
-    // 변경사항 확인
-    const changes: { row: number; col: number; oldValue: any; newValue: any }[] = [];
-    
-    if (!originalData || originalData.length === 0) {
-      toast.info("변경사항이 없습니다.");
-      setIsEditMode(false);
+    if (!isEditMode) {
+      toast.error("편집 모드가 아닙니다.");
       return;
     }
-    
-    data.forEach((row, rowIndex) => {
-      if (!originalData[rowIndex]) return;
-      
-      row.forEach((cell: any, colIndex: number) => {
-        // 문자열로 변환하여 정확히 비교 (콤마 제거)
-        const normalizedOriginal = originalData[rowIndex][colIndex] !== null && originalData[rowIndex][colIndex] !== undefined
-          ? String(originalData[rowIndex][colIndex]).replace(/,/g, '')
-          : '';
-        const normalizedNew = cell !== null && cell !== undefined
-          ? String(cell).replace(/,/g, '')
-          : '';
+
+    const confirmSave = window.confirm("변경사항을 저장하시겠습니까?");
+    if (confirmSave) {
+      try {
+        // 변경사항 저장
+        updateVersionData(currentVersion, data);
         
-        if (normalizedOriginal !== normalizedNew) {
-          changes.push({
-            row: rowIndex,
-            col: colIndex,
-            oldValue: originalData[rowIndex][colIndex],
-            newValue: cell
-          });
-        }
-      });
-    });
-
-    if (changes.length === 0) {
-      toast.info("변경사항이 없습니다.");
-      setIsEditMode(false);
-      return;
-    }
-
-    // 실제 저장 전 사용자에게 확인
-    if (confirm("변경사항을 저장하시겠습니까?")) {
-      // 변경 이력에 추가
-      const newHistory = {
-        version: currentVersion,
-        date: new Date().toISOString(),
-        year: currentYear,
-        month: currentMonth,
-        week: currentWeek,
-        changes
-      };
-      
-      console.log("저장할 변경사항:", changes);
-      
-      // 현재 버전의 데이터 업데이트
-      updateVersionData(currentVersion, data);
-      
-      addVersionHistory(newHistory);
-      
-      // 저장 시 하이라이팅 초기화 (모든 셀의 하이라이팅 제거)
-      console.log("저장 완료 - 하이라이팅 초기화");
-      setChangedCells(new Set());
-      
-      toast.success("변경사항이 저장되었습니다.");
-      setIsEditMode(false);
-      setOriginalData([]);
+        // 변경 이력 추가
+        addVersionHistory(currentVersion, currentYear, currentMonth, currentWeek);
+        
+        // 편집 모드 종료 및 상태 초기화
+        setOriginalData([]);
+        setIsEditMode(false);
+        
+        toast.success("변경사항이 저장되었습니다.");
+      } catch (error) {
+        console.error("저장 실패:", error);
+        toast.error("변경사항 저장에 실패했습니다.");
+      }
     }
   };
 

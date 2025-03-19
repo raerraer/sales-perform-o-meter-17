@@ -25,7 +25,7 @@ const useSalesPerformance = () => {
   
   const { currentYear, currentMonth, currentWeek } = useDateFilter();
   
-  const { changedCells, setChangedCells, afterChange: originalAfterChange } = useHighlighting();
+  const { afterChange: originalAfterChange } = useHighlighting();
   
   const { 
     previousVersion, 
@@ -70,7 +70,6 @@ const useSalesPerformance = () => {
             if (isEditMode) {
               setIsEditMode(false);
               setOriginalData([]);
-              setChangedCells(new Set());
             }
             
             toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
@@ -100,7 +99,7 @@ const useSalesPerformance = () => {
       toast.warning("이전 버전은 수정할 수 없습니다. 최신 버전만 수정 가능합니다.");
       return;
     }
-    toggleEditMode(data, originalData, setOriginalData, setData, setChangedCells);
+    toggleEditMode(data, originalData, setOriginalData, setData);
   };
 
   const handleSaveChanges = () => {
@@ -113,8 +112,6 @@ const useSalesPerformance = () => {
     saveChanges(
       data, 
       originalData, 
-      changedCells, 
-      setChangedCells,
       setOriginalData, 
       updateVersionData, 
       currentVersion, 
@@ -125,20 +122,14 @@ const useSalesPerformance = () => {
       setIsEditMode
     );
     
-    // 변경된 내용이 있다면 새 버전으로 저장
-    if (changedCells.size > 0) {
-      // 저장 후 새 버전 생성
-      const newVersion = saveNewVersion(data);
+    // 새 버전으로 저장
+    const newVersion = saveNewVersion(data);
+    
+    if (newVersion) {
+      // 새로운 버전으로 전환
+      setCurrentVersion(newVersion);
       
-      if (newVersion) {
-        // 새로운 버전으로 전환
-        setCurrentVersion(newVersion);
-        
-        // 변경 셀 하이라이트 초기화
-        setChangedCells(new Set());
-        
-        toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
-      }
+      toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
     }
   };
 
@@ -149,7 +140,7 @@ const useSalesPerformance = () => {
   };
 
   const getCellsSettings = () => {
-    return createCellsSettingsFunction(data, isEditMode && isLatestVersion, originalData, changedCells);
+    return createCellsSettingsFunction(data, isEditMode && isLatestVersion, originalData);
   };
 
   return {
