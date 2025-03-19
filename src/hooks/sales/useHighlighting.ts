@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { handleDataChange } from './useSalesDataCalculation';
+import { parseNumericValue } from '@/utils/sales/dataTransformers';
 
 export interface UseHighlightingReturn {
   changedCells: Set<string>;
@@ -31,29 +32,28 @@ export const useHighlighting = (): UseHighlightingReturn => {
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
         const cellKey = `${row},${prop}`;
         
-        // 값이 실제로 변경된 경우에만 하이라이팅 적용
-        if (originalData && originalData.length > 0) {
-          // 원본 데이터가 존재하는 경우에만 처리
+        // 원본 데이터가 존재하고 편집 모드인 경우에만 처리
+        if (originalData && originalData.length > 0 && isEditMode) {
           if (originalData[row]) {
             const originalValue = originalData[row][prop];
             
-            // 문자열로 변환하여 정확히 비교 (콤마 제거)
-            const strOriginal = originalValue !== null && originalValue !== undefined 
+            // 값 비교를 위해 숫자로 변환 (콤마 제거)
+            const normalizedOriginal = originalValue !== null && originalValue !== undefined 
               ? String(originalValue).replace(/,/g, '') 
               : '';
               
-            const strNewValue = newValue !== null && newValue !== undefined 
+            const normalizedNewValue = newValue !== null && newValue !== undefined 
               ? String(newValue).replace(/,/g, '') 
               : '';
             
-            // 원본 값과 다른 경우에만 하이라이팅 추가
-            if (strOriginal !== strNewValue) {
+            // 원본 값과 현재 값이 다른 경우 하이라이팅 추가
+            if (normalizedOriginal !== normalizedNewValue) {
               newChangedCells.add(cellKey);
               console.log(`하이라이팅 추가: 셀 ${cellKey}`, {
                 원본값: originalValue,
                 새값: newValue,
-                문자원본: strOriginal,
-                문자새값: strNewValue
+                정규화원본: normalizedOriginal,
+                정규화새값: normalizedNewValue
               });
             } else {
               // 원본과 동일하면 하이라이팅 제거
