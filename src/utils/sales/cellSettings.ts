@@ -35,7 +35,7 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       settings.className = 'cell-center';
       
       // 국가 아래에 있는 모델 행만 편집 가능하도록 설정
-      const prevRow = row - 1;
+      let prevRow = row - 1; // const 대신 let으로 변경
       while (prevRow >= 0) {
         // 상위 행 중 국가가 나오면 편집 가능
         if (COUNTRIES.includes(data[prevRow][0])) {
