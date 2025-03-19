@@ -11,8 +11,21 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       className: 'cell-center' // 모든 셀에 중앙 정렬 클래스 추가
     };
 
+    const cellValue = data[row]?.[0];
+
+    // 국가 그룹 행 특별 스타일링
+    if (cellValue && cellValue.startsWith('#')) {
+      if (cellValue.startsWith('##')) {
+        // 모델 그룹 행
+        settings.className = 'model-group-row cell-center';
+      } else {
+        // 국가 그룹 행
+        settings.className = 'country-group-row cell-center';
+      }
+      settings.readOnly = true; // 그룹 행은 항상 읽기 전용
+    }
     // 국가 행 특별 스타일링
-    if (COUNTRIES.includes(data[row][0])) {
+    else if (COUNTRIES.includes(data[row]?.[0])) {
       settings.className = 'country-row cell-center';
       settings.readOnly = true; // 국가 행은 항상 읽기 전용
     }
@@ -50,8 +63,8 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
     if (col === 0) {
       settings.className = settings.className.replace('cell-center', 'cell-right');
       
-      // 국가 행의 첫 번째 열은 중앙 정렬
-      if (COUNTRIES.includes(data[row][0])) {
+      // 국가 행이나 그룹 행의 첫 번째 열은 중앙 정렬
+      if (COUNTRIES.includes(data[row]?.[0]) || (cellValue && cellValue.startsWith('#'))) {
         settings.className = settings.className.replace('cell-right', 'cell-center');
       }
     }
