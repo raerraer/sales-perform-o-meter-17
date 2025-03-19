@@ -159,13 +159,19 @@ const Dashboard = () => {
     // 세계지도용 국가 데이터 설정
     const countries: CountryData[] = [];
     
+    // 현재 월에 해당하는 컬럼 인덱스 계산
+    const currentMonthBaseColIdx = 1 + ((CURRENT_MONTH - 1) * 11);
+    const currentMonthForecastAmtColIdx = currentMonthBaseColIdx + 9;
+    
     countryIndices.forEach((index, i) => {
       if (index !== -1) {
         const countryName = rawData[index][0];
         const mappingInfo = countryMappings[countryName];
         
         if (mappingInfo) {
-          const forecastAmtValue = parseNumericValue(rawData[index][forecastAmtColIdx] || 0);
+          const forecastAmtValue = parseNumericValue(
+            rawData[index][currentMonthForecastAmtColIdx] || 0
+          );
           
           countries.push({
             code: mappingInfo.code,
