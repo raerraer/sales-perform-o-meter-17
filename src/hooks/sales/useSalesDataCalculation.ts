@@ -1,4 +1,3 @@
-
 import { COUNTRIES, COUNTRY_GROUPS, GROUPS, MODELS } from '@/utils/sales/constants';
 
 // 그룹 및 국가 합계 행을 모두 재계산
@@ -145,6 +144,15 @@ export function handleDataChange(changes: any, data: any[]): any[] {
     // 비고 열이 아닌 경우에 데이터 유효성 검사
     const colIndex = Number(prop);
     const isRemarksColumn = (colIndex - 1) % 11 === 10;
+    
+    // 수정된 셀이 모델1 또는 모델2 행에 있는지 확인
+    const isModelRow = MODELS.includes(newData[row][0]);
+    
+    // 모델 행이 아니면 수정하지 않음 (국가, 그룹 행은 수정 불가)
+    if (!isModelRow && !isRemarksColumn) {
+      newData[row][colIndex] = oldValue;
+      return;
+    }
     
     if (!isRemarksColumn) {
       // Qty 열: 숫자만 허용
