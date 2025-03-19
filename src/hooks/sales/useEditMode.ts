@@ -51,7 +51,6 @@ export const useEditMode = (): UseEditModeReturn => {
   ) => {
     // 변경사항 확인
     const changes: { row: number; col: number; oldValue: any; newValue: any }[] = [];
-    const newChangedCells = new Set<string>();
     
     data.forEach((row, rowIndex) => {
       row.forEach((cell: any, colIndex: number) => {
@@ -62,9 +61,6 @@ export const useEditMode = (): UseEditModeReturn => {
             oldValue: originalData[rowIndex][colIndex],
             newValue: cell
           });
-          
-          // 변경된 셀 좌표 추가 (수정된 셀만 하이라이팅)
-          newChangedCells.add(`${rowIndex},${colIndex}`);
         }
       });
     });
@@ -77,9 +73,6 @@ export const useEditMode = (): UseEditModeReturn => {
 
     // 실제 저장 전 사용자에게 확인
     if (confirm("변경사항을 저장하시겠습니까?")) {
-      // 변경된 셀 하이라이팅 설정 (수정된 셀만 하이라이팅 - 저장 후에도 유지)
-      setChangedCells(newChangedCells);
-      
       // 변경 이력에 추가
       const newHistory = {
         version: currentVersion,
@@ -94,6 +87,10 @@ export const useEditMode = (): UseEditModeReturn => {
       updateVersionData(currentVersion, data);
       
       addVersionHistory(newHistory);
+      
+      // 저장 시 하이라이팅 제거 (요구사항 변경)
+      setChangedCells(new Set());
+      
       toast.success("변경사항이 저장되었습니다.");
       setIsEditMode(false);
       setOriginalData([]);
