@@ -12,3 +12,9 @@ export * from './countryCalculations';
 export * from './regionCalculations';
 export * from './totalCalculations';
 export * from './dataChangeHandler';
+
+// 데이터 생성 관련 유틸리티 내보내기
+export * from './dataGeneratorUtils';
+export * from './countryDataGenerator';
+export * from './regionDataGenerator';
+export * from './totalDataGenerator';
