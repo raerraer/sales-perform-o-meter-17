@@ -30,7 +30,7 @@ const SalesHotTable = ({
         height="calc(100vh - 280px)" // 헤더 버튼들 추가된 크기 고려하여 조정
         colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 넓게, 나머지는 균일하게
         fixedColumnsLeft={1}
-        fixedRowsTop={3} // 3개의 헤더 행 고정
+        fixedRowsTop={3} // 3개의 헤더 행 고정 (월, 카테고리, Qty/Amt)
         manualColumnResize={true}
         contextMenu={isEditMode}
         copyPaste={isEditMode}
@@ -131,6 +131,16 @@ const SalesHotTable = ({
         
         .handsontable .ht_clone_top_left_corner {
           z-index: 103;
+        }
+        
+        /* 3행만 고정되도록 추가 스타일 */
+        .handsontable .ht_master .wtHolder {
+          overflow: auto;
+        }
+        
+        .handsontable .ht_clone_top .wtHolder {
+          overflow: hidden;
+          height: 84px !important; /* 3행 고정을 위한 높이 설정 (28px * 3) */
         }
       `}} />
     </div>
