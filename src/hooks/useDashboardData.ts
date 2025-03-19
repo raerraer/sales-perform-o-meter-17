@@ -3,8 +3,14 @@ import { useState, useEffect } from "react";
 import { parseNumericValue } from "@/utils/sales/dataTransformers";
 import { LEVELS, MONTHS } from "@/utils/sales/constants";
 
-// 현재 월 설정 (추후 동적으로 변경 가능)
-const CURRENT_MONTH = 5; // June (index 5)
+// 현재 월을 얻는 함수
+const getCurrentMonth = (): number => {
+  const now = new Date();
+  return now.getMonth() + 1; // JavaScript는 월을 0부터 시작하므로 +1
+};
+
+// 현재 월 설정
+const CURRENT_MONTH = getCurrentMonth();
 
 export type RegionData = {
   name: string;

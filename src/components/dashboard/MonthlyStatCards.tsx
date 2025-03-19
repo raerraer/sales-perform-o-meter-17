@@ -18,7 +18,7 @@ const MonthlyStatCards = ({ data, currentMonth }: MonthlyStatCardsProps) => {
           </CardHeader>
           <CardContent className="pt-4">
             <div className="flex flex-col gap-2">
-              <div className="text-3xl font-bold">{regionData.amt.toLocaleString()} 만원</div>
+              <div className="text-3xl font-bold">${regionData.amt.toLocaleString()}</div>
               <div className="text-sm text-muted-foreground">
                 수량: {regionData.qty.toLocaleString()} 개
               </div>

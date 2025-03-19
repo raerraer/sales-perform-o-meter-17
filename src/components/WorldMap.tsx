@@ -1,6 +1,8 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import * as d3 from 'd3';
+import * as topojson from 'topojson-client';
 
 type CountryData = {
   code: string;
@@ -21,48 +23,50 @@ const REGION_COLORS = {
 
 const WorldMap = ({ countries }: WorldMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     if (!mapContainerRef.current || !countries.length) return;
     
-    // 모듈 동적 로딩
-    import('d3').then((d3) => {
-      import('topojson-client').then((topojson) => {
-        drawMap(d3, topojson);
-      });
-    });
+    setIsLoading(true);
+    setError(null);
     
-    const drawMap = async (d3: any, topojson: any) => {
-      // 기존 SVG 클리어
-      d3.select(mapContainerRef.current).select('svg').remove();
-      
-      // 지도 크기 설정
-      const width = mapContainerRef.current.clientWidth;
-      const height = mapContainerRef.current.clientHeight;
-      
-      // SVG 생성
-      const svg = d3.select(mapContainerRef.current)
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .attr('viewBox', [0, 0, width, height])
-        .attr('style', 'max-width: 100%; height: auto;');
-        
-      // 투영법 설정
-      const projection = d3.geoNaturalEarth1()
-        .scale(width / 6)
-        .translate([width / 2, height / 2]);
-        
-      // 경로 생성기
-      const path = d3.geoPath().projection(projection);
-      
-      // 데이터 로드 및 시각화
+    // 지도 그리기 함수
+    const drawMap = async () => {
       try {
+        // 기존 SVG 클리어
+        d3.select(mapContainerRef.current).select('svg').remove();
+        
+        // 지도 크기 설정
+        const width = mapContainerRef.current.clientWidth;
+        const height = mapContainerRef.current.clientHeight;
+        
+        // SVG 생성
+        const svg = d3.select(mapContainerRef.current)
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .attr('viewBox', [0, 0, width, height])
+          .attr('style', 'max-width: 100%; height: auto;');
+          
+        // 투영법 설정
+        const projection = d3.geoNaturalEarth1()
+          .scale(width / 6)
+          .translate([width / 2, height / 2]);
+          
+        // 경로 생성기
+        const path = d3.geoPath().projection(projection);
+        
         // 월드맵 데이터 가져오기
         const world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
         
+        if (!world) {
+          throw new Error('지도 데이터를 불러오지 못했습니다.');
+        }
+        
         // 국가 경계 그리기
-        const countries = topojson.feature(world, world.objects.countries);
+        const countriesFeatures = topojson.feature(world, world.objects.countries);
         const countriesMesh = topojson.mesh(world, world.objects.countries);
         
         // 매출 데이터 기반 색상 스케일 생성
@@ -71,11 +75,7 @@ const WorldMap = ({ countries }: WorldMapProps) => {
         
         // 국가 데이터 맵 생성
         countries.forEach(country => {
-          const countryCode = country.id;
-          const data = countries.find(c => c.code === countryCode);
-          if (data) {
-            countryDataMap.set(countryCode, data);
-          }
+          countryDataMap.set(country.code, country);
         });
         
         // 색상 스케일 설정
@@ -93,7 +93,7 @@ const WorldMap = ({ countries }: WorldMapProps) => {
         // 국가들 그리기
         svg.append('g')
           .selectAll('path')
-          .data(countries.features)
+          .data(countriesFeatures.features)
           .join('path')
           .attr('fill', d => {
             const countryData = countryDataMap.get(d.id);
@@ -109,7 +109,7 @@ const WorldMap = ({ countries }: WorldMapProps) => {
           .text(d => {
             const countryData = countryDataMap.get(d.id);
             if (countryData) {
-              return `${countryData.name}: ${countryData.amt.toLocaleString()} 만원`;
+              return `${countryData.name}: $${countryData.amt.toLocaleString()}`;
             }
             return d.properties.name;
           });
@@ -125,7 +125,7 @@ const WorldMap = ({ countries }: WorldMapProps) => {
             return d3.color(REGION_COLORS[region])?.copy({ opacity })?.toString() || '#e2e8f0';
           })
           .attr('d', d => {
-            const feature = countries.features.find(f => f.id === d.code);
+            const feature = countriesFeatures.features.find(f => f.id === d.code);
             return feature ? path(feature) : null;
           })
           .attr('stroke', d => REGION_COLORS[d.region])
@@ -164,7 +164,7 @@ const WorldMap = ({ countries }: WorldMapProps) => {
             tooltip.append('text')
               .attr('x', 10)
               .attr('y', 55)
-              .text(`매출: ${d.amt.toLocaleString()} 만원`);
+              .text(`매출: $${d.amt.toLocaleString()}`);
           })
           .on('mouseout', function() {
             d3.select(this)
@@ -181,25 +181,19 @@ const WorldMap = ({ countries }: WorldMapProps) => {
           .attr('stroke-width', 0.3)
           .attr('d', path);
           
+        setIsLoading(false);
       } catch (error) {
         console.error('지도 데이터 로딩 오류:', error);
-        
-        // 오류 메시지 표시
-        svg.append('text')
-          .attr('x', width / 2)
-          .attr('y', height / 2)
-          .attr('text-anchor', 'middle')
-          .text('지도 데이터를 불러오는데 실패했습니다.');
+        setError('지도 데이터를 불러오는데 실패했습니다.');
+        setIsLoading(false);
       }
     };
     
+    drawMap();
+    
     // 화면 크기 변경 시 지도 재렌더링
     const handleResize = () => {
-      import('d3').then((d3) => {
-        import('topojson-client').then((topojson) => {
-          drawMap(d3, topojson);
-        });
-      });
+      drawMap();
     };
     
     window.addEventListener('resize', handleResize);
@@ -211,9 +205,13 @@ const WorldMap = ({ countries }: WorldMapProps) => {
 
   return (
     <div className="relative">
-      {countries.length === 0 ? (
+      {isLoading ? (
         <Card className="flex items-center justify-center h-full min-h-[300px]">
           <p className="text-muted-foreground">데이터를 불러오는 중입니다...</p>
+        </Card>
+      ) : error ? (
+        <Card className="flex items-center justify-center h-full min-h-[300px]">
+          <p className="text-red-500">{error}</p>
         </Card>
       ) : (
         <div 
