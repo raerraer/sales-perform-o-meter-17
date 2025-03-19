@@ -21,23 +21,23 @@ export const useHighlighting = (): UseHighlightingReturn => {
     isEditMode: boolean,
     originalData: any[][]
   ) => {
-    // 데이터 로드 시나 편집 모드가 아닌 경우에는 처리하지 않음
-    if (source === 'loadData' || !isEditMode) return;
+    // 데이터 로드 시에는 처리하지 않음
+    if (source === 'loadData') return;
     
-    // 변경사항이 있을 때만 데이터 업데이트
-    if (changes && changes.length > 0) {
+    // 변경사항이 있을 때만 처리
+    if (changes && changes.length > 0 && isEditMode) {
       // 현재 셀의 하이라이팅 상태를 복사
       const newChangedCells = new Set<string>(changedCells);
       
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
         const cellKey = `${row},${prop}`;
         
-        // 원본 데이터가 존재하고 편집 모드인 경우에만 처리
-        if (originalData && originalData.length > 0 && isEditMode) {
+        // 원본 데이터가 존재하는 경우에만 처리
+        if (originalData && originalData.length > 0) {
           if (originalData[row]) {
             const originalValue = originalData[row][prop];
             
-            // 값 비교를 위해 숫자로 변환 (콤마 제거)
+            // 값 비교를 위해 문자열로 변환 (콤마 제거)
             const normalizedOriginal = originalValue !== null && originalValue !== undefined 
               ? String(originalValue).replace(/,/g, '') 
               : '';
@@ -73,6 +73,13 @@ export const useHighlighting = (): UseHighlightingReturn => {
       // 데이터 업데이트 (셀 값 계산 로직 적용)
       const updatedData = handleDataChange(changes, data);
       setData(updatedData);
+    } else if (!isEditMode) {
+      // 편집 모드가 아닌 경우 하이라이팅 제거하지 않음
+      // 단, 데이터 변경 로직은 실행
+      if (changes && changes.length > 0) {
+        const updatedData = handleDataChange(changes, data);
+        setData(updatedData);
+      }
     }
   };
 

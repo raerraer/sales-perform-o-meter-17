@@ -63,7 +63,7 @@ export const useEditMode = (): UseEditModeReturn => {
       if (!originalData[rowIndex]) return;
       
       row.forEach((cell: any, colIndex: number) => {
-        // 문자열로 변환하여 비교 (정확한 변경사항 감지)
+        // 문자열로 변환하여 정확히 비교 (콤마 제거)
         const normalizedOriginal = originalData[rowIndex][colIndex] !== null && originalData[rowIndex][colIndex] !== undefined
           ? String(originalData[rowIndex][colIndex]).replace(/,/g, '')
           : '';

@@ -138,9 +138,9 @@ const configureModelRowSettings = (settings: any, data: any[][], row: number, is
       settings.readOnly = !isEditMode;
       
       // 기본 렌더러
-      const baseRenderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
+      let baseRenderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
       
-      // 변경된 셀 하이라이팅 추가 커스텀 렌더러
+      // 변경된 셀 하이라이팅 적용을 위한 커스텀 렌더러
       settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
         // 기본 스타일 적용
         baseRenderer.call(this, instance, td, row, col, prop, value, cellProperties);
@@ -197,7 +197,7 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
     // 셀 정렬 설정
     settings.className = `${settings.className.replace(/cell-(center|left|right)/, '')} ${getCellAlignmentClass(col, row, data)}`.trim();
 
-    // 변경된 셀 하이라이팅 (기본 하이라이팅 처리)
+    // 변경된 셀 하이라이팅 (모델행 이외의 일반 셀에 대한 처리)
     if (changedCells && changedCells.has(`${row},${col}`) && !settings.renderer) {
       // 기본 렌더러 저장
       const baseRenderer = settings.renderer || Handsontable.renderers.TextRenderer;
