@@ -66,49 +66,49 @@ const SalesHotTable = ({
         /* 레벨별 스타일 업데이트 - 새로운 색상 스키마 */
         /* Level 1: 총 합계 */
         .sales-performance-table .level-1-row {
-          background-color: #2C3E50 !important; /* 다크 슬레이트 블루 */
-          color: #FFFFFF !important; /* 흰색 폰트 */
+          background-color: #5A6E8B !important; /* 딥 블루 */
+          color: #FFFFFF !important; /* 밝은 화이트 */
           font-weight: bold !important;
         }
         
         /* Level 1: 총 합계 모델 */
         .sales-performance-table .level-1-model {
-          background-color: #34495E !important; /* 약간 밝은 다크 슬레이트 블루 */
-          color: #FFFFFF !important;
+          background-color: #6B7D97 !important; /* 약간 밝은 딥 블루 */
+          color: #FFFFFF !important; /* 밝은 화이트 */
           font-weight: bold !important;
         }
         
         /* Level 2: 지역 그룹 */
         .sales-performance-table .level-2-row {
-          background-color: #AED6F1 !important; /* 연한 파스텔 블루 */
-          color: #2C3E50 !important; /* 다크 슬레이트 블루 폰트 */
+          background-color: #BCC3D4 !important; /* 중간 블루-그레이 */
+          color: #3E4C63 !important; /* 다크 그레이 */
           font-weight: bold !important;
         }
         
         /* Level 2: 지역 모델 */
         .sales-performance-table .level-2-model {
-          background-color: #D6EAF8 !important; /* 밝은 파스텔 블루 */
-          color: #2C3E50 !important;
+          background-color: #CDD3E0 !important; /* 약간 밝은 중간 블루-그레이 */
+          color: #3E4C63 !important; /* 다크 그레이 */
           font-weight: bold !important;
         }
         
         /* Level 3: 국가 그룹 */
         .sales-performance-table .level-3-row {
-          background-color: #FAD7A0 !important; /* 따뜻한 파스텔 피치 */
-          color: #34495E !important; /* 짙은 슬레이트 블루 폰트 */
+          background-color: #D6DBE9 !important; /* 밝은 블루-그레이 */
+          color: #3E4C63 !important; /* 다크 그레이 */
           font-weight: bold !important;
         }
         
         /* Level 4: 실제 데이터 (모델별 세부 데이터) */
         .sales-performance-table .level-3-model {
-          background-color: #F8F9FA !important; /* 아주 연한 그레이 */
-          color: #333333 !important; /* 짙은 그레이 폰트 */
+          background-color: #FFFFFF !important; /* 기본 화이트 */
+          color: #3E4C63 !important; /* 다크 그레이 */
         }
         
         /* 헤더 스타일 */
         .sales-performance-table th {
-          background-color: #EBF5FB !important; /* 매우 연한 파스텔 블루 */
-          color: #2C3E50 !important; /* 다크 슬레이트 블루 폰트 */
+          background-color: #F0F2F7 !important; /* 연한 파스텔 블루-그레이 */
+          color: #3E4C63 !important; /* 다크 그레이 */
           text-align: center !important;
           font-weight: bold !important;
         }
