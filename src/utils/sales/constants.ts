@@ -21,23 +21,33 @@ export const REGION_COUNTRIES = {
 // 레벨별 스타일 색상 (새로운 색상 스키마 적용)
 export const LEVEL_STYLES = {
   LEVEL1: {
-    background: '#6D7784', // 다크 그레이
-    font: '#3E4C63',      // 네이비
+    background: '#1e2761', // 총 합계 다크 블루
+    font: '#ffffff',      // 흰색
+    fontWeight: 'bold'
+  },
+  LEVEL1_MODEL: {
+    background: '#ffffff', // 총 합계 모델 흰색
+    font: '#000000',      // 검정
     fontWeight: 'bold'
   },
   LEVEL2: {
-    background: '#C9CFD6', // 중간 블루-그레이
-    font: '#3E4C63',      // 네이비
+    background: '#333333', // 지역(미주, 구주) 다크 그레이
+    font: '#ffffff',      // 흰색
+    fontWeight: 'bold'
+  },
+  LEVEL2_MODEL: {
+    background: '#ffffff', // 지역 모델 흰색
+    font: '#000000',      // 검정
     fontWeight: 'bold'
   },
   LEVEL3: {
-    background: '#E1E5EB', // 밝은 블루-그레이
-    font: '#3E4C63',      // 네이비
+    background: '#f2f2f2', // 국가(미국, 캐나다...) 연한 그레이
+    font: '#000000',      // 검정
     fontWeight: 'bold'
   },
-  LEVEL4: {
-    background: '#F5F7FA', // 기본 화이트
-    font: '#3E4C63',      // 네이비
-    fontWeight: 'normal'
+  LEVEL3_MODEL: {
+    background: '#ffffff', // 국가 모델 흰색
+    font: '#000000',      // 검정
+    fontWeight: 'normal'  // 볼드 없음
   }
 };

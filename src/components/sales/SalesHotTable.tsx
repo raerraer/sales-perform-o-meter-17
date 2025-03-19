@@ -66,43 +66,44 @@ const SalesHotTable = ({
         /* 레벨별 스타일 업데이트 - 새로운 색상 스키마 */
         /* Level 1: 총 합계 */
         .sales-performance-table .level-1-row {
-          background-color: #6D7784 !important; /* 다크 그레이 */
-          color: #3E4C63 !important; /* 네이비 */
+          background-color: #1e2761 !important; /* 총 합계 다크 블루 */
+          color: #ffffff !important; /* 흰색 */
           font-weight: bold !important;
         }
         
         /* Level 1: 총 합계 모델 */
         .sales-performance-table .level-1-model {
-          background-color: #7D8693 !important; /* 약간 밝은 다크 그레이 */
-          color: #3E4C63 !important; /* 네이비 */
+          background-color: #ffffff !important; /* 흰색 */
+          color: #000000 !important; /* 검정 */
           font-weight: bold !important;
         }
         
         /* Level 2: 지역 그룹 */
         .sales-performance-table .level-2-row {
-          background-color: #C9CFD6 !important; /* 중간 블루-그레이 */
-          color: #3E4C63 !important; /* 네이비 */
+          background-color: #333333 !important; /* 지역 다크 그레이 */
+          color: #ffffff !important; /* 흰색 */
           font-weight: bold !important;
         }
         
         /* Level 2: 지역 모델 */
         .sales-performance-table .level-2-model {
-          background-color: #D5DAE0 !important; /* 약간 밝은 중간 블루-그레이 */
-          color: #3E4C63 !important; /* 네이비 */
+          background-color: #ffffff !important; /* 흰색 */
+          color: #000000 !important; /* 검정 */
           font-weight: bold !important;
         }
         
         /* Level 3: 국가 그룹 */
         .sales-performance-table .level-3-row {
-          background-color: #E1E5EB !important; /* 밝은 블루-그레이 */
-          color: #3E4C63 !important; /* 네이비 */
+          background-color: #f2f2f2 !important; /* 국가 연한 그레이 */
+          color: #000000 !important; /* 검정 */
           font-weight: bold !important;
         }
         
-        /* Level 4: 실제 데이터 (모델별 세부 데이터) */
+        /* Level 3: 국가 모델 (기본 데이터) */
         .sales-performance-table .level-3-model {
-          background-color: #F5F7FA !important; /* 기본 화이트 */
-          color: #3E4C63 !important; /* 네이비 */
+          background-color: #ffffff !important; /* 흰색 */
+          color: #000000 !important; /* 검정 */
+          font-weight: normal !important; /* 볼드 없음 */
         }
         
         /* 헤더 스타일 */

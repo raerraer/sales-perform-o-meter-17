@@ -74,10 +74,10 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
             settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
               Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
-              // 총 합계 모델은 약간 밝은 Level 1 색상
-              td.style.backgroundColor = '#7D8693'; // 약간 밝은 다크 그레이
-              td.style.color = LEVEL_STYLES.LEVEL1.font;
-              td.style.fontWeight = LEVEL_STYLES.LEVEL1.fontWeight;
+              // 총 합계 모델 스타일 적용
+              td.style.backgroundColor = LEVEL_STYLES.LEVEL1_MODEL.background;
+              td.style.color = LEVEL_STYLES.LEVEL1_MODEL.font;
+              td.style.fontWeight = LEVEL_STYLES.LEVEL1_MODEL.fontWeight;
             };
             
             break;
@@ -91,10 +91,10 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
             settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
               Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
-              // 지역 모델은 약간 밝은 Level 2 색상
-              td.style.backgroundColor = '#D5DAE0'; // 약간 밝은 중간 블루-그레이
-              td.style.color = LEVEL_STYLES.LEVEL2.font;
-              td.style.fontWeight = LEVEL_STYLES.LEVEL2.fontWeight;
+              // 지역 모델 스타일 적용
+              td.style.backgroundColor = LEVEL_STYLES.LEVEL2_MODEL.background;
+              td.style.color = LEVEL_STYLES.LEVEL2_MODEL.font;
+              td.style.fontWeight = LEVEL_STYLES.LEVEL2_MODEL.fontWeight;
             };
             
             break;
@@ -108,10 +108,10 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
             settings.renderer = function(instance: any, td: HTMLElement, row: number, col: number, prop: any, value: any, cellProperties: any) {
               Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
-              // 국가 모델은 LEVEL4 스타일 적용 (기본 데이터)
-              td.style.backgroundColor = LEVEL_STYLES.LEVEL4.background;
-              td.style.color = LEVEL_STYLES.LEVEL4.font;
-              td.style.fontWeight = LEVEL_STYLES.LEVEL4.fontWeight;
+              // 국가 모델 스타일 적용
+              td.style.backgroundColor = LEVEL_STYLES.LEVEL3_MODEL.background;
+              td.style.color = LEVEL_STYLES.LEVEL3_MODEL.font;
+              td.style.fontWeight = LEVEL_STYLES.LEVEL3_MODEL.fontWeight;
               
               // 변경된 셀 하이라이팅
               if (changedCells && changedCells.has(`${row},${col}`)) {
