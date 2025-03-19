@@ -88,7 +88,7 @@ export const useEditMode = (): UseEditModeReturn => {
       
       addVersionHistory(newHistory);
       
-      // 저장 시 하이라이팅 제거 (요구사항 변경)
+      // 저장 시 하이라이팅 제거 (명시적으로 Set 초기화)
       setChangedCells(new Set());
       
       toast.success("변경사항이 저장되었습니다.");

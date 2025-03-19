@@ -29,17 +29,19 @@ export const useHighlighting = (): UseHighlightingReturn => {
       const newChangedCells = new Set<string>(changedCells);
       
       changes.forEach(([row, prop, oldValue, newValue]: [number, any, any, any]) => {
+        const cellKey = `${row},${prop}`;
+        
         // 문자열로 변환해서 비교 (다른 타입 처리)
-        const normalizedOldValue = String(oldValue).replace(/,/g, '');
-        const normalizedNewValue = String(newValue).replace(/,/g, '');
+        const normalizedOldValue = oldValue !== null && oldValue !== undefined ? String(oldValue).replace(/,/g, '') : '';
+        const normalizedNewValue = newValue !== null && newValue !== undefined ? String(newValue).replace(/,/g, '') : '';
         
         // 값이 실제로 변경된 경우만 처리 (콤마 제거 후 비교)
         if (normalizedOldValue !== normalizedNewValue) {
-          const cellKey = `${row},${prop}`;
-          
           // 원본 데이터와 비교하여 실제로 변경된 경우에만 하이라이팅 적용
           if (originalData[row]) {
-            const originalValue = String(originalData[row][prop] || '').replace(/,/g, '');
+            const originalValue = originalData[row][prop] !== null && originalData[row][prop] !== undefined 
+              ? String(originalData[row][prop]).replace(/,/g, '') 
+              : '';
             
             if (originalValue !== normalizedNewValue) {
               // 원본과 다르면 하이라이팅 추가
