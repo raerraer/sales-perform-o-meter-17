@@ -46,7 +46,9 @@ const SalesHotTable = ({
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
-        tableClassName="aria-rowindex=3" // 세로 스크롤시 행 고정
+        tableClassName="fixed-header" // 클래스 이름 변경
+        renderAllRows={false} // 필요한 행만 렌더링하도록 설정
+        viewportRowRenderingOffset={20} // 뷰포트 렌더링 최적화
       />
       <style dangerouslySetInnerHTML={{ __html: `
         .sales-performance-table .cell-center {
@@ -112,6 +114,23 @@ const SalesHotTable = ({
           color: #3E4C63 !important; /* 네이비 */
           text-align: center !important;
           font-weight: bold !important;
+        }
+        
+        /* 헤더 행 고정을 위한 추가 스타일 */
+        .handsontable .wtSpreader {
+          position: relative;
+        }
+        
+        .handsontable .ht_clone_top {
+          z-index: 101;
+        }
+        
+        .handsontable .ht_clone_left {
+          z-index: 102;
+        }
+        
+        .handsontable .ht_clone_top_left_corner {
+          z-index: 103;
         }
       `}} />
     </div>
