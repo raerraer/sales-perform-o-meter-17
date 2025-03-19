@@ -33,7 +33,22 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
     // 일반 모델 행 (국가 아래의 모델1, 모델2) - 편집 가능하도록 설정
     else if (MODELS.includes(data[row][0])) {
       settings.className = 'cell-center';
-      settings.readOnly = !isEditMode; // isEditMode가 true일 때만 편집 가능
+      
+      // 국가 아래에 있는 모델 행만 편집 가능하도록 설정
+      const prevRow = row - 1;
+      while (prevRow >= 0) {
+        // 상위 행 중 국가가 나오면 편집 가능
+        if (COUNTRIES.includes(data[prevRow][0])) {
+          settings.readOnly = !isEditMode; // isEditMode가 true일 때만 편집 가능
+          break;
+        }
+        // 상위 행 중 그룹이 나오면 편집 불가
+        if (GROUPS.includes(data[prevRow][0])) {
+          settings.readOnly = true;
+          break;
+        }
+        prevRow--;
+      }
     }
 
     // 폰트 설정
