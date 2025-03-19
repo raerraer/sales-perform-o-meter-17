@@ -21,7 +21,8 @@ export const useEditMode = (): UseEditModeReturn => {
   ) => {
     if (!isEditMode) {
       // 편집 모드로 전환 시 현재 데이터를 백업
-      setOriginalData(JSON.parse(JSON.stringify(currentData)));
+      const deepCopy = JSON.parse(JSON.stringify(currentData));
+      setOriginalData(deepCopy);
       setIsEditMode(true);
       toast.info("편집 모드로 전환되었습니다.");
     } else {
@@ -52,9 +53,25 @@ export const useEditMode = (): UseEditModeReturn => {
     // 변경사항 확인
     const changes: { row: number; col: number; oldValue: any; newValue: any }[] = [];
     
+    if (!originalData || originalData.length === 0) {
+      toast.info("변경사항이 없습니다.");
+      setIsEditMode(false);
+      return;
+    }
+    
     data.forEach((row, rowIndex) => {
+      if (!originalData[rowIndex]) return;
+      
       row.forEach((cell: any, colIndex: number) => {
-        if (originalData[rowIndex] && cell !== originalData[rowIndex][colIndex]) {
+        // 문자열로 변환하여 비교 (정확한 변경사항 감지)
+        const normalizedOriginal = originalData[rowIndex][colIndex] !== null && originalData[rowIndex][colIndex] !== undefined
+          ? String(originalData[rowIndex][colIndex]).replace(/,/g, '')
+          : '';
+        const normalizedNew = cell !== null && cell !== undefined
+          ? String(cell).replace(/,/g, '')
+          : '';
+        
+        if (normalizedOriginal !== normalizedNew) {
           changes.push({
             row: rowIndex,
             col: colIndex,
@@ -83,12 +100,15 @@ export const useEditMode = (): UseEditModeReturn => {
         changes
       };
       
+      console.log("저장할 변경사항:", changes);
+      
       // 현재 버전의 데이터 업데이트
       updateVersionData(currentVersion, data);
       
       addVersionHistory(newHistory);
       
-      // 저장 시 하이라이팅 제거 (명시적으로 Set 초기화)
+      // 저장 시 하이라이팅 명시적으로 제거
+      console.log("하이라이팅 초기화");
       setChangedCells(new Set());
       
       toast.success("변경사항이 저장되었습니다.");
