@@ -35,19 +35,28 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       settings.className = 'cell-center';
       
       // 국가 아래에 있는 모델 행만 편집 가능하도록 설정
-      let prevRow = row - 1; // const 대신 let으로 변경
+      let prevRow = row - 1;
+      let isUnderCountry = false;
+      
       while (prevRow >= 0) {
-        // 상위 행 중 국가가 나오면 편집 가능
+        // 상위 행 중 국가가 나오면 편집 가능하도록 설정
         if (COUNTRIES.includes(data[prevRow][0])) {
+          isUnderCountry = true;
           settings.readOnly = !isEditMode; // isEditMode가 true일 때만 편집 가능
           break;
         }
         // 상위 행 중 그룹이 나오면 편집 불가
         if (GROUPS.includes(data[prevRow][0])) {
+          isUnderCountry = false;
           settings.readOnly = true;
           break;
         }
         prevRow--;
+      }
+      
+      // 모델2가 국가 아래에 있을 때 편집 가능하도록 명시적으로 설정
+      if (isUnderCountry && data[row][0] === '모델2') {
+        settings.readOnly = !isEditMode;
       }
     }
 

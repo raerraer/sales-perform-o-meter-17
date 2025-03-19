@@ -30,7 +30,7 @@ const SalesHotTable = ({
         height="calc(100vh - 280px)" // 헤더 버튼들 추가된 크기 고려하여 조정
         colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 넓게, 나머지는 균일하게
         fixedColumnsLeft={1}
-        fixedRowsTop={3} // 3개의 헤더 행 고정 (명시적으로 3으로 설정)
+        fixedRowsTop={3} // 3개의 헤더 행 고정 
         manualColumnResize={true}
         contextMenu={isEditMode}
         copyPaste={isEditMode}
@@ -46,6 +46,7 @@ const SalesHotTable = ({
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
+        tableClassName="aria-rowindex='3'"
       />
       <style dangerouslySetInnerHTML={{ __html: `
         .sales-performance-table .cell-center {
