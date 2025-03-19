@@ -142,6 +142,17 @@ const SalesHotTable = ({
           overflow: hidden;
           height: 84px !important; /* 3행 고정을 위한 높이 설정 (28px * 3) */
         }
+        
+        /* 왼쪽 첫 번째 열도 3행만 고정되도록 수정 */
+        .handsontable .ht_clone_left .wtHolder {
+          overflow: hidden;
+          height: 84px !important; /* 3행만 고정되도록 설정 (28px * 3) */
+        }
+        
+        /* 왼쪽 열 스크롤 동기화 */
+        .handsontable .ht_clone_left {
+          height: 84px !important; /* 3행만 보이도록 높이 제한 */
+        }
       `}} />
     </div>
   );
