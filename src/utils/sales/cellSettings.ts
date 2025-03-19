@@ -30,8 +30,8 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       settings.className = 'country-row cell-center';
       settings.readOnly = true; // 국가 행은 항상 읽기 전용
     }
-    // 모델2 행 - 기존에는 읽기 전용이었지만 이제 편집 가능하도록 변경
-    else if (data[row][0] === '모델2') {
+    // 일반 모델 행 (국가 아래의 모델1, 모델2) - 편집 가능하도록 설정
+    else if (MODELS.includes(data[row][0])) {
       settings.className = 'cell-center';
       settings.readOnly = !isEditMode; // isEditMode가 true일 때만 편집 가능
     }
