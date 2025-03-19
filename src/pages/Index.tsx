@@ -1,6 +1,7 @@
 
 import { useEffect } from 'react';
 import SalesPerformanceTable from '@/components/SalesPerformanceTable';
+import NavigationHeader from '@/components/common/NavigationHeader';
 
 const Index = () => {
   useEffect(() => {
@@ -11,13 +12,10 @@ const Index = () => {
     };
   }, []);
   return <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold text-gray-800">영업실적표</h1>
-        </div>
-      </header>
+      <NavigationHeader />
       
       <main className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">영업실적표</h1>
         <SalesPerformanceTable />
       </main>
       
