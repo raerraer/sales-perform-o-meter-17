@@ -60,7 +60,8 @@ export const useEditMode = () => {
     setOriginalData: (data: any[][]) => void,
     updateVersionData: (version: string, data: any[][]) => void,
     currentVersion: string,
-    addVersionHistory: (version: string, year: string, month: string, week: string) => void,
+    // 함수 타입 변경 - 호출 시에 인자 없이 호출되는 형태로
+    addVersionHistory: () => void,
     currentYear: string,
     currentMonth: string,
     currentWeek: string,
@@ -78,7 +79,7 @@ export const useEditMode = () => {
         updateVersionData(currentVersion, data);
         
         // 변경 이력 추가
-        addVersionHistory(currentVersion, currentYear, currentMonth, currentWeek);
+        addVersionHistory();
         
         // 편집 모드 종료 및 상태 초기화
         setOriginalData([]);

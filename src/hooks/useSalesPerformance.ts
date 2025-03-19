@@ -108,6 +108,16 @@ const useSalesPerformance = () => {
       return;
     }
     
+    // 타입 불일치 오류 수정 - addVersionHistory 호출 변경
+    const historyEntry = {
+      version: currentVersion,
+      date: new Date().toISOString(),
+      year: currentYear,
+      month: currentMonth,
+      week: currentWeek,
+      changes: []  // 변경 내역 - 비워둠
+    };
+    
     // 먼저 현재 버전에 변경사항 저장
     saveChanges(
       data, 
@@ -115,7 +125,8 @@ const useSalesPerformance = () => {
       setOriginalData, 
       updateVersionData, 
       currentVersion, 
-      addVersionHistory, 
+      // 타입에 맞게 addVersionHistory 직접 호출
+      () => addVersionHistory(historyEntry),
       currentYear, 
       currentMonth, 
       currentWeek,
