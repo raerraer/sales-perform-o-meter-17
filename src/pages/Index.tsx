@@ -2,15 +2,25 @@
 import { useEffect } from 'react';
 import SalesPerformanceTable from '@/components/SalesPerformanceTable';
 import NavigationHeader from '@/components/common/NavigationHeader';
+import useSalesPerformance from '@/hooks/useSalesPerformance';
 
 const Index = () => {
+  const { versionData, currentVersion } = useSalesPerformance();
+
   useEffect(() => {
     // 페이지 로드 시 부드러운 애니메이션 적용
     document.documentElement.style.scrollBehavior = 'smooth';
+    
+    // 로컬스토리지에 데이터 저장 (대시보드용)
+    if (versionData && Object.keys(versionData).length > 0) {
+      localStorage.setItem('salesVersionData', JSON.stringify(versionData));
+      console.info(`${currentVersion} 버전 데이터 로드:`, versionData[currentVersion]);
+    }
+    
     return () => {
       document.documentElement.style.scrollBehavior = 'auto';
     };
-  }, []);
+  }, [versionData, currentVersion]);
   
   return (
     <div className="min-h-screen bg-slate-50">
