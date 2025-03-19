@@ -33,6 +33,7 @@ export const useHighlighting = (): UseHighlightingReturn => {
           
           // 원본 데이터와 비교하여 실제로 변경된 경우에만 하이라이팅 적용
           if (originalData[row] && originalData[row][prop] !== newValue) {
+            // 원본 데이터와 현재 값이 다른 경우 하이라이팅 추가
             tmpChangedCells.add(cellKey);
           } else {
             // 원본 데이터와 동일해진 경우는 하이라이팅 제거
