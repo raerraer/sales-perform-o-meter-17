@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from 'sonner';
 import { useSalesVersions } from './sales/useSalesVersions';
@@ -144,31 +144,7 @@ const useSalesPerformance = () => {
 
   const moveToVersion = (version: string) => {
     if (version !== currentVersion) {
-      try {
-        if (versionData[version]) {
-          const selectedVersionData = JSON.parse(JSON.stringify(versionData[version]));
-          
-          if (Array.isArray(selectedVersionData)) {
-            setData(selectedVersionData);
-            setCurrentVersion(version);
-            
-            if (isEditMode) {
-              setIsEditMode(false);
-              setOriginalData([]);
-              setChangedCells(new Set());
-            }
-            
-            toast.info(`${version} 버전 데이터를 불러왔습니다.`);
-          } else {
-            throw new Error("유효하지 않은 데이터 형식");
-          }
-        } else {
-          throw new Error(`${version} 버전 데이터를 찾을 수 없습니다.`);
-        }
-      } catch (error) {
-        console.error(`버전 전환 중 오류 발생:`, error);
-        toast.error(`${version} 버전으로 전환하는 중 오류가 발생했습니다.`);
-      }
+      moveToVersionHandler(version, setCurrentVersion, versionData, setData);
     }
   };
 
