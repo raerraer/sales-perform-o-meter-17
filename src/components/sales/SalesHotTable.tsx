@@ -29,8 +29,8 @@ const SalesHotTable = ({
         width="100%"
         height="calc(100vh - 280px)" // 헤더 버튼들 추가된 크기 고려하여 조정
         colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 넓게, 나머지는 균일하게
-        fixedColumnsLeft={1}
-        fixedRowsTop={3} // 3개의 헤더 행 고정 (월, 카테고리, Qty/Amt)
+        fixedColumnsLeft={1} // 첫번째 열 고정
+        fixedRowsTop={3} // 3개의 헤더 행 고정
         manualColumnResize={true}
         contextMenu={isEditMode}
         copyPaste={isEditMode}
@@ -46,7 +46,7 @@ const SalesHotTable = ({
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
-        tableClassName="fixed-header" // 클래스 이름 변경
+        tableClassName="fixed-header" // 헤더 고정을 위한 클래스
         renderAllRows={false} // 필요한 행만 렌더링하도록 설정
         viewportRowRenderingOffset={20} // 뷰포트 렌더링 최적화
       />
@@ -116,11 +116,12 @@ const SalesHotTable = ({
           font-weight: bold !important;
         }
         
-        /* 헤더 행 고정을 위한 추가 스타일 */
+        /* 고정 헤더 스타일 수정 */
         .handsontable .wtSpreader {
           position: relative;
         }
         
+        /* z-index 설정으로 고정 행/열이 다른 요소보다 위에 표시되도록 함 */
         .handsontable .ht_clone_top {
           z-index: 101;
         }
@@ -133,24 +134,35 @@ const SalesHotTable = ({
           z-index: 103;
         }
         
-        /* 3행만 고정되도록 추가 스타일 */
+        /* 스크롤 관련 설정 */
         .handsontable .ht_master .wtHolder {
           overflow: auto;
         }
         
+        /* 상단 3행 고정 설정 */
         .handsontable .ht_clone_top .wtHolder {
           overflow: hidden;
-          height: 84px !important; /* 3행 고정을 위한 높이 설정 (28px * 3) */
+          height: 84px !important; /* 3행 고정 (28px * 3) */
         }
         
-        /* 왼쪽 첫 번째 열도 3행만 고정되도록 수정 */
+        /* 좌측 첫 번째 열의 상단 3행만 고정 */
         .handsontable .ht_clone_left .wtHolder {
           overflow: hidden;
-          height: 84px !important; /* 3행만 고정되도록 설정 (28px * 3) */
+          height: 84px !important; /* 3행만 고정 (28px * 3) */
         }
         
-        /* 왼쪽 열 스크롤 동기화 */
+        /* 좌측 열 높이 제한 */
         .handsontable .ht_clone_left {
+          height: 84px !important; /* 3행만 보이도록 높이 제한 */
+        }
+        
+        /* 좌측 상단 모서리 (교차 부분) 설정 */
+        .handsontable .ht_clone_top_left_corner .wtHolder {
+          overflow: hidden;
+          height: 84px !important; /* 3행만 고정 (28px * 3) */
+        }
+        
+        .handsontable .ht_clone_top_left_corner {
           height: 84px !important; /* 3행만 보이도록 높이 제한 */
         }
       `}} />
