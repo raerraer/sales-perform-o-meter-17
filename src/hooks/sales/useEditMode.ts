@@ -1,19 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
 export const useEditMode = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   /**
-   * 편집 모드 토글 함수
-   * @param data 현재 데이터 
-   * @param originalData 원본 데이터
-   * @param setOriginalData 원본 데이터 설정 함수
-   * @param setData 데이터 설정 함수
-   * @param clearHighlighting 하이라이팅 초기화 함수
+   * 편집 모드 토글 함수 - useCallback으로 최적화
    */
-  const toggleEditMode = (
+  const toggleEditMode = useCallback((
     data: any[][], 
     originalData: any[][], 
     setOriginalData: (data: any[][]) => void,
@@ -47,29 +42,17 @@ export const useEditMode = () => {
         toast.info("편집 모드가 종료되었습니다.");
       }
     }
-  };
+  }, [isEditMode]);
 
   /**
-   * 변경사항 저장 함수
-   * @param data 현재 데이터
-   * @param originalData 원본 데이터
-   * @param setOriginalData 원본 데이터 설정 함수
-   * @param updateVersionData 버전 데이터 업데이트 함수
-   * @param currentVersion 현재 버전
-   * @param addVersionHistory 버전 이력 추가 함수
-   * @param currentYear 현재 연도
-   * @param currentMonth 현재 월
-   * @param currentWeek 현재 주
-   * @param setIsEditMode 편집 모드 설정 함수
-   * @param clearHighlighting 하이라이팅 초기화 함수
+   * 변경사항 저장 함수 - useCallback으로 최적화
    */
-  const saveChanges = (
+  const saveChanges = useCallback((
     data: any[][], 
     originalData: any[][],
     setOriginalData: (data: any[][]) => void,
     updateVersionData: (version: string, data: any[][]) => void,
     currentVersion: string,
-    // 함수 타입 변경 - 호출 시에 인자 없이 호출되는 형태로
     addVersionHistory: () => void,
     currentYear: string,
     currentMonth: string,
@@ -106,7 +89,7 @@ export const useEditMode = () => {
         toast.error("변경사항 저장에 실패했습니다.");
       }
     }
-  };
+  }, [isEditMode]);
 
   return {
     isEditMode,

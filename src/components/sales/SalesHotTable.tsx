@@ -1,4 +1,5 @@
 
+import React, { memo } from 'react';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.min.css';
 import { generateComplexHeaders } from '@/utils/salesTableUtils';
@@ -12,13 +13,20 @@ interface SalesHotTableProps {
   afterChange: (changes: any, source: string) => void;
 }
 
-const SalesHotTable = ({
+// memo로 감싸 불필요한 리렌더링 방지
+const SalesHotTable = memo(({
   hotRef,
   data,
   isEditMode,
   getCellsSettings,
   afterChange
 }: SalesHotTableProps) => {
+  // 헤더는 변경되지 않으므로 메모이제이션
+  const nestedHeaders = React.useMemo(() => generateComplexHeaders(), []);
+  
+  // 테이블 스타일도 메모이제이션
+  const tableStyles = React.useMemo(() => ({ __html: getSalesTableStyles() }), []);
+  
   return (
     <div className="relative overflow-auto" style={{ maxWidth: '100%' }}>
       <HotTable
@@ -35,7 +43,7 @@ const SalesHotTable = ({
         contextMenu={isEditMode}
         copyPaste={isEditMode}
         afterChange={afterChange}
-        nestedHeaders={generateComplexHeaders()}
+        nestedHeaders={nestedHeaders}
         cells={getCellsSettings()}
         wordWrap={false}
         stretchH="none"
@@ -47,10 +55,17 @@ const SalesHotTable = ({
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
         tableClassName="aria-rowindex=3" // 세로 스크롤시 행 고정
+        // 성능 최적화를 위한 추가 옵션
+        renderAllRows={false}
+        viewportColumnRenderingOffset={10}
+        viewportRowRenderingOffset={20}
       />
-      <style dangerouslySetInnerHTML={{ __html: getSalesTableStyles() }} />
+      <style dangerouslySetInnerHTML={tableStyles} />
     </div>
   );
-};
+});
+
+// 컴포넌트 이름 명시적 설정
+SalesHotTable.displayName = 'SalesHotTable';
 
 export default SalesHotTable;

@@ -1,5 +1,5 @@
 
-// 테이블 스타일 정의
+// 테이블 스타일 정의 - 성능 최적화
 export const getSalesTableStyles = () => `
   .sales-performance-table .cell-center {
     text-align: center !important;
@@ -62,13 +62,13 @@ export const getSalesTableStyles = () => `
     font-weight: bold !important;
   }
   
-  /* 수정된 셀 하이라이팅 스타일 */
+  /* 수정된 셀 하이라이팅 스타일 - 성능 최적화 */
   .sales-performance-table .modified-cell {
     background-color: #FEF7CD !important; /* 연한 노란색 배경 */
     position: relative;
   }
   
-  /* 수정된 셀에 작은 표시자 추가 */
+  /* 수정된 셀에 작은 표시자 추가 - will-change 속성 추가로 렌더링 최적화 */
   .sales-performance-table .modified-cell::after {
     content: '';
     position: absolute;
@@ -79,5 +79,6 @@ export const getSalesTableStyles = () => `
     border-style: solid;
     border-width: 0 6px 6px 0;
     border-color: transparent #FFA500 transparent transparent;
+    will-change: transform;
   }
 `;
