@@ -65,6 +65,16 @@ const SalesHotTable = ({
           background-color: #f3f4f6 !important;
           font-weight: bold !important;
         }
+        .sales-performance-table .group-row {
+          background-color: #e5e7eb !important;
+          font-weight: bold !important;
+          color: #1f2937 !important;
+        }
+        .sales-performance-table .model-group-row {
+          background-color: #f1f5f9 !important;
+          font-weight: bold !important;
+          font-style: italic !important;
+        }
         /* 헤더 스타일 */
         .sales-performance-table th {
           background-color: #e5e7eb !important;

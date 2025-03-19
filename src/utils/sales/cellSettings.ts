@@ -1,6 +1,6 @@
 
 import Handsontable from 'handsontable';
-import { COUNTRIES } from './constants';
+import { COUNTRIES, GROUPS, MODELS } from './constants';
 
 // 셀 스타일 설정 함수 (하이라이팅 기능 추가)
 export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, originalData: any[][], changedCells?: Set<string>) => {
@@ -11,8 +11,22 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
       className: 'cell-center' // 모든 셀에 중앙 정렬 클래스 추가
     };
 
+    // 그룹 행 스타일링
+    if (GROUPS.includes(data[row][0])) {
+      settings.className = 'group-row cell-center';
+      settings.readOnly = true; // 그룹 행은 항상 읽기 전용
+    }
+    // 모델 그룹 행 스타일링
+    else if (MODELS.includes(data[row][0]) && row > 0) {
+      // 이전 행이 그룹 행이거나 모델 그룹 행인 경우
+      const prevRowIsGroup = row > 0 && (GROUPS.includes(data[row-1][0]) || MODELS.includes(data[row-1][0]));
+      if (prevRowIsGroup) {
+        settings.className = 'model-group-row cell-center';
+        settings.readOnly = true; // 모델 그룹 행은 항상 읽기 전용
+      }
+    }
     // 국가 행 특별 스타일링
-    if (COUNTRIES.includes(data[row][0])) {
+    else if (COUNTRIES.includes(data[row][0])) {
       settings.className = 'country-row cell-center';
       settings.readOnly = true; // 국가 행은 항상 읽기 전용
     }
@@ -50,8 +64,8 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
     if (col === 0) {
       settings.className = settings.className.replace('cell-center', 'cell-right');
       
-      // 국가 행의 첫 번째 열은 중앙 정렬
-      if (COUNTRIES.includes(data[row][0])) {
+      // 국가 행과 그룹 행의 첫 번째 열은 중앙 정렬
+      if (COUNTRIES.includes(data[row][0]) || GROUPS.includes(data[row][0])) {
         settings.className = settings.className.replace('cell-right', 'cell-center');
       }
     }
