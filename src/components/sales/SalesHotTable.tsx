@@ -128,7 +128,6 @@ const SalesHotTable = ({
         
         .handsontable .ht_clone_left {
           z-index: 102;
-          height: auto !important; /* 높이 제한 제거하여 전체 행 표시 */
         }
         
         .handsontable .ht_clone_top_left_corner {
@@ -146,35 +145,53 @@ const SalesHotTable = ({
           height: 84px !important; /* 3행 고정 (28px * 3) */
         }
         
-        /* 좌측 첫 번째 열 스크롤 설정 - 전체 높이 표시되도록 수정 */
+        /* 좌측 첫 번째 열 설정 - 세로로 전체 표시되도록 수정 */
         .handsontable .ht_clone_left .wtHolder {
           overflow: hidden;
-          height: auto !important; /* 전체 높이로 설정하여 모든 행 표시 */
+          width: 120px; /* 첫 번째 열 너비 */
+          height: auto !important; /* 전체 높이 표시 */
         }
         
-        /* 좌측 상단 모서리 (교차 부분) 설정 */
+        /* 좌측 상단 모서리 (교차 부분) 설정 - 딱 3행만 고정 */
         .handsontable .ht_clone_top_left_corner .wtHolder {
           overflow: hidden;
-          height: 84px !important; /* 3행만 고정 (28px * 3) */
+          height: 84px !important; /* 3행 고정 (28px * 3) */
+          width: 120px; /* 첫 번째 열 너비 */
         }
         
         .handsontable .ht_clone_top_left_corner {
           height: 84px !important; /* 3행만 보이도록 높이 제한 */
         }
-
-        /* 고정된 열이 스크롤할 때 보이도록 설정 */
-        .handsontable .wtHolder {
+        
+        /* 고정 영역 스타일링 개선 */
+        .handsontable .ht_master .wtHolder {
           position: relative;
         }
         
-        /* 왼쪽 고정 열의 배경색 설정 (스크롤 영역과 구분되도록) */
+        /* 왼쪽 고정 열 스타일 */
         .handsontable .ht_clone_left td {
           background-color: #ffffff;
+        }
+        
+        /* 상단 고정 행 스타일 */
+        .handsontable .ht_clone_top td,
+        .handsontable .ht_clone_top th {
+          border-bottom: 1px solid #ddd;
         }
         
         /* 고정된 모서리 부분 스타일링 */
         .handsontable .ht_clone_top_left_corner .wtHolder {
           border-right: 2px solid #ccc;
+          border-bottom: 2px solid #ccc;
+        }
+        
+        /* 좌측 고정 열 구분선 */
+        .handsontable .ht_clone_left {
+          border-right: 2px solid #ccc;
+        }
+        
+        /* 상단 고정 행 구분선 */
+        .handsontable .ht_clone_top {
           border-bottom: 2px solid #ccc;
         }
       `}} />
