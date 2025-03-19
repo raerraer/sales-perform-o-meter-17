@@ -66,49 +66,49 @@ const SalesHotTable = ({
         /* 레벨별 스타일 업데이트 - 새로운 색상 스키마 */
         /* Level 1: 총 합계 */
         .sales-performance-table .level-1-row {
-          background-color: #5A6E8B !important; /* 딥 블루 */
-          color: #FFFFFF !important; /* 밝은 화이트 */
+          background-color: #6D7784 !important; /* 다크 그레이 */
+          color: #3E4C63 !important; /* 네이비 */
           font-weight: bold !important;
         }
         
         /* Level 1: 총 합계 모델 */
         .sales-performance-table .level-1-model {
-          background-color: #6B7D97 !important; /* 약간 밝은 딥 블루 */
-          color: #FFFFFF !important; /* 밝은 화이트 */
+          background-color: #7D8693 !important; /* 약간 밝은 다크 그레이 */
+          color: #3E4C63 !important; /* 네이비 */
           font-weight: bold !important;
         }
         
         /* Level 2: 지역 그룹 */
         .sales-performance-table .level-2-row {
-          background-color: #BCC3D4 !important; /* 중간 블루-그레이 */
-          color: #3E4C63 !important; /* 다크 그레이 */
+          background-color: #C9CFD6 !important; /* 중간 블루-그레이 */
+          color: #3E4C63 !important; /* 네이비 */
           font-weight: bold !important;
         }
         
         /* Level 2: 지역 모델 */
         .sales-performance-table .level-2-model {
-          background-color: #CDD3E0 !important; /* 약간 밝은 중간 블루-그레이 */
-          color: #3E4C63 !important; /* 다크 그레이 */
+          background-color: #D5DAE0 !important; /* 약간 밝은 중간 블루-그레이 */
+          color: #3E4C63 !important; /* 네이비 */
           font-weight: bold !important;
         }
         
         /* Level 3: 국가 그룹 */
         .sales-performance-table .level-3-row {
-          background-color: #D6DBE9 !important; /* 밝은 블루-그레이 */
-          color: #3E4C63 !important; /* 다크 그레이 */
+          background-color: #E1E5EB !important; /* 밝은 블루-그레이 */
+          color: #3E4C63 !important; /* 네이비 */
           font-weight: bold !important;
         }
         
         /* Level 4: 실제 데이터 (모델별 세부 데이터) */
         .sales-performance-table .level-3-model {
-          background-color: #FFFFFF !important; /* 기본 화이트 */
-          color: #3E4C63 !important; /* 다크 그레이 */
+          background-color: #F5F7FA !important; /* 기본 화이트 */
+          color: #3E4C63 !important; /* 네이비 */
         }
         
         /* 헤더 스타일 */
         .sales-performance-table th {
-          background-color: #F0F2F7 !important; /* 연한 파스텔 블루-그레이 */
-          color: #3E4C63 !important; /* 다크 그레이 */
+          background-color: #EEF1F5 !important; /* 연한 파스텔 블루-그레이 */
+          color: #3E4C63 !important; /* 네이비 */
           text-align: center !important;
           font-weight: bold !important;
         }

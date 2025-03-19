@@ -75,7 +75,7 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
               Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
               // 총 합계 모델은 약간 밝은 Level 1 색상
-              td.style.backgroundColor = '#6B7D97'; // 약간 밝은 딥 블루
+              td.style.backgroundColor = '#7D8693'; // 약간 밝은 다크 그레이
               td.style.color = LEVEL_STYLES.LEVEL1.font;
               td.style.fontWeight = LEVEL_STYLES.LEVEL1.fontWeight;
             };
@@ -92,7 +92,7 @@ export const createCellsSettingsFunction = (data: any[][], isEditMode: boolean, 
               Handsontable.renderers.TextRenderer.apply(this, [instance, td, row, col, prop, value, cellProperties]);
               
               // 지역 모델은 약간 밝은 Level 2 색상
-              td.style.backgroundColor = '#CDD3E0'; // 약간 밝은 중간 블루-그레이
+              td.style.backgroundColor = '#D5DAE0'; // 약간 밝은 중간 블루-그레이
               td.style.color = LEVEL_STYLES.LEVEL2.font;
               td.style.fontWeight = LEVEL_STYLES.LEVEL2.fontWeight;
             };

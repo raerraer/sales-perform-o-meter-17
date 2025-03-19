@@ -21,23 +21,23 @@ export const REGION_COUNTRIES = {
 // 레벨별 스타일 색상 (새로운 색상 스키마 적용)
 export const LEVEL_STYLES = {
   LEVEL1: {
-    background: '#5A6E8B', // 딥 블루
-    font: '#FFFFFF',      // 밝은 화이트
+    background: '#6D7784', // 다크 그레이
+    font: '#3E4C63',      // 네이비
     fontWeight: 'bold'
   },
   LEVEL2: {
-    background: '#BCC3D4', // 중간 블루-그레이
-    font: '#3E4C63',      // 다크 그레이
+    background: '#C9CFD6', // 중간 블루-그레이
+    font: '#3E4C63',      // 네이비
     fontWeight: 'bold'
   },
   LEVEL3: {
-    background: '#D6DBE9', // 밝은 블루-그레이
-    font: '#3E4C63',      // 다크 그레이
+    background: '#E1E5EB', // 밝은 블루-그레이
+    font: '#3E4C63',      // 네이비
     fontWeight: 'bold'
   },
   LEVEL4: {
-    background: '#FFFFFF', // 기본 화이트
-    font: '#3E4C63',      // 다크 그레이
+    background: '#F5F7FA', // 기본 화이트
+    font: '#3E4C63',      // 네이비
     fontWeight: 'normal'
   }
 };
