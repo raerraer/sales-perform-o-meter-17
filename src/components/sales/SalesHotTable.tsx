@@ -29,7 +29,7 @@ const SalesHotTable = ({
         width="100%"
         height="calc(100vh - 280px)" // 헤더 버튼들 추가된 크기 고려하여 조정
         colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 넓게, 나머지는 균일하게
-        fixedColumnsLeft={1}
+        fixedColumnsLeft={1} // 첫번째 열 고정
         fixedRowsTop={3} // 3개의 헤더 행 고정
         manualColumnResize={true}
         contextMenu={isEditMode}
@@ -46,7 +46,9 @@ const SalesHotTable = ({
         selectionMode="range"
         allowInvalid={false} // 유효하지 않은 데이터 입력 방지
         className="sales-performance-table text-center"
-        tableClassName="aria-rowindex=3" // 세로 스크롤시 행 고정
+        tableClassName="fixed-header" // 헤더 고정을 위한 클래스
+        renderAllRows={false} // 필요한 행만 렌더링하도록 설정
+        viewportRowRenderingOffset={20} // 뷰포트 렌더링 최적화
       />
       <style dangerouslySetInnerHTML={{ __html: `
         .sales-performance-table .cell-center {
@@ -114,19 +116,83 @@ const SalesHotTable = ({
           font-weight: bold !important;
         }
         
-        /* 상단 좌측 고정 영역 스타일 추가 */
-        .handsontable .ht_clone_top_left_corner .wtHider {
-          z-index: 103;
+        /* 고정 헤더 스타일 수정 */
+        .handsontable .wtSpreader {
+          position: relative;
         }
         
-        /* 가로 스크롤시 첫 번째 열 고정 */
-        .handsontable .ht_clone_left .wtHider {
+        /* z-index 설정으로 고정 행/열이 다른 요소보다 위에 표시되도록 함 */
+        .handsontable .ht_clone_top {
+          z-index: 101;
+        }
+        
+        .handsontable .ht_clone_left {
           z-index: 102;
         }
         
-        /* 세로 스크롤시 상단 행 고정 */
-        .handsontable .ht_clone_top .wtHider {
-          z-index: 101;
+        .handsontable .ht_clone_top_left_corner {
+          z-index: 103;
+        }
+        
+        /* 스크롤 관련 설정 */
+        .handsontable .ht_master .wtHolder {
+          overflow: auto;
+        }
+        
+        /* 상단 3행 고정 설정 */
+        .handsontable .ht_clone_top .wtHolder {
+          overflow: hidden;
+          height: 84px !important; /* 3행 고정 (28px * 3) */
+        }
+        
+        /* 좌측 첫 번째 열 설정 - 세로로 전체 표시되도록 수정 */
+        .handsontable .ht_clone_left .wtHolder {
+          overflow: hidden;
+          width: 120px; /* 첫 번째 열 너비 */
+          height: auto !important; /* 전체 높이 표시 */
+        }
+        
+        /* 좌측 상단 모서리 (교차 부분) 설정 - 딱 3행만 고정 */
+        .handsontable .ht_clone_top_left_corner .wtHolder {
+          overflow: hidden;
+          height: 84px !important; /* 3행 고정 (28px * 3) */
+          width: 120px; /* 첫 번째 열 너비 */
+        }
+        
+        .handsontable .ht_clone_top_left_corner {
+          height: 84px !important; /* 3행만 보이도록 높이 제한 */
+        }
+        
+        /* 고정 영역 스타일링 개선 */
+        .handsontable .ht_master .wtHolder {
+          position: relative;
+        }
+        
+        /* 왼쪽 고정 열 스타일 */
+        .handsontable .ht_clone_left td {
+          background-color: #ffffff;
+        }
+        
+        /* 상단 고정 행 스타일 */
+        .handsontable .ht_clone_top td,
+        .handsontable .ht_clone_top th {
+          border-bottom: 1px solid #ddd;
+        }
+        
+        /* 고정된 모서리 부분 스타일링 */
+        .handsontable .ht_clone_top_left_corner .wtHolder {
+          border-right: 2px solid #ccc;
+          border-bottom: 2px solid #ccc;
+        }
+        
+        /* 좌측 고정 열 구분선 */
+        .handsontable .ht_clone_left {
+          border-right: 2px solid #ccc;
+        }
+        
+        /* 상단 고정 행 구분선 */
+        .handsontable .ht_clone_top {
+          border-bottom: 2px solid #ccc;
         }
       `}} />
     </div>
