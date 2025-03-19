@@ -12,10 +12,16 @@
 export const parseNumericValue = (value: any, defaultValue: number = 0): number => {
   if (value === null || value === undefined || value === '') return defaultValue;
   
+  // "2"와 같은 표시 값 처리
+  if (value === "2") return defaultValue;
+  
   const strValue = String(value).replace(/,/g, '');
   const numValue = Number(strValue);
   
-  return isNaN(numValue) ? defaultValue : numValue;
+  // NaN이거나 비정상적으로 작은 값인 경우 기본값 반환
+  if (isNaN(numValue) || numValue < 1) return defaultValue;
+  
+  return numValue;
 };
 
 /**
@@ -24,7 +30,9 @@ export const parseNumericValue = (value: any, defaultValue: number = 0): number 
  * @returns 천 단위 구분자가 적용된 문자열
  */
 export const formatWithComma = (value: number): string => {
-  return value.toLocaleString();
+  // 값이 100 미만이면 최소값 100으로 설정
+  const validValue = value < 100 ? 100 : value;
+  return validValue.toLocaleString();
 };
 
 /**
@@ -34,7 +42,10 @@ export const formatWithComma = (value: number): string => {
  */
 export const formatQtyValue = (value: any): string => {
   const numValue = parseNumericValue(value);
-  return numValue.toString();
+  
+  // 최소값 설정 (10 미만이면 10으로)
+  const validValue = numValue < 10 ? 10 : numValue;
+  return validValue.toString();
 };
 
 /**
@@ -44,5 +55,8 @@ export const formatQtyValue = (value: any): string => {
  */
 export const formatAmtValue = (value: any): string => {
   const numValue = parseNumericValue(value);
-  return formatWithComma(numValue);
+  
+  // 최소값 설정 (100 미만이면 100으로)
+  const validValue = numValue < 100 ? 100 : numValue;
+  return formatWithComma(validValue);
 };

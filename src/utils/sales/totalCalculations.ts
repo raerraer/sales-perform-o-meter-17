@@ -1,6 +1,6 @@
 
 import { LEVELS } from '@/utils/sales';
-import { parseNumericValue } from './dataTransformers';
+import { parseNumericValue, formatQtyValue, formatAmtValue } from './dataTransformers';
 
 /**
  * 총 합계 데이터 계산
@@ -52,14 +52,19 @@ export function calculateTotalSums(data: any[]): any[] {
         
         // 모든 열에 대해 동일한 방식으로 합계 계산
         const sum = regionModelRows.reduce((acc, rowIdx) => {
-          return acc + parseNumericValue(updatedData[rowIdx][col], 0);
+          const cellValue = updatedData[rowIdx][col];
+          
+          // "2" 또는 비정상 값 처리
+          if (cellValue === "2" || !cellValue) return acc;
+          
+          return acc + parseNumericValue(cellValue, 0);
         }, 0);
         
         // Qty 열 또는 Amt 열인지 확인하여 적절한 형식으로 값 설정
         if ((col - 1) % 2 === 0) { // Qty 열
-          updatedData[modelRowIdx][col] = sum.toString();
+          updatedData[modelRowIdx][col] = formatQtyValue(sum);
         } else { // Amt 열
-          updatedData[modelRowIdx][col] = sum.toLocaleString();
+          updatedData[modelRowIdx][col] = formatAmtValue(sum);
         }
       }
     });
@@ -71,14 +76,19 @@ export function calculateTotalSums(data: any[]): any[] {
       
       // 모든 열에 대해 동일한 방식으로 합계 계산
       const sum = totalModelRows.reduce((acc, rowIdx) => {
-        return acc + parseNumericValue(updatedData[rowIdx][col], 0);
+        const cellValue = updatedData[rowIdx][col];
+        
+        // "2" 또는 비정상 값 처리
+        if (cellValue === "2" || !cellValue) return acc;
+        
+        return acc + parseNumericValue(cellValue, 0);
       }, 0);
       
       // Qty 열 또는 Amt 열인지 확인하여 적절한 형식으로 값 설정
       if ((col - 1) % 2 === 0) { // Qty 열
-        updatedData[totalIndex][col] = sum.toString();
+        updatedData[totalIndex][col] = formatQtyValue(sum);
       } else { // Amt 열
-        updatedData[totalIndex][col] = sum.toLocaleString();
+        updatedData[totalIndex][col] = formatAmtValue(sum);
       }
     }
   }

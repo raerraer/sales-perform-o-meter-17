@@ -1,6 +1,7 @@
 
 import { MONTHS, CATEGORIES, MODELS, LEVELS } from './constants';
 import { calculateCellSum } from './dataGeneratorUtils';
+import { parseNumericValue, formatQtyValue, formatAmtValue } from './dataTransformers';
 
 /**
  * 모델별 합계 데이터 계산
@@ -49,21 +50,21 @@ export const calculateTotalModelData = (regionModelDataMap: {[key: string]: any[
           // 문자열 값 추출 및 수치화
           if (isAmtColumn) {
             // Amt 열은 콤마가 포함된 문자열
-            value1 = parseFloat(String(totalModelData[modelIndex][i]).replace(/,/g, '')) || 0;
-            value2 = parseFloat(String(regionModelRow[i]).replace(/,/g, '')) || 0;
+            value1 = parseNumericValue(totalModelData[modelIndex][i], 0);
+            value2 = parseNumericValue(regionModelRow[i], 0);
           } else {
             // Qty 열은 일반 숫자 문자열
-            value1 = parseFloat(String(totalModelData[modelIndex][i])) || 0;
-            value2 = parseFloat(String(regionModelRow[i])) || 0;
+            value1 = parseNumericValue(totalModelData[modelIndex][i], 0);
+            value2 = parseNumericValue(regionModelRow[i], 0);
           }
           
           // 합산 및 형식화
           const sum = value1 + value2;
           
           if (isAmtColumn) {
-            totalModelData[modelIndex][i] = sum.toLocaleString();
+            totalModelData[modelIndex][i] = formatAmtValue(sum);
           } else {
-            totalModelData[modelIndex][i] = sum.toString();
+            totalModelData[modelIndex][i] = formatQtyValue(sum);
           }
         }
       }
@@ -88,10 +89,12 @@ export const generateTotalRow = (totalModelData: any[][]) => {
       const amtIdx = qtyIdx + 1;
       
       // Qty 합계 계산
-      totalRow.push(calculateCellSum(totalModelData, qtyIdx));
+      const qtySum = calculateCellSum(totalModelData, qtyIdx);
+      totalRow.push(formatQtyValue(qtySum));
       
       // Amt 합계 계산
-      totalRow.push(calculateCellSum(totalModelData, amtIdx, true));
+      const amtSum = calculateCellSum(totalModelData, amtIdx, true);
+      totalRow.push(formatAmtValue(amtSum));
     }
     // 비고 칼럼
     totalRow.push('');

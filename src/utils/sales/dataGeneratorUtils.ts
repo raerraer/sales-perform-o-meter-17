@@ -24,7 +24,8 @@ export const generateRandomData = () => {
  */
 export const calculateCellSum = (rows: any[], colIndex: number, isAmtColumn: boolean = false) => {
   const sum = rows.reduce((acc, row) => {
-    const value = row[colIndex];
+    // 빈 값이나 "2"와 같은 잘못된 값은 0으로 처리
+    const value = (row[colIndex] === "2" || !row[colIndex]) ? 0 : row[colIndex];
     return acc + parseNumericValue(value, 0);
   }, 0);
   
@@ -55,8 +56,13 @@ export const addMonthlyDataToModelRow = (modelRow: any[], monthCount: number, ca
     for (let category = 0; category < categoryCount; category++) {
       // 모든 월(짝수/홀수)에 대해 일관된 방식으로 랜덤 데이터 생성
       const { qty, amt } = generateRandomData();
-      updatedRow.push(qty.toString());
-      updatedRow.push(amt);
+      
+      // 최소값 보장 (0이나 빈 값 방지)
+      const qtyValue = qty < 10 ? 10 : qty;
+      const amtValue = parseNumericValue(amt) < 100 ? '100' : amt;
+      
+      updatedRow.push(qtyValue.toString());
+      updatedRow.push(amtValue);
     }
     // 비고 칼럼 추가
     updatedRow.push('');
