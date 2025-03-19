@@ -1,5 +1,5 @@
 
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.min.css';
 import { generateComplexHeaders } from '@/utils/salesTableUtils';
@@ -22,43 +22,55 @@ const SalesHotTable = memo(({
   afterChange
 }: SalesHotTableProps) => {
   // 헤더는 변경되지 않으므로 메모이제이션
-  const nestedHeaders = React.useMemo(() => generateComplexHeaders(), []);
+  const nestedHeaders = useMemo(() => generateComplexHeaders(), []);
   
   // 테이블 스타일도 메모이제이션
-  const tableStyles = React.useMemo(() => ({ __html: getSalesTableStyles() }), []);
+  const tableStyles = useMemo(() => ({ __html: getSalesTableStyles() }), []);
+
+  // 성능 최적화 설정 메모이제이션
+  const hotSettings = useMemo(() => ({
+    licenseKey: "non-commercial-and-evaluation",
+    rowHeaders: false,
+    colHeaders: true,
+    width: "100%",
+    height: "calc(100vh - 280px)", // 헤더 버튼들 추가된 크기 고려하여 조정
+    colWidths: [120, ...Array(12 * 11).fill(60)], // 첫 번째 열은 넓게, 나머지는 균일하게
+    fixedColumnsLeft: 1,
+    manualColumnResize: true,
+    contextMenu: isEditMode,
+    copyPaste: isEditMode,
+    wordWrap: false,
+    stretchH: "none",
+    rowHeights: 28,
+    outsideClickDeselects: false,
+    autoWrapRow: true,
+    autoWrapCol: true,
+    selectionMode: "range",
+    allowInvalid: false, // 유효하지 않은 데이터 입력 방지
+    className: "sales-performance-table text-center",
+    tableClassName: "aria-rowindex=3", // 세로 스크롤시 행 고정
+    // 성능 최적화를 위한 추가 옵션
+    renderAllRows: false,
+    viewportColumnRenderingOffset: 10,
+    viewportRowRenderingOffset: 20,
+    // 더 높은 성능을 위한 추가 설정
+    fragmentSelection: true,
+    autoColumnSize: false,
+    autoRowSize: false,
+    maxRows: data.length, // 최대 행 제한으로 성능 최적화
+    observeDOMVisibility: true, // DOM 가시성 관찰로 최적화
+    preventOverflow: 'horizontal'
+  }), [isEditMode, data.length]);
   
   return (
     <div className="relative overflow-auto" style={{ maxWidth: '100%' }}>
       <HotTable
         ref={hotRef}
         data={data}
-        licenseKey="non-commercial-and-evaluation"
-        rowHeaders={false}
-        colHeaders={true}
-        width="100%"
-        height="calc(100vh - 280px)" // 헤더 버튼들 추가된 크기 고려하여 조정
-        colWidths={[120, ...Array(12 * 11).fill(60)]} // 첫 번째 열은 넓게, 나머지는 균일하게
-        fixedColumnsLeft={1}
-        manualColumnResize={true}
-        contextMenu={isEditMode}
-        copyPaste={isEditMode}
+        {...hotSettings}
         afterChange={afterChange}
         nestedHeaders={nestedHeaders}
         cells={getCellsSettings()}
-        wordWrap={false}
-        stretchH="none"
-        rowHeights={28}
-        outsideClickDeselects={false}
-        autoWrapRow={true}
-        autoWrapCol={true}
-        selectionMode="range"
-        allowInvalid={false} // 유효하지 않은 데이터 입력 방지
-        className="sales-performance-table text-center"
-        tableClassName="aria-rowindex=3" // 세로 스크롤시 행 고정
-        // 성능 최적화를 위한 추가 옵션
-        renderAllRows={false}
-        viewportColumnRenderingOffset={10}
-        viewportRowRenderingOffset={20}
       />
       <style dangerouslySetInnerHTML={tableStyles} />
     </div>

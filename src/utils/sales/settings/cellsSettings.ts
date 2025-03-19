@@ -59,7 +59,7 @@ export const createCellsSettingsFunction = (
     // 셀 정렬 설정
     settings.className = `${settings.className.replace(/cell-(center|left|right)/, '')} ${getCellAlignmentClass(col, row, data)}`.trim();
 
-    // 하이라이팅 설정 - 현재 셀이 수정된 경우 하이라이팅 적용
+    // 하이라이팅 설정 - 실제로 셀이 수정된 경우에만 하이라이팅 적용
     if (isEditMode && isModifiedCell && isModifiedCell(row, col)) {
       const highlightSettings = applyHighlightStyle(true, settings.renderer);
       Object.assign(settings, highlightSettings);

@@ -54,9 +54,9 @@ export const useHighlighting = (): UseHighlightingReturn => {
         if (originalData[row] && originalData[row][colIndex] !== undefined) {
           const originalValue = originalData[row][colIndex];
           
-          // 값이 수정된 경우에만 처리 - 수정될 때만 하이라이팅 적용
+          // 신규: 값이 실제로 변경된 경우에만 하이라이팅 적용
+          // 단순히 포커스만 들어갔다 나온 경우는 하이라이팅 하지 않음
           if (originalValue !== newValue) {
-            // 이미 수정된 셀로 표시되지 않은 경우에만 업데이트
             if (!newModifiedCells.has(cellKey)) {
               newModifiedCells.set(cellKey, true);
               needsUpdate = true;

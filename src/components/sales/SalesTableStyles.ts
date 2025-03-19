@@ -66,6 +66,8 @@ export const getSalesTableStyles = () => `
   .sales-performance-table .modified-cell {
     background-color: #FEF7CD !important; /* 연한 노란색 배경 */
     position: relative;
+    will-change: transform, opacity; /* 렌더링 성능 최적화 */
+    transition: background-color 0.15s ease-in-out; /* 부드러운 전환 효과 */
   }
   
   /* 수정된 셀에 작은 표시자 추가 - will-change 속성 추가로 렌더링 최적화 */
