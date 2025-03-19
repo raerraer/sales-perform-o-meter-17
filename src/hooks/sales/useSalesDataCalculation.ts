@@ -1,5 +1,5 @@
 
-import { COUNTRIES, LEVELS, REGION_COUNTRIES } from '@/utils/salesTableUtils';
+import { COUNTRIES, LEVELS, REGION_COUNTRIES } from '@/utils/sales';
 
 export function recalculateCountryTotals(newData: any[]): any[] {
   const updatedData = [...newData];

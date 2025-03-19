@@ -5,6 +5,9 @@ import {
   CATEGORIES, 
   COUNTRIES, 
   MODELS,
+  LEVELS,
+  REGION_COUNTRIES,
+  LEVEL_STYLES,
   generateInitialData,
   generateComplexHeaders,
   createCellsSettingsFunction
@@ -15,7 +18,10 @@ export {
   MONTHS, 
   CATEGORIES, 
   COUNTRIES, 
-  MODELS 
+  MODELS,
+  LEVELS,
+  REGION_COUNTRIES,
+  LEVEL_STYLES
 };
 
 // 함수 내보내기
