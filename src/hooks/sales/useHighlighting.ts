@@ -54,9 +54,12 @@ export const useHighlighting = (): UseHighlightingReturn => {
         if (originalData[row] && originalData[row][colIndex] !== undefined) {
           const originalValue = originalData[row][colIndex];
           
-          // 신규: 값이 실제로 변경된 경우에만 하이라이팅 적용
-          // 단순히 포커스만 들어갔다 나온 경우는 하이라이팅 하지 않음
-          if (originalValue !== newValue) {
+          // 중요 수정: 값이 실제로 변경된 경우에만 하이라이팅 적용
+          // 문자열로 통일하여 비교 (콤마 등 포맷 고려)
+          const normalizedOriginal = String(originalValue).replace(/,/g, '');
+          const normalizedNew = String(newValue).replace(/,/g, '');
+          
+          if (normalizedOriginal !== normalizedNew) {
             if (!newModifiedCells.has(cellKey)) {
               newModifiedCells.set(cellKey, true);
               needsUpdate = true;
