@@ -41,7 +41,7 @@ export function useSalesHistory(): SalesHistoryHookReturn {
     if (history.changes && history.changes.length > 0) {
       // 변경 내역의 월 정보가 정확한지 확인하고 수정
       const updatedChanges = history.changes.map(change => {
-        // 이미 월 정보가 있고 정확하면 유지, 없거나 부정확하면 계산
+        // 모든 변경 항목에 정확한 월 정보 설정
         if (!change.month) {
           change.month = getMonthFromColIndex(change.col);
         }
