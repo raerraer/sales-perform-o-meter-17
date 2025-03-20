@@ -33,7 +33,8 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
         if (originalValue !== currentValue) {
           // 직접 변경된 셀 위치 기록
           directChanges.add(`${row}:${col}`);
-          console.log(`직접 변경된 셀 감지: 행=${row}, 열=${col}, 이전값=${originalValue}, 현재값=${currentValue}, 월=${getMonthFromColIndex(col)}`);
+          const month = getMonthFromColIndex(col);
+          console.log(`직접 변경된 셀 감지: 행=${row}, 열=${col}, 이전값=${originalValue}, 현재값=${currentValue}, 월=${month}`);
         }
       }
     }
@@ -99,11 +100,14 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
           country = data[row][0];
         }
         
-        // 정확한 월 정보 계산
+        // 정확한 월 정보 계산 - 헤더 구조에 맞게 계산
         const month = getMonthFromColIndex(col);
         
-        // 항목 타입 (QTY/AMT) 결정 - 직접 결정 (홀수 열 QTY, 짝수 열 AMT)
-        const itemType = col % 2 === 0 ? 'AMT' : 'QTY';
+        // 항목 타입 결정 - 각 월마다 카테고리별로 2열씩 (QTY, AMT)
+        // 월별로 11열, 각 카테고리는 2열씩, 마지막 1열은 비고
+        // 각 월 내에서: 1,3,5,7,9번째 열은 QTY, 2,4,6,8,10번째 열은 AMT
+        const colInMonth = (col - 1) % 11 + 1; // 월 내에서의 열 위치 (1~11)
+        const itemType = colInMonth % 2 === 0 ? 'AMT' : 'QTY';
         
         changes.push({
           row,

@@ -42,15 +42,11 @@ export function useSalesHistory(): SalesHistoryHookReturn {
       // 변경 내역의 월 정보가 정확한지 확인하고 수정
       const updatedChanges = history.changes.map(change => {
         // 모든 변경 항목에 정확한 월 정보 설정
+        // 이미 설정된 것을 덮어쓰지 않고, 누락된 경우만 계산
         if (!change.month) {
-          change.month = getMonthFromColIndex(change.col);
-        }
-        
-        // 항목(QTY/AMT) 구분 직접 계산
-        if (change.col % 2 === 0) {
-          console.log(`셀 ${change.row},${change.col}: AMT로 판단, 월=${change.month}`);
-        } else {
-          console.log(`셀 ${change.row},${change.col}: QTY로 판단, 월=${change.month}`);
+          const calculatedMonth = getMonthFromColIndex(change.col);
+          change.month = calculatedMonth;
+          console.log(`월 정보 계산: 셀(${change.row},${change.col}) => ${calculatedMonth}`);
         }
         
         return change;

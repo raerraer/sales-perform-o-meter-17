@@ -4,12 +4,14 @@ import { CellChange } from '@/hooks/sales/useSalesHistory';
 // 월 정보를 정확히 가져오는 함수
 export const getMonthFromColIndex = (colIndex: number): string => {
   // 컬럼 인덱스는 0부터 시작, 실제 데이터 열은 1부터 시작
-  // 2열씩 한 달을 나타냄 (홀수 열: QTY, 짝수 열: AMT)
-  // 1,2열 = 1월, 3,4열 = 2월 ...
+  // 11열씩 한 달을 나타냄 (각 월별로 5개 카테고리 x 2 + 비고 1 = 11개 열)
+  // 1~11열 = 1월, 12~22열 = 2월 ...
   
-  // 기존 계산 방식에 문제가 있어 수정
-  // 1열: 1월 QTY, 2열: 1월 AMT, 3열: 2월 QTY, 4열: 2월 AMT ...
-  const monthIndex = Math.ceil(colIndex / 2);
+  // 이전 계산 방식에 오류가 있어 완전히 새로 작성
+  // 실제 데이터 구조를 반영한 계산식
+  const monthIndex = Math.floor((colIndex - 1) / 11) + 1;
+  
+  console.log(`getMonthFromColIndex: 열=${colIndex}, 계산된 월=${monthIndex}`);
   return `${monthIndex}월`;
 };
 
