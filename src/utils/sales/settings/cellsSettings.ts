@@ -50,6 +50,27 @@ export const createCellsSettingsFunction = (
       
       if (modelValue === '모델1' || modelValue === '모델2') {
         configureModelRowSettings(settings, data, row, isEditMode);
+        
+        // 이태리 특별 처리 - 이태리의 모델 셀은 항상 편집 가능하도록
+        if (isEditMode) {
+          // 이태리 모델인지 확인
+          let currentRow = row - 1;
+          let parentCountry = '';
+          
+          while (currentRow >= 0) {
+            if (COUNTRIES.includes(data[currentRow][0])) {
+              parentCountry = data[currentRow][0];
+              break;
+            }
+            currentRow--;
+          }
+          
+          // 이태리 모델일 경우 읽기 전용 해제
+          if (parentCountry === '이태리') {
+            settings.readOnly = false;
+            settings.className += ' editable-cell';
+          }
+        }
       }
     }
 

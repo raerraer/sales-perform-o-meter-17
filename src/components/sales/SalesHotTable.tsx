@@ -25,7 +25,15 @@ const SalesHotTable = memo(({
   const nestedHeaders = useMemo(() => generateComplexHeaders(), []);
   
   // 테이블 스타일도 메모이제이션
-  const tableStyles = useMemo(() => ({ __html: getSalesTableStyles() }), []);
+  const tableStyles = useMemo(() => ({ __html: getSalesTableStyles() + `
+    .editable-cell {
+      background-color: #f9f9f9 !important;
+      cursor: pointer !important;
+    }
+    .editable-cell:hover {
+      background-color: #f0f0f0 !important;
+    }
+  ` }), []);
 
   // 성능 최적화 설정 메모이제이션
   const hotSettings = useMemo(() => ({
@@ -59,7 +67,14 @@ const SalesHotTable = memo(({
     autoRowSize: false,
     maxRows: data.length, // 최대 행 제한으로 성능 최적화
     observeDOMVisibility: true, // DOM 가시성 관찰로 최적화
-    preventOverflow: 'horizontal' as const // 타입 캐스팅을 사용하여 문제 해결
+    preventOverflow: 'horizontal' as const, // 타입 캐스팅을 사용하여 문제 해결
+    // 셀 편집 관련 설정 추가
+    enterBeginsEditing: true, // Enter키로 편집 시작
+    enterMoves: { row: 1, col: 0 }, // Enter키 누르면 아래 셀로 이동
+    tabMoves: { row: 0, col: 1 }, // Tab키 누르면 오른쪽 셀로 이동
+    autoWrapCol: true, // 열 끝에서 자동으로 다음 행으로 이동
+    allowInsertRow: false, // 행 삽입 허용 안함
+    allowRemoveRow: false, // 행 삭제 허용 안함
   }), [isEditMode, data.length]);
   
   return (
