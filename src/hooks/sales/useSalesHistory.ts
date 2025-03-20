@@ -15,6 +15,7 @@ export interface CellChange {
 export interface VersionHistory {
   version: string;
   date: string;
+  formattedDate: string; // 추가된 필드: 표시용 포맷팅된 날짜
   year: string;
   month: string;
   week: string;

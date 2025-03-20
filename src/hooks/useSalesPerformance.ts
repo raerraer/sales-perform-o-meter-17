@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from 'sonner';
@@ -120,16 +119,13 @@ const useSalesPerformance = () => {
       return;
     }
     
-    // 변경된 셀이 있는지 확인
     const changes = getChangesFromData(data, originalData);
     
-    // 변경 내역이 없는 경우 얼리 리턴
     if (changes.length === 0) {
       toast.info("변경된 내용이 없습니다.");
       return;
     }
     
-    // 변경 이력 엔트리 생성
     const now = new Date();
     const formattedDate = now.toLocaleString('ko-KR', {
       year: '2-digit',
@@ -143,14 +139,13 @@ const useSalesPerformance = () => {
     const historyEntry: VersionHistory = {
       version: currentVersion,
       date: now.toISOString(),
-      formattedDate: formattedDate, // 표시용 포맷팅된 날짜 추가
+      formattedDate: formattedDate,
       year: currentYear,
       month: currentMonth,
       week: currentWeek,
       changes: changes
     };
     
-    // 현재 버전에 변경사항 저장
     saveChanges(
       data, 
       originalData, 
@@ -165,11 +160,9 @@ const useSalesPerformance = () => {
       clearHighlighting
     );
     
-    // 새 버전으로 저장
     const newVersion = saveNewVersion(data);
     
     if (newVersion) {
-      // 새로운 버전으로 전환
       setCurrentVersion(newVersion);
       
       toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
