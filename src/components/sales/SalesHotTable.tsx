@@ -40,7 +40,7 @@ const SalesHotTable = memo(({
     contextMenu: isEditMode,
     copyPaste: isEditMode,
     wordWrap: false,
-    stretchH: "none",
+    stretchH: "none" as const, // 타입 캐스팅을 사용하여 문제 해결
     rowHeights: 28,
     outsideClickDeselects: false,
     autoWrapRow: true,
