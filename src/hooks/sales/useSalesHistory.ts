@@ -39,9 +39,9 @@ export function useSalesHistory(): SalesHistoryHookReturn {
   const addVersionHistory = (history: VersionHistory) => {
     // 변경사항이 있는 경우만 이력 추가
     if (history.changes && history.changes.length > 0) {
-      // 변경사항에 월 정보 확인 및 업데이트
+      // 변경 내역의 월 정보가 정확한지 확인하고 수정
       const updatedChanges = history.changes.map(change => {
-        // 이미 월 정보가 있으면 유지, 없으면 col에서 계산
+        // 이미 월 정보가 있고 정확하면 유지, 없거나 부정확하면 계산
         if (!change.month) {
           change.month = getMonthFromColIndex(change.col);
         }

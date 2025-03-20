@@ -1,6 +1,5 @@
 
 import { CellChange } from '@/hooks/sales/useSalesHistory';
-import { getMonthFromColIndex } from './historyUtils';
 
 interface HistoryChangeTableProps {
   changes: CellChange[];
@@ -30,11 +29,8 @@ const HistoryChangeTable = ({ changes }: HistoryChangeTableProps) => {
             </tr>
           ) : (
             changes.map((change, changeIdx) => {
-              // 월 정보를 colIndex로부터 정확히 계산
-              const month = getMonthFromColIndex(change.col);
-              
-              // QTY/AMT 구분 (홀수 열은 QTY, 짝수 열은 AMT)
-              const itemType = change.col % 2 === 1 ? 'QTY' : 'AMT';
+              // 항목(QTY/AMT) 구분 (홀수 열은 QTY, 짝수 열은 AMT)
+              const itemType = change.col % 2 === 0 ? 'AMT' : 'QTY';
               
               return (
                 <tr 
@@ -42,7 +38,7 @@ const HistoryChangeTable = ({ changes }: HistoryChangeTableProps) => {
                   className="hover:bg-gray-50 border-t border-gray-100"
                 >
                   <td className="px-2 py-1.5">{change.country || '-'}</td>
-                  <td className="px-2 py-1.5">{month}</td>
+                  <td className="px-2 py-1.5">{change.month}</td>
                   <td className="px-2 py-1.5">{change.category || '전망'}</td>
                   <td className="px-2 py-1.5">{change.model || '-'}</td>
                   <td className="px-2 py-1.5">{itemType}</td>

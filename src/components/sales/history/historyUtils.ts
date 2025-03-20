@@ -3,8 +3,10 @@ import { CellChange } from '@/hooks/sales/useSalesHistory';
 
 // 월 정보를 정확히 가져오는 함수
 export const getMonthFromColIndex = (colIndex: number): string => {
-  // 월 인덱스 계산 (2개 열마다 1개월): 1,2열은 1월, 3,4열은 2월, ...
-  const monthIndex = Math.floor(colIndex / 2) + 1;
+  // 컬럼 인덱스는 0부터 시작, 실제 데이터 열은 1부터 시작
+  // 2열씩 한 달을 나타냄 (홀수 열: QTY, 짝수 열: AMT)
+  // 1,2열 = 1월, 3,4열 = 2월 ...
+  const monthIndex = Math.floor((colIndex - 1) / 2) + 1;
   return `${monthIndex}월`;
 };
 
@@ -25,6 +27,15 @@ export const filterChanges = (changes: CellChange[]): CellChange[] => {
 export const getDirectChangesOnly = (changes: CellChange[]): CellChange[] => {
   if (!changes || changes.length === 0) return [];
   
-  // 직접 수정된 셀만 추출 (자동 계산된 합계 등은 제외)
-  return changes.filter(change => change.isDirectChange === true);
+  // 사용자가 직접 수정한 셀만 추출 (자동 계산된 합계 등은 제외)
+  const directChanges = changes.filter(change => change.isDirectChange === true);
+  
+  // 직접 변경한 셀이 없다면 빈 배열 반환
+  if (directChanges.length === 0) return [];
+  
+  // 정확한 월 정보 보정 - 직접 수정한 셀의 월 정보만 유지
+  return directChanges.map(change => ({
+    ...change,
+    month: getMonthFromColIndex(change.col) // 직접 변경된 셀의 정확한 월 정보
+  }));
 };

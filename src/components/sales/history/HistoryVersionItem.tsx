@@ -27,9 +27,10 @@ const HistoryVersionItem = ({
     setIsExpanded(prev => !prev);
   };
 
-  // 직접 변경한 셀만 추출
+  // 사용자가 직접 변경한 셀만 추출 (중요: 이 로직이 핵심)
   const directChanges = getDirectChangesOnly(history.changes);
-  // 최종적으로 변경된 내용만 필터링
+  
+  // 최종적으로 변경된 내용만 필터링 (값이 실제로 변경된 것만)
   const filteredChanges = filterChanges(directChanges);
   
   const formattedDate = history.formattedDate || 
