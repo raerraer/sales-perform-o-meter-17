@@ -1,15 +1,21 @@
-import { useEffect } from 'react';
+
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
-import { toast } from 'sonner';
-import { useSalesVersions } from './sales/useSalesVersions';
-import { useSalesHistory, VersionHistory } from './sales/useSalesHistory';
 import { useTableState } from './sales/useTableState';
 import { useEditMode } from './sales/useEditMode';
 import { useDateFilter } from './sales/useDateFilter';
 import { useHighlighting } from './sales/useHighlighting';
-import { useVersionControl } from './sales/useVersionControl';
+import { useSalesHistory } from './sales/useSalesHistory';
+import { useSalesVersions } from './sales/useSalesVersions';
+import { useDataLoading } from './sales/useDataLoading';
+import { useVersionManagement } from './sales/useVersionManagement';
+import { useChangeManagement } from './sales/useChangeManagement';
 
+/**
+ * 영업 실적표 관련 로직을 통합한 훅
+ * 데이터 관리, 버전 관리, 변경 감지, 편집 기능 등을 관리
+ */
 const useSalesPerformance = () => {
+  // 테이블 상태 관리
   const { 
     hotRef, 
     data, 
@@ -20,161 +26,94 @@ const useSalesPerformance = () => {
     setIsInitialLoad
   } = useTableState();
   
-  const { 
-    isEditMode, 
-    setIsEditMode, 
-    toggleEditMode, 
-    saveChanges,
-    getChangesFromData
-  } = useEditMode();
+  // 편집 모드 관리
+  const editMode = useEditMode();
+  const { isEditMode, setIsEditMode } = editMode;
   
+  // 날짜 필터
   const { currentYear, currentMonth, currentWeek } = useDateFilter();
   
+  // 셀 변경 하이라이팅
   const { 
     afterChange: highlightingAfterChange,
-    modifiedCells,
     clearHighlighting,
     isModifiedCell
   } = useHighlighting();
   
-  const { 
-    previousVersion, 
-    setPreviousVersion, 
-    handleSaveNewVersion: saveNewVersionHandler, 
-    moveToVersion: moveToVersionHandler 
-  } = useVersionControl();
-
-  const { 
-    versions, 
-    currentVersion, 
-    setCurrentVersion, 
-    versionData, 
-    saveNewVersion, 
-    updateVersionData,
-    isLatestVersion
-  } = useSalesVersions();
+  // 버전 관리 통합 훅
+  const versionManager = useVersionManagement(
+    setData,
+    setIsEditMode,
+    setOriginalData,
+    clearHighlighting
+  );
   
+  const {
+    versions,
+    currentVersion,
+    setCurrentVersion,
+    isLatestVersion,
+    moveToVersion,
+    saveNewVersionWithData,
+    previousVersion,
+    setPreviousVersion,
+    versionData
+  } = versionManager;
+  
+  // 히스토리 관리
   const { 
     versionHistory, 
     addVersionHistory, 
     showHistoryDialog, 
     toggleHistoryDialog
   } = useSalesHistory();
+  
+  // 버전 데이터 로딩
+  useDataLoading(
+    currentVersion,
+    previousVersion,
+    versionData,
+    isInitialLoad,
+    setData,
+    setPreviousVersion,
+    setCurrentVersion,
+    isEditMode,
+    setIsEditMode,
+    setOriginalData,
+    clearHighlighting,
+    setIsInitialLoad
+  );
+  
+  // 버전 데이터 업데이트 함수 참조
+  const { updateVersionData } = useSalesVersions();
+  
+  // 변경 처리 관리
+  const { 
+    handleSaveChanges, 
+    handleToggleEditMode 
+  } = useChangeManagement(
+    data,
+    originalData,
+    isLatestVersion,
+    currentVersion,
+    currentYear,
+    currentMonth,
+    currentWeek,
+    editMode,
+    clearHighlighting,
+    setOriginalData,
+    setData,
+    updateVersionData,
+    addVersionHistory,
+    saveNewVersionWithData
+  );
 
+  // 셀 변경 처리 함수
   const afterChange = (changes: any, source: string) => {
     highlightingAfterChange(changes, source, data, setData, isEditMode, originalData);
   };
-  
-  useEffect(() => {
-    if (!isInitialLoad || previousVersion !== currentVersion) {
-      try {
-        if (versionData && versionData[currentVersion]) {
-          console.log(`${currentVersion} 버전 데이터 로드:`, versionData[currentVersion]);
-          
-          const versionDataCopy = JSON.parse(JSON.stringify(versionData[currentVersion]));
-          
-          if (Array.isArray(versionDataCopy)) {
-            setData(versionDataCopy);
-            setPreviousVersion(currentVersion);
-            
-            if (isEditMode) {
-              setIsEditMode(false);
-              setOriginalData([]);
-              clearHighlighting();
-            }
-            
-            toast.info(`${currentVersion} 버전 데이터를 불러왔습니다.`);
-          } else {
-            throw new Error(`${currentVersion} 버전의 데이터 형식이 올바르지 않습니다.`);
-          }
-        } else {
-          throw new Error(`${currentVersion} 버전 데이터가 존재하지 않습니다.`);
-        }
-      } catch (error) {
-        console.error(`버전 데이터 로드 오류:`, error);
-        toast.error(`${currentVersion} 버전 데이터를 불러오는 데 실패했습니다.`);
-        
-        if (currentVersion !== 'rev1' && versionData['rev1']) {
-          setCurrentVersion('rev1');
-        }
-      }
-    }
-    
-    if (isInitialLoad) {
-      setIsInitialLoad(false);
-    }
-  }, [currentVersion, versionData, isInitialLoad]);
 
-  const handleToggleEditMode = () => {
-    if (!isLatestVersion) {
-      toast.warning("이전 버전은 수정할 수 없습니다. 최신 버전만 수정 가능합니다.");
-      return;
-    }
-    toggleEditMode(data, originalData, setOriginalData, setData, clearHighlighting);
-  };
-
-  const handleSaveChanges = () => {
-    if (!isLatestVersion) {
-      toast.warning("이전 버전은 저장할 수 없습니다. 최신 버전만 수정 가능합니다.");
-      return;
-    }
-    
-    const changes = getChangesFromData(data, originalData);
-    
-    if (changes.length === 0) {
-      toast.info("변경된 내용이 없습니다.");
-      return;
-    }
-    
-    const now = new Date();
-    const formattedDate = now.toLocaleString('ko-KR', {
-      year: '2-digit',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-    
-    const historyEntry: VersionHistory = {
-      version: currentVersion,
-      date: now.toISOString(),
-      formattedDate: formattedDate,
-      year: currentYear,
-      month: currentMonth,
-      week: currentWeek,
-      changes: changes
-    };
-    
-    saveChanges(
-      data, 
-      originalData, 
-      setOriginalData, 
-      updateVersionData, 
-      currentVersion, 
-      addVersionHistory, 
-      currentYear, 
-      currentMonth, 
-      currentWeek,
-      setIsEditMode,
-      clearHighlighting
-    );
-    
-    const newVersion = saveNewVersion(data);
-    
-    if (newVersion) {
-      setCurrentVersion(newVersion);
-      
-      toast.success(`새 버전(${newVersion})이 저장되었습니다.`);
-    }
-  };
-
-  const moveToVersion = (version: string) => {
-    if (version !== currentVersion) {
-      moveToVersionHandler(version, setCurrentVersion, versionData, setData);
-    }
-  };
-
+  // 셀 설정 함수
   const getCellsSettings = () => {
     return createCellsSettingsFunction(data, isEditMode && isLatestVersion, originalData, isModifiedCell);
   };
