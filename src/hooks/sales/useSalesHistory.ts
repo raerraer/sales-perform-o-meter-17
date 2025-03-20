@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { getMonthFromColIndex } from '@/components/sales/history/historyUtils';
 
 export interface CellChange {
   row: number;
@@ -42,8 +43,7 @@ export function useSalesHistory(): SalesHistoryHookReturn {
       const updatedChanges = history.changes.map(change => {
         // 이미 월 정보가 있으면 유지, 없으면 col에서 계산
         if (!change.month) {
-          const monthIndex = Math.floor(change.col / 2) + 1;
-          change.month = `${monthIndex}월`;
+          change.month = getMonthFromColIndex(change.col);
         }
         return change;
       });
