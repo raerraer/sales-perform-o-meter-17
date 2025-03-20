@@ -1,5 +1,6 @@
 
 import { COUNTRIES, LEVELS, LEVEL_STYLES } from '../constants';
+import { createLevelRenderer } from '../renderers/levelRenderers';
 
 /**
  * 총 합계 행 설정
