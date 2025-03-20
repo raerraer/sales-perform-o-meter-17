@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { createCellsSettingsFunction } from '@/utils/salesTableUtils';
 import { toast } from 'sonner';
 import { useSalesVersions } from './sales/useSalesVersions';
-import { useSalesHistory } from './sales/useSalesHistory';
+import { useSalesHistory, VersionHistory } from './sales/useSalesHistory';
 import { useTableState } from './sales/useTableState';
 import { useEditMode } from './sales/useEditMode';
 import { useDateFilter } from './sales/useDateFilter';
@@ -21,7 +21,13 @@ const useSalesPerformance = () => {
     setIsInitialLoad
   } = useTableState();
   
-  const { isEditMode, setIsEditMode, toggleEditMode, saveChanges } = useEditMode();
+  const { 
+    isEditMode, 
+    setIsEditMode, 
+    toggleEditMode, 
+    saveChanges,
+    getChangesFromData
+  } = useEditMode();
   
   const { currentYear, currentMonth, currentWeek } = useDateFilter();
   
@@ -114,25 +120,44 @@ const useSalesPerformance = () => {
       return;
     }
     
-    // 타입 불일치 오류 수정 - addVersionHistory 호출 변경
-    const historyEntry = {
+    // 변경된 셀이 있는지 확인
+    const changes = getChangesFromData(data, originalData);
+    
+    // 변경 내역이 없는 경우 얼리 리턴
+    if (changes.length === 0) {
+      toast.info("변경된 내용이 없습니다.");
+      return;
+    }
+    
+    // 변경 이력 엔트리 생성
+    const now = new Date();
+    const formattedDate = now.toLocaleString('ko-KR', {
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    const historyEntry: VersionHistory = {
       version: currentVersion,
-      date: new Date().toISOString(),
+      date: now.toISOString(),
+      formattedDate: formattedDate, // 표시용 포맷팅된 날짜 추가
       year: currentYear,
       month: currentMonth,
       week: currentWeek,
-      changes: []  // 변경 내역 - 비워둠
+      changes: changes
     };
     
-    // 먼저 현재 버전에 변경사항 저장
+    // 현재 버전에 변경사항 저장
     saveChanges(
       data, 
       originalData, 
       setOriginalData, 
       updateVersionData, 
       currentVersion, 
-      // 타입에 맞게 addVersionHistory 직접 호출
-      () => addVersionHistory(historyEntry),
+      addVersionHistory, 
       currentYear, 
       currentMonth, 
       currentWeek,

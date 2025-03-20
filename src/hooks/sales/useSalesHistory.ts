@@ -6,6 +6,10 @@ export interface CellChange {
   col: number;
   oldValue: any;
   newValue: any;
+  country?: string;
+  model?: string;
+  month?: string;
+  category?: string;
 }
 
 export interface VersionHistory {
