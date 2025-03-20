@@ -10,6 +10,7 @@ export interface CellChange {
   model?: string;
   month?: string;
   category?: string;
+  isDirectChange?: boolean; // 직접 변경 여부를 나타내는 새 필드
 }
 
 export interface VersionHistory {

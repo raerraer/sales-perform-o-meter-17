@@ -46,17 +46,26 @@ const SalesHistoryDialog = ({
     }));
   };
 
-  // 변경 내역 그룹화 함수 - 국가, 월, 모델, 구분, 항목별로 묶기
-  const groupChanges = (changes: any[]) => {
-    // 실제 변경된 내용만 필터링
-    const validChanges = changes.filter(change => {
+  // 변경 내역 그룹화 및 필터링 함수 - 실제 변경된 값만 추출
+  const filterChanges = (changes: any[]) => {
+    // 실제 변경된 값만 필터링
+    return changes.filter(change => {
       // 숫자로 변환하여 비교 (콤마 제거 후)
       const oldValueNormalized = String(change.oldValue || '').replace(/,/g, '');
       const newValueNormalized = String(change.newValue || '').replace(/,/g, '');
       return oldValueNormalized !== newValueNormalized;
     });
+  };
+  
+  // 직접 변경한 셀만 추출하는 함수
+  const getDirectChangesOnly = (changes: any[]) => {
+    if (!changes || changes.length === 0) return [];
     
-    return validChanges;
+    // 직접 수정된 셀만 추출 (자동 계산된 합계 등은 제외)
+    return changes.filter(change => {
+      // 고유 변경 ID 추출 (실제 직접 변경된 데이터만 선택)
+      return change.isDirectChange === true;
+    });
   };
 
   return (
@@ -87,7 +96,10 @@ const SalesHistoryDialog = ({
                   hour12: false
                 });
               
-              const filteredChanges = groupChanges(history.changes);
+              // 직접 변경한 셀만 필터링
+              const directChanges = getDirectChangesOnly(history.changes);
+              // 최종적으로 변경된 내용만 필터링
+              const filteredChanges = filterChanges(directChanges);
               
               return (
                 <Card key={index} className="border rounded-lg overflow-hidden">
@@ -151,27 +163,36 @@ const SalesHistoryDialog = ({
                                 </td>
                               </tr>
                             ) : (
-                              filteredChanges.map((change, changeIdx) => (
-                                <tr 
-                                  key={changeIdx} 
-                                  className="hover:bg-gray-50 border-t border-gray-100"
-                                >
-                                  <td className="px-2 py-1.5">{change.country || '-'}</td>
-                                  <td className="px-2 py-1.5">{change.month || '-'}</td>
-                                  <td className="px-2 py-1.5">{change.category || '-'}</td>
-                                  <td className="px-2 py-1.5">{change.model || '-'}</td>
-                                  <td className="px-2 py-1.5">{change.category && change.category !== '-' ? 
-                                    (change.col % 2 === 1 ? 'QTY' : 'AMT') : '-'}</td>
-                                  <td className="px-2 py-1.5 text-center">
-                                    {change.oldValue || '-'}
-                                  </td>
-                                  <td className="px-2 py-1.5 text-center">
-                                    <span className="text-blue-600 font-medium">
-                                      {change.newValue || '-'}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))
+                              filteredChanges.map((change, changeIdx) => {
+                                // 월 정보 정확하게 추출 (열 인덱스로부터)
+                                const colIndex = change.col;
+                                const monthIndex = Math.ceil(colIndex / 2);
+                                const month = `${monthIndex}월`;
+                                const categoryType = change.category || '전망';
+                                
+                                return (
+                                  <tr 
+                                    key={changeIdx} 
+                                    className="hover:bg-gray-50 border-t border-gray-100"
+                                  >
+                                    <td className="px-2 py-1.5">{change.country || '-'}</td>
+                                    <td className="px-2 py-1.5">{month}</td>
+                                    <td className="px-2 py-1.5">{categoryType}</td>
+                                    <td className="px-2 py-1.5">{change.model || '-'}</td>
+                                    <td className="px-2 py-1.5">
+                                      {colIndex % 2 === 1 ? 'QTY' : 'AMT'}
+                                    </td>
+                                    <td className="px-2 py-1.5 text-center">
+                                      {change.oldValue || '-'}
+                                    </td>
+                                    <td className="px-2 py-1.5 text-center">
+                                      <span className="text-blue-600 font-medium">
+                                        {change.newValue || '-'}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              })
                             )}
                           </tbody>
                         </table>

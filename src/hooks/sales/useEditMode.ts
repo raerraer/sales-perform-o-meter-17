@@ -35,8 +35,43 @@ export function useEditMode(): UseEditModeReturn {
   // 변경된 셀 목록 추출 함수
   const getChangesFromData = useCallback((data: any[][], originalData: any[][]): CellChange[] => {
     const changes: CellChange[] = [];
+    const directChanges = new Set<string>(); // 직접 변경된 셀 위치를 추적
     
-    // 원본 데이터와 현재 데이터 비교하여 변경사항 추출
+    // 먼저 직접 변경된 셀만 식별
+    for (let row = 0; row < data.length; row++) {
+      for (let col = 0; col < data[row].length; col++) {
+        // 국가/모델 셀이거나 합계 행은 건너뜀
+        if (col === 0 || 
+            (data[row][0] && (
+              data[row][0].includes('합계') || 
+              data[row][0] === '총 합계' || 
+              data[row][0] === '미주' || 
+              data[row][0] === '유럽' || 
+              data[row][0] === '아시아'
+            ))
+          ) {
+          continue;
+        }
+
+        if (originalData[row] && originalData[row][col] !== undefined) {
+          const originalValue = originalData[row][col];
+          const currentValue = data[row][col];
+          
+          // 값이 변경된 경우만 추적 (문자열로 변환하여 비교)
+          const normalizedOriginal = String(originalValue).replace(/,/g, '');
+          const normalizedCurrent = String(currentValue).replace(/,/g, '');
+          
+          if (normalizedOriginal !== normalizedCurrent) {
+            // 직접 변경 셀만 추적
+            if (!data[row][0].includes('합계') && col > 0) {
+              directChanges.add(`${row}:${col}`);
+            }
+          }
+        }
+      }
+    }
+    
+    // 직접 변경과 자동 계산된 변경을 구분하여 기록
     for (let row = 0; row < data.length; row++) {
       for (let col = 0; col < data[row].length; col++) {
         if (originalData[row] && originalData[row][col] !== undefined) {
@@ -48,27 +83,45 @@ export function useEditMode(): UseEditModeReturn {
           const normalizedCurrent = String(currentValue).replace(/,/g, '');
           
           if (normalizedOriginal !== normalizedCurrent) {
-            const country = data[row][0] || ''; // 첫 번째 열은 보통 국가
-            const modelOrCategory = row > 0 ? data[row-1][0] : ''; // 상위 행이 모델명인 경우
+            const isDirectChange = directChanges.has(`${row}:${col}`);
             
-            // 열 인덱스에 따른 월과 카테고리 추출
-            // 주의: 실제 데이터 구조에 맞게 수정 필요
-            let month = '';
-            let category = '';
+            // 국가 또는 모델 정보 추출
+            let country = '';
             let model = '';
             
-            // 열 인덱스로부터 월과 카테고리 추정
-            // 0: 국가/모델, 1-12: 1월부터 12월
-            if (col > 0) {
-              const monthIndex = Math.ceil(col / 2); // 2개 열(Qty, Amt)당 1개월
-              month = `${monthIndex}월`;
-              category = col % 2 === 1 ? 'QTY' : 'AMT';
+            // 직접 셀 위치로부터 국가/모델 정보 결정
+            if (data[row] && data[row][0]) {
+              if (data[row][0].includes('합계') || 
+                  data[row][0] === '총 합계' || 
+                  data[row][0] === '미주' || 
+                  data[row][0] === '유럽' || 
+                  data[row][0] === '아시아') {
+                // 지역 또는 합계 행
+                country = data[row][0];
+              } else {
+                // 국가 또는 모델 행
+                model = data[row][0];
+                
+                // 상위 행에서 국가 정보 찾기
+                for (let i = row - 1; i >= 0; i--) {
+                  if (data[i] && data[i][0] && 
+                      (data[i][0] === '미국' || 
+                       data[i][0] === '중국' || 
+                       data[i][0] === '일본' ||
+                       data[i][0] === '한국' ||
+                       data[i][0] === '독일' ||
+                       data[i][0] === '영국')) {
+                    country = data[i][0];
+                    break;
+                  }
+                }
+              }
             }
-
-            // 모델명 추출 시도
-            if (row > 0 && !data[row][0].includes('합계')) {
-              model = data[row][0];
-            }
+            
+            // 정확한 월과 항목(QTY/AMT) 결정
+            const monthIndex = Math.ceil(col / 2); // 2개 열(Qty, Amt)당 1개월
+            const month = `${monthIndex}월`;
+            const itemType = col % 2 === 1 ? 'QTY' : 'AMT';
             
             changes.push({
               row,
@@ -78,7 +131,8 @@ export function useEditMode(): UseEditModeReturn {
               country,
               model,
               month,
-              category
+              category: '전망', // 기본값은 '전망'으로 설정
+              isDirectChange // 직접 변경 여부 표시
             });
           }
         }
