@@ -11,8 +11,7 @@ import { Button } from '@/components/ui/button';
 import { 
   ChevronDown, 
   ChevronUp, 
-  Eye, 
-  ArrowRight
+  Eye
 } from 'lucide-react';
 import { VersionHistory } from '@/hooks/sales/useSalesHistory';
 import { 
@@ -62,10 +61,14 @@ const SalesHistoryDialog = ({
     if (!changes || changes.length === 0) return [];
     
     // 직접 수정된 셀만 추출 (자동 계산된 합계 등은 제외)
-    return changes.filter(change => {
-      // 고유 변경 ID 추출 (실제 직접 변경된 데이터만 선택)
-      return change.isDirectChange === true;
-    });
+    return changes.filter(change => change.isDirectChange === true);
+  };
+
+  // 변경사항 월 정보를 정확히 가져오는 함수
+  const getMonthFromColIndex = (colIndex: number) => {
+    // 월 인덱스 계산 (2개 열마다 1개월): 1,2열은 1월, 3,4열은 2월, ...
+    const monthIndex = Math.floor(colIndex / 2) + 1;
+    return `${monthIndex}월`;
   };
 
   return (
@@ -96,7 +99,7 @@ const SalesHistoryDialog = ({
                   hour12: false
                 });
               
-              // 직접 변경한 셀만 필터링
+              // 직접 변경한 셀만 필터링 (isDirectChange가 true인 항목만)
               const directChanges = getDirectChangesOnly(history.changes);
               // 최종적으로 변경된 내용만 필터링
               const filteredChanges = filterChanges(directChanges);
@@ -164,11 +167,11 @@ const SalesHistoryDialog = ({
                               </tr>
                             ) : (
                               filteredChanges.map((change, changeIdx) => {
-                                // 월 정보 정확하게 추출 (열 인덱스로부터)
-                                const colIndex = change.col;
-                                const monthIndex = Math.ceil(colIndex / 2);
-                                const month = `${monthIndex}월`;
-                                const categoryType = change.category || '전망';
+                                // 월 정보를 colIndex로부터 정확히 계산
+                                const month = getMonthFromColIndex(change.col);
+                                
+                                // QTY/AMT 구분 (홀수 열은 QTY, 짝수 열은 AMT)
+                                const itemType = change.col % 2 === 1 ? 'QTY' : 'AMT';
                                 
                                 return (
                                   <tr 
@@ -177,11 +180,9 @@ const SalesHistoryDialog = ({
                                   >
                                     <td className="px-2 py-1.5">{change.country || '-'}</td>
                                     <td className="px-2 py-1.5">{month}</td>
-                                    <td className="px-2 py-1.5">{categoryType}</td>
+                                    <td className="px-2 py-1.5">{change.category || '전망'}</td>
                                     <td className="px-2 py-1.5">{change.model || '-'}</td>
-                                    <td className="px-2 py-1.5">
-                                      {colIndex % 2 === 1 ? 'QTY' : 'AMT'}
-                                    </td>
+                                    <td className="px-2 py-1.5">{itemType}</td>
                                     <td className="px-2 py-1.5 text-center">
                                       {change.oldValue || '-'}
                                     </td>

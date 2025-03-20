@@ -62,8 +62,13 @@ export function useEditMode(): UseEditModeReturn {
           const normalizedCurrent = String(currentValue).replace(/,/g, '');
           
           if (normalizedOriginal !== normalizedCurrent) {
-            // 직접 변경 셀만 추적
-            if (!data[row][0].includes('합계') && col > 0) {
+            // 직접 변경 셀만 추적 - 합계 행이 아닌 경우만
+            const isCountryOrRegion = data[row][0] === '미주' || 
+                                     data[row][0] === '유럽' || 
+                                     data[row][0] === '아시아' || 
+                                     data[row][0].includes('합계');
+            
+            if (!isCountryOrRegion && col > 0) {
               directChanges.add(`${row}:${col}`);
             }
           }
@@ -118,9 +123,11 @@ export function useEditMode(): UseEditModeReturn {
               }
             }
             
-            // 정확한 월과 항목(QTY/AMT) 결정
-            const monthIndex = Math.ceil(col / 2); // 2개 열(Qty, Amt)당 1개월
+            // 정확한 월 계산 (2열마다 1개월)
+            const monthIndex = Math.floor(col / 2) + 1;
             const month = `${monthIndex}월`;
+            
+            // QTY/AMT 구분 (홀수 열은 QTY, 짝수 열은 AMT)
             const itemType = col % 2 === 1 ? 'QTY' : 'AMT';
             
             changes.push({

@@ -10,7 +10,7 @@ export interface CellChange {
   model?: string;
   month?: string;
   category?: string;
-  isDirectChange?: boolean; // 직접 변경 여부를 나타내는 새 필드
+  isDirectChange?: boolean; // 직접 변경 여부를 나타내는 필드
 }
 
 export interface VersionHistory {
@@ -38,7 +38,21 @@ export function useSalesHistory(): SalesHistoryHookReturn {
   const addVersionHistory = (history: VersionHistory) => {
     // 변경사항이 있는 경우만 이력 추가
     if (history.changes && history.changes.length > 0) {
-      setVersionHistory(prev => [...prev, history]);
+      // 변경사항에 월 정보 확인 및 업데이트
+      const updatedChanges = history.changes.map(change => {
+        // 이미 월 정보가 있으면 유지, 없으면 col에서 계산
+        if (!change.month) {
+          const monthIndex = Math.floor(change.col / 2) + 1;
+          change.month = `${monthIndex}월`;
+        }
+        return change;
+      });
+      
+      // 업데이트된 변경사항으로 이력 추가
+      setVersionHistory(prev => [...prev, {
+        ...history,
+        changes: updatedChanges
+      }]);
     }
   };
 
