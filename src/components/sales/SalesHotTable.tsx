@@ -51,8 +51,8 @@ const SalesHotTable = memo(({
     stretchH: "none" as const, // 타입 캐스팅을 사용하여 문제 해결
     rowHeights: 28,
     outsideClickDeselects: false,
+    // 원래 있던 autoWrapRow는 유지하고 아래에 중복된 autoWrapCol은 제거
     autoWrapRow: true,
-    autoWrapCol: true,
     selectionMode: "range" as const, // 타입 캐스팅을 사용하여 문제 해결
     allowInvalid: false, // 유효하지 않은 데이터 입력 방지
     className: "sales-performance-table text-center",
