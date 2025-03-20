@@ -45,7 +45,7 @@ const SalesHotTable = memo(({
     outsideClickDeselects: false,
     autoWrapRow: true,
     autoWrapCol: true,
-    selectionMode: "range",
+    selectionMode: "range" as const, // 타입 캐스팅을 사용하여 문제 해결
     allowInvalid: false, // 유효하지 않은 데이터 입력 방지
     className: "sales-performance-table text-center",
     tableClassName: "aria-rowindex=3", // 세로 스크롤시 행 고정
