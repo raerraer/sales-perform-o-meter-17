@@ -29,7 +29,7 @@ const HistoryChangeTable = ({ changes }: HistoryChangeTableProps) => {
             </tr>
           ) : (
             changes.map((change, changeIdx) => {
-              // 항목(QTY/AMT) 구분 (홀수 열은 QTY, 짝수 열은 AMT)
+              // 항목(QTY/AMT) 구분 - 직접 변경 감지 결과 사용
               const itemType = change.col % 2 === 0 ? 'AMT' : 'QTY';
               
               return (

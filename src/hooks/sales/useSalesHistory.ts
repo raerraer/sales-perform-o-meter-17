@@ -45,6 +45,14 @@ export function useSalesHistory(): SalesHistoryHookReturn {
         if (!change.month) {
           change.month = getMonthFromColIndex(change.col);
         }
+        
+        // 항목(QTY/AMT) 구분 직접 계산
+        if (change.col % 2 === 0) {
+          console.log(`셀 ${change.row},${change.col}: AMT로 판단, 월=${change.month}`);
+        } else {
+          console.log(`셀 ${change.row},${change.col}: QTY로 판단, 월=${change.month}`);
+        }
+        
         return change;
       });
       

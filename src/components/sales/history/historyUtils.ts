@@ -6,7 +6,10 @@ export const getMonthFromColIndex = (colIndex: number): string => {
   // 컬럼 인덱스는 0부터 시작, 실제 데이터 열은 1부터 시작
   // 2열씩 한 달을 나타냄 (홀수 열: QTY, 짝수 열: AMT)
   // 1,2열 = 1월, 3,4열 = 2월 ...
-  const monthIndex = Math.floor((colIndex - 1) / 2) + 1;
+  
+  // 기존 계산 방식에 문제가 있어 수정
+  // 1열: 1월 QTY, 2열: 1월 AMT, 3열: 2월 QTY, 4열: 2월 AMT ...
+  const monthIndex = Math.ceil(colIndex / 2);
   return `${monthIndex}월`;
 };
 
