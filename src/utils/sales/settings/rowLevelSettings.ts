@@ -1,5 +1,5 @@
 
-import { COUNTRIES, LEVELS } from '../constants';
+import { COUNTRIES, LEVELS, LEVEL_STYLES } from '../constants';
 import { createLevelRenderer } from '../renderers/levelRenderers';
 
 /**
