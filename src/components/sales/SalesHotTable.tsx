@@ -28,7 +28,7 @@ const SalesHotTable = memo(({
   const tableStyles = useMemo(() => ({ __html: getSalesTableStyles() + `
     .editable-cell {
       background-color: #f9f9f9 !important;
-      cursor: pointer !important;
+      cursor: cell !important;
     }
     .editable-cell:hover {
       background-color: #f0f0f0 !important;
@@ -75,6 +75,11 @@ const SalesHotTable = memo(({
     autoWrapCol: true, // 열 끝에서 자동으로 다음 행으로 이동
     allowInsertRow: false, // 행 삽입 허용 안함
     allowRemoveRow: false, // 행 삭제 허용 안함
+    // F2키로 편집 시작 가능하도록 추가
+    editor: 'text',
+    fillHandle: false, // 셀 드래그 채우기 기능 비활성화
+    // 더블클릭으로도 편집 진입 가능하도록 설정
+    doubleClickToEditor: true,
   }), [isEditMode, data.length]);
   
   return (
