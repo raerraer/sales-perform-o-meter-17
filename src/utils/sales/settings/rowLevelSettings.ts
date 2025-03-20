@@ -55,7 +55,8 @@ export const findParentLevel = (data: any[][], row: number) => {
     } else if (LEVELS.REGIONS.includes(parentValue)) {
       return { level: 'LEVEL2', readOnly: true };
     } else if (COUNTRIES.includes(parentValue)) {
-      return { level: 'LEVEL3', readOnly: false }; // 국가 모델만 편집 가능
+      // 모든 국가의 모델은 편집 가능하도록 설정
+      return { level: 'LEVEL3', readOnly: false };
     }
     
     parentRow--;

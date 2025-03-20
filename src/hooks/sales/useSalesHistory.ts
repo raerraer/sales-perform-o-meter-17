@@ -52,10 +52,26 @@ export function useSalesHistory(): SalesHistoryHookReturn {
         return change;
       });
       
-      // 업데이트된 변경사항으로 이력 추가
+      // 중복 제거된 변경사항으로 이력 추가
+      // 동일한 셀 위치에 대한 변경은 마지막 항목만 유지
+      const uniqueChanges: CellChange[] = [];
+      const seenCells = new Set<string>();
+      
+      // 역순으로 순회하여 동일 셀에 대한 첫 번째 변경만 유지
+      for (let i = updatedChanges.length - 1; i >= 0; i--) {
+        const change = updatedChanges[i];
+        const cellKey = `${change.row}:${change.col}`;
+        
+        if (!seenCells.has(cellKey)) {
+          uniqueChanges.unshift(change); // 원래 순서 유지를 위해 앞에 추가
+          seenCells.add(cellKey);
+        }
+      }
+      
+      // 정렬된 변경사항으로 이력 추가
       setVersionHistory(prev => [...prev, {
         ...history,
-        changes: updatedChanges
+        changes: uniqueChanges
       }]);
     }
   };

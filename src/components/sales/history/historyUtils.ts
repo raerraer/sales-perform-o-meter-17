@@ -7,8 +7,7 @@ export const getMonthFromColIndex = (colIndex: number): string => {
   // 11열씩 한 달을 나타냄 (각 월별로 5개 카테고리 x 2 + 비고 1 = 11개 열)
   // 1~11열 = 1월, 12~22열 = 2월 ...
   
-  // 이전 계산 방식에 오류가 있어 완전히 새로 작성
-  // 실제 데이터 구조를 반영한 계산식
+  // 정확한 월 계산 공식
   const monthIndex = Math.floor((colIndex - 1) / 11) + 1;
   
   console.log(`getMonthFromColIndex: 열=${colIndex}, 계산된 월=${monthIndex}`);
