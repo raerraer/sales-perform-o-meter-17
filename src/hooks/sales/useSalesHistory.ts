@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { getMonthFromColIndex } from '@/components/sales/history/historyUtils';
+import { getMonthFromColIndex, getDirectChangesOnly } from '@/components/sales/history/historyUtils';
 
 export interface CellChange {
   row: number;
@@ -39,39 +39,33 @@ export function useSalesHistory(): SalesHistoryHookReturn {
   const addVersionHistory = (history: VersionHistory) => {
     // 변경사항이 있는 경우만 이력 추가
     if (history.changes && history.changes.length > 0) {
+      console.log(`변경 이력 추가: 총 ${history.changes.length}개 변경사항`);
+      
       // 변경 내역의 월 정보가 정확한지 확인하고 수정
       const updatedChanges = history.changes.map(change => {
-        // 모든 변경 항목에 정확한 월 정보 설정
-        // 이미 설정된 것을 덮어쓰지 않고, 누락된 경우만 계산
+        // 모든 변경 항목에 정확한 월 정보 설정 (누락된 경우만)
         if (!change.month) {
           const calculatedMonth = getMonthFromColIndex(change.col);
           change.month = calculatedMonth;
           console.log(`월 정보 계산: 셀(${change.row},${change.col}) => ${calculatedMonth}`);
         }
-        
         return change;
       });
       
-      // 중복 제거된 변경사항으로 이력 추가
-      // 동일한 셀 위치에 대한 변경은 마지막 항목만 유지
-      const uniqueChanges: CellChange[] = [];
-      const seenCells = new Set<string>();
+      // 직접 변경한 셀만 필터링 (계산된 합계 셀 제외)
+      const directChanges = getDirectChangesOnly(updatedChanges);
       
-      // 역순으로 순회하여 동일 셀에 대한 첫 번째 변경만 유지
-      for (let i = updatedChanges.length - 1; i >= 0; i--) {
-        const change = updatedChanges[i];
-        const cellKey = `${change.row}:${change.col}`;
-        
-        if (!seenCells.has(cellKey)) {
-          uniqueChanges.unshift(change); // 원래 순서 유지를 위해 앞에 추가
-          seenCells.add(cellKey);
-        }
+      if (directChanges.length === 0) {
+        console.log('직접 변경된 셀이 없어 이력 추가 취소');
+        return;
       }
       
-      // 정렬된 변경사항으로 이력 추가
+      // 필터링된 변경사항으로 이력 추가
+      console.log(`최종 변경 이력 추가: ${directChanges.length}개 항목`);
+      
       setVersionHistory(prev => [...prev, {
         ...history,
-        changes: uniqueChanges
+        changes: directChanges
       }]);
     }
   };

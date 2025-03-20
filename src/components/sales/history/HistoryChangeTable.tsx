@@ -29,8 +29,10 @@ const HistoryChangeTable = ({ changes }: HistoryChangeTableProps) => {
             </tr>
           ) : (
             changes.map((change, changeIdx) => {
-              // 항목(QTY/AMT) 정보는 이미 salesChangesDetector에서 계산됨
-              const itemType = change.col % 2 === 0 ? 'AMT' : 'QTY';
+              // 각 월 내에서의 열 위치 계산 (1~11)
+              const colInMonth = ((change.col - 1) % 11) + 1;
+              // 항목(QTY/AMT) 정보 계산 - 짝수 열은 AMT, 홀수 열은 QTY
+              const itemType = colInMonth % 2 === 0 ? 'AMT' : 'QTY';
               
               return (
                 <tr 
@@ -38,7 +40,7 @@ const HistoryChangeTable = ({ changes }: HistoryChangeTableProps) => {
                   className="hover:bg-gray-50 border-t border-gray-100"
                 >
                   <td className="px-2 py-1.5">{change.country || '-'}</td>
-                  <td className="px-2 py-1.5">{change.month}</td>
+                  <td className="px-2 py-1.5">{change.month || '-'}</td>
                   <td className="px-2 py-1.5">{change.category || '전망'}</td>
                   <td className="px-2 py-1.5">{change.model || '-'}</td>
                   <td className="px-2 py-1.5">{itemType}</td>

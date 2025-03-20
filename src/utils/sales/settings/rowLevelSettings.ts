@@ -1,5 +1,5 @@
 
-import { COUNTRIES, LEVELS, LEVEL_STYLES } from '../constants';
+import { COUNTRIES, LEVELS } from '../constants';
 import { createLevelRenderer } from '../renderers/levelRenderers';
 
 /**
@@ -55,7 +55,7 @@ export const findParentLevel = (data: any[][], row: number) => {
     } else if (LEVELS.REGIONS.includes(parentValue)) {
       return { level: 'LEVEL2', readOnly: true };
     } else if (COUNTRIES.includes(parentValue)) {
-      // 모든 국가의 모델은 편집 가능하도록 설정
+      // 중요 변경 - 모든 국가의 모델 행 편집 가능하도록 설정
       return { level: 'LEVEL3', readOnly: false };
     }
     
@@ -89,6 +89,7 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
       break;
     case 'LEVEL3':
       settings.className = 'level-3-model cell-center';
+      // 중요 변경 - 편집 모드일 때 모든 모델 행 편집 가능
       settings.readOnly = !isEditMode;
       settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
       break;

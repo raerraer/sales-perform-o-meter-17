@@ -14,106 +14,76 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
     return [];
   }
 
+  console.log('변경사항 감지 시작');
   const changes: CellChange[] = [];
-  // 직접 변경된 셀 위치를 저장할 Set (행:열 형식)
-  const directChanges = new Set<string>(); 
   
-  // 1단계: 직접 변경된 셀 위치를 먼저 파악 (모델 수준 행만)
+  // 모델 행들을 돌면서 변경 사항 확인
   for (let row = 0; row < data.length; row++) {
-    // 모델1, 모델2 행인 경우만 확인 (직접 변경 가능한 행)
-    if (data[row] && data[row][0] && 
-        (data[row][0] === '모델1' || data[row][0] === '모델2') &&
-        !data[row][0].includes('합계')) {
-      
-      for (let col = 1; col < (data[row]?.length || 0) && col < (originalData[row]?.length || 0); col++) {
-        // 비어있는 열이나 비고 열은 제외
-        if (col === 0 || 
-            data[row][col] === undefined || 
-            data[row][col] === '' || 
-            originalData[row][col] === undefined) {
-          continue;
-        }
-      
-        const originalValue = String(originalData[row][col] || '').replace(/,/g, '');
-        const currentValue = String(data[row][col] || '').replace(/,/g, '');
-        
-        if (originalValue !== currentValue) {
-          // 직접 변경된 셀 위치 기록
-          directChanges.add(`${row}:${col}`);
-          const month = getMonthFromColIndex(col);
-          console.log(`직접 변경된 셀 감지: 행=${row}, 열=${col}, 이전값=${originalValue}, 현재값=${currentValue}, 월=${month}`);
+    if (!data[row] || !data[row][0]) continue;
+    
+    // 모델1, 모델2 행인 경우만 변경 감지 (직접 변경 가능한 행)
+    if (data[row][0] === '모델1' || data[row][0] === '모델2') {
+      // 이 모델의 국가 찾기 (현재 행 위로 거슬러 올라가기)
+      let country = '';
+      for (let i = row - 1; i >= 0; i--) {
+        if (data[i] && data[i][0] && 
+            (data[i][0] === '미국' || 
+             data[i][0] === '중국' || 
+             data[i][0] === '일본' ||
+             data[i][0] === '한국' ||
+             data[i][0] === '독일' ||
+             data[i][0] === '영국' ||
+             data[i][0] === '이태리' ||
+             data[i][0] === '캐나다')) {
+          country = data[i][0];
+          break;
         }
       }
-    }
-  }
-  
-  // 2단계: 직접 변경된 셀만 수집 (항상 첫 번째 단계에서 감지된 셀만 포함)
-  for (const changeKey of directChanges) {
-    const [rowStr, colStr] = changeKey.split(':');
-    const row = parseInt(rowStr);
-    const col = parseInt(colStr);
-    
-    if (isNaN(row) || isNaN(col) || !data[row] || !data[row][col]) {
-      console.warn(`유효하지 않은 셀 위치: ${changeKey}`);
-      continue;
-    }
-
-    const originalValue = originalData[row][col];
-    const currentValue = data[row][col];
-    
-    // 값 변경 확인 (콤마 제거 후 비교)
-    const normalizedOriginal = String(originalValue || '').replace(/,/g, '');
-    const normalizedCurrent = String(currentValue || '').replace(/,/g, '');
-    
-    if (normalizedOriginal !== normalizedCurrent) {
-      // 국가와 모델 정보 수집
-      let country = '';
-      let model = '';
       
-      // 셀의 모델 정보 먼저 확인
-      if (data[row][0] === '모델1' || data[row][0] === '모델2') {
-        model = data[row][0];
+      // 국가가 찾아진 경우에만 처리
+      if (country) {
+        const model = data[row][0]; // 모델명 저장
         
-        // 이 모델의 국가 찾기 (현재 행 위로 거슬러 올라가기)
-        for (let i = row - 1; i >= 0 && i < data.length; i--) {
-          if (data[i] && data[i][0] && 
-              (data[i][0] === '미국' || 
-              data[i][0] === '중국' || 
-              data[i][0] === '일본' ||
-              data[i][0] === '한국' ||
-              data[i][0] === '독일' ||
-              data[i][0] === '영국' ||
-              data[i][0] === '이태리')) {
-            country = data[i][0];
-            break;
+        // 데이터 열을 돌면서 변경 사항 확인 (1열부터 시작, 0열은 모델명)
+        for (let col = 1; col < data[row].length; col++) {
+          // 빈 셀은 무시
+          if (data[row][col] === undefined || originalData[row][col] === undefined) {
+            continue;
+          }
+          
+          // 문자열로 변환하여 콤마 제거 후 비교 (숫자 비교를 위해)
+          const originalValue = String(originalData[row][col] || '').replace(/,/g, '');
+          const currentValue = String(data[row][col] || '').replace(/,/g, '');
+          
+          // 실제 값이 변경된 경우에만 변경 목록에 추가
+          if (originalValue !== currentValue) {
+            // 월 정보 가져오기
+            const month = getMonthFromColIndex(col);
+            
+            // 항목 유형(QTY/AMT) 판단
+            // 각 월 내 11개 열 중에서 홀수/짝수 위치로 판단
+            const colInMonth = ((col - 1) % 11) + 1;
+            const itemType = colInMonth % 2 === 0 ? 'AMT' : 'QTY';
+            
+            console.log(`변경 감지: 국가=${country}, 모델=${model}, 월=${month}, 열=${col}, 유형=${itemType}, 이전=${originalValue}, 현재=${currentValue}`);
+            
+            changes.push({
+              row,
+              col,
+              oldValue: originalData[row][col],
+              newValue: data[row][col],
+              country,
+              model,
+              month,
+              category: '전망',
+              isDirectChange: true
+            });
           }
         }
       }
-      
-      // 월 정보 계산
-      const month = getMonthFromColIndex(col);
-      
-      // 열 위치로 항목 유형(QTY/AMT) 판단
-      // 월 내에서의 열 위치 계산 (1~11)
-      const colInMonth = (col - 1) % 11 + 1;
-      // 짝수 열은 AMT, 홀수 열은 QTY
-      const itemType = colInMonth % 2 === 0 ? 'AMT' : 'QTY';
-      
-      console.log(`변경사항 추가: 국가=${country}, 모델=${model}, 월=${month}, 타입=${itemType}, 값 변경: ${originalValue} -> ${currentValue}`);
-      
-      changes.push({
-        row,
-        col,
-        oldValue: originalValue,
-        newValue: currentValue,
-        country,
-        model,
-        month,
-        category: '전망',
-        isDirectChange: true
-      });
     }
   }
   
+  console.log(`총 ${changes.length}개의 변경사항 감지됨`);
   return changes;
 };
