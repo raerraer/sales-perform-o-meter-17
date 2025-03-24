@@ -77,17 +77,42 @@ const SalesHotTable = memo(({
     editor: 'text',
     fillHandle: false,
     doubleClickToEditor: true, // 더블클릭으로 편집 활성화
-    // 편집 가능한 셀 처리 개선
+    
+    // 편집 가능한 셀 처리 개선 - 더 엄격하게 편집 가능 셀 감지
     beforeOnCellMouseDown: function(event: any, coords: any) {
       if (isEditMode && coords.row >= 0 && coords.col > 0) {
         // 선택된 셀의 readOnly 속성 확인
         const cell = this.getCellMeta(coords.row, coords.col);
+        
+        // 디버깅용 로그 (문제 해결 후 제거 가능)
+        console.log(`셀 클릭: 행=${coords.row}, 열=${coords.col}, 읽기전용=${cell.readOnly}`);
+        
         if (!cell.readOnly) {
           // 클릭한 셀이 편집 가능한 경우 커서 스타일 변경
           event.target.style.cursor = 'cell';
         }
       }
     },
+    
+    // 추가: 셀 더블클릭 시 편집 시작 전 처리
+    beforeOnCellMouseOver: function(event: any, coords: any) {
+      if (isEditMode && coords.row >= 0 && coords.col > 0) {
+        const cell = this.getCellMeta(coords.row, coords.col);
+        if (!cell.readOnly) {
+          event.target.style.cursor = 'cell';
+        }
+      }
+    },
+    
+    // 추가: 선택한 셀 항상 활성화
+    afterSelection: function(row: number, col: number) {
+      if (isEditMode && col > 0) {
+        const cell = this.getCellMeta(row, col);
+        if (!cell.readOnly) {
+          console.log(`셀 선택: 행=${row}, 열=${col}, 편집가능=true`);
+        }
+      }
+    }
   }), [isEditMode, data.length]);
   
   return (

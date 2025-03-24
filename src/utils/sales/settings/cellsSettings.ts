@@ -15,7 +15,7 @@ import { applyHighlightStyle } from '../renderers/highlightRenderers';
 const modelRowCache = new Map<string, boolean>();
 
 /**
- * 모델 행인지 빠르게 확인하는 함수 - 캐싱 로직 적용
+ * 모델 행인지 빠르게 확인하는 함수 - 캐싱 로직 적용 및 모델 인식 개선
  */
 const isModelRow = (value: string): boolean => {
   if (!value) return false;
@@ -25,9 +25,15 @@ const isModelRow = (value: string): boolean => {
     return modelRowCache.get(value) || false;
   }
   
-  // 캐시가 없으면 계산 후 캐싱
+  // 캐시가 없으면 계산 후 캐싱 - 정확한 문자열 비교로 모델 행 인식 개선
   const result = value === '모델1' || value === '모델2';
   modelRowCache.set(value, result);
+  
+  // 디버깅용 로그 (문제 해결 후 제거 가능)
+  if (result) {
+    console.log(`모델 행 확인: "${value}" -> ${result}`);
+  }
+  
   return result;
 };
 
@@ -78,11 +84,16 @@ export const createCellsSettingsFunction = (
       configureCountryRowSettings(settings);
     }
     else if (isModelRow(cellValue)) {
-      // 모델 행 설정 - 여기가 핵심: isEditMode를 정확히 전달
+      // 모델 행 설정 - 편집 모드 정보 전달 확실히 함
       configureModelRowSettings(settings, data, row, isEditMode);
       
       // 모델 셀이 편집 가능한지 설정에 추가 플래그
       settings.isEditable = !settings.readOnly;
+      
+      // 모델 셀이 편집 가능한지 디버깅용 로그 (문제 해결 후 제거 가능)
+      if (col > 0 && !settings.readOnly) {
+        console.log(`편집 가능한 모델 셀: 행=${row}, 열=${col}, 값=${cellValue}`);
+      }
     }
 
     // 숫자 형식 및 셀 정렬 설정

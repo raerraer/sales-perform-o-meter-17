@@ -51,9 +51,9 @@ export const findParentLevel = (data: any[][], row: number) => {
       result.readOnly = true;
       break;
     } else if (COUNTRIES.includes(parentValue)) {
-      // 모든 국가의 모델 행은 편집 가능하도록 수정
+      // 모든 국가의 모델 행은 편집 가능하도록 설정 - 중요!
       result.level = 'LEVEL3';
-      result.readOnly = false; // 무조건 false로 설정하여 편집 가능하게 함
+      result.readOnly = false; // 무조건 false로 설정
       result.country = parentValue;
       break;
     }
@@ -85,7 +85,7 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
     case 'LEVEL3':
       settings.className = 'level-3-model cell-center';
       
-      // 핵심 수정: 편집 모드일 때는 모든 국가의 모델 셀을 항상 편집 가능하도록 수정
+      // 중요 수정! - 편집 모드일 때 모든 국가(특히 영국, 이태리)의 모델 셀 편집 가능하도록 수정
       settings.readOnly = !isEditMode;
       
       // 편집 가능한 셀일 경우 스타일 적용
@@ -94,6 +94,9 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
       }
       
       settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
+      
+      // 디버깅을 위한 로그 (문제 해결 후 제거 가능)
+      console.log(`모델 셀 설정: 국가=${country}, 편집가능=${!settings.readOnly}, 편집모드=${isEditMode}`);
       break;
     default:
       settings.readOnly = !isEditMode;
