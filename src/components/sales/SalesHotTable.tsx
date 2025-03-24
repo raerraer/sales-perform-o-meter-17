@@ -76,7 +76,12 @@ const SalesHotTable = memo(({
     allowRemoveRow: false,
     editor: 'text',
     fillHandle: false,
-    doubleClickToEditor: true, // 더블클릭으로 편집 활성화
+    
+    // 중요! 더블클릭으로 편집 활성화 확실히 적용
+    doubleClickToEditor: true,
+    
+    // 셀 선택시 자동으로 편집 모드 시작 (키 입력시 바로 입력 가능하게)
+    enterBeginsEditingMode: true,
     
     // 편집 가능한 셀 처리 개선 - 더 엄격하게 편집 가능 셀 감지
     beforeOnCellMouseDown: function(event: any, coords: any) {
@@ -84,7 +89,7 @@ const SalesHotTable = memo(({
         // 선택된 셀의 readOnly 속성 확인
         const cell = this.getCellMeta(coords.row, coords.col);
         
-        // 디버깅용 로그 (문제 해결 후 제거 가능)
+        // 디버깅용 로그 
         console.log(`셀 클릭: 행=${coords.row}, 열=${coords.col}, 읽기전용=${cell.readOnly}`);
         
         if (!cell.readOnly) {
@@ -94,12 +99,42 @@ const SalesHotTable = memo(({
       }
     },
     
-    // 추가: 셀 더블클릭 시 편집 시작 전 처리
+    // F2 키를 누르면 편집 모드 시작 설정
+    beforeKeyDown: function(event: KeyboardEvent) {
+      // F2 키 처리
+      if (event.key === 'F2' && this.getSelected()) {
+        const [row, col] = this.getSelected()[0];
+        const cell = this.getCellMeta(row, col);
+        
+        console.log(`F2 키 누름: 행=${row}, 열=${col}, 읽기전용=${cell.readOnly}`);
+        
+        if (!cell.readOnly) {
+          this.getActiveEditor().beginEditing();
+          event.preventDefault();
+        }
+      }
+    },
+    
+    // 셀 더블클릭 시 편집 시작 전 처리 - 명시적 설정
     beforeOnCellMouseOver: function(event: any, coords: any) {
       if (isEditMode && coords.row >= 0 && coords.col > 0) {
         const cell = this.getCellMeta(coords.row, coords.col);
         if (!cell.readOnly) {
           event.target.style.cursor = 'cell';
+        }
+      }
+    },
+    
+    // 셀 더블클릭 시 바로 편집 모드로 전환 개선
+    afterOnCellDbClick: function(event: any, coords: any) {
+      if (isEditMode && coords.row >= 0 && coords.col > 0) {
+        const cell = this.getCellMeta(coords.row, coords.col);
+        
+        console.log(`셀 더블클릭: 행=${coords.row}, 열=${coords.col}, 읽기전용=${cell.readOnly}`);
+        
+        if (!cell.readOnly) {
+          // 강제로 편집 모드 시작
+          this.getActiveEditor().beginEditing();
         }
       }
     },

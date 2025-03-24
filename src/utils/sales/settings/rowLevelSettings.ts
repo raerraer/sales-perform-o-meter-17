@@ -85,23 +85,25 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
     case 'LEVEL3':
       settings.className = 'level-3-model cell-center';
       
-      // 중요 수정! - 편집 모드일 때 모든 국가(특히 영국, 이태리)의 모델 셀 편집 가능하도록 수정
+      // 중요 수정! - 편집 모드일 때 모든 국가의 모델 셀 편집 가능하도록 수정
       settings.readOnly = !isEditMode;
       
-      // 편집 가능한 셀일 경우 스타일 적용
+      // 편집 가능한 셀 표시 강화
       if (!settings.readOnly) {
         settings.className += ' editable-cell';
+        settings.isEditable = true; // 명시적으로 편집 가능 플래그 설정
       }
       
       settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
       
-      // 디버깅을 위한 로그 (문제 해결 후 제거 가능)
+      // 디버깅을 위한 로그
       console.log(`모델 셀 설정: 국가=${country}, 편집가능=${!settings.readOnly}, 편집모드=${isEditMode}`);
       break;
     default:
       settings.readOnly = !isEditMode;
       if (!settings.readOnly) {
         settings.className += ' editable-cell';
+        settings.isEditable = true; // 명시적으로 편집 가능 플래그 설정
       }
       break;
   }
