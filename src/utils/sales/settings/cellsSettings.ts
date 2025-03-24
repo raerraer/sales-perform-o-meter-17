@@ -29,7 +29,7 @@ const isModelRow = (value: string): boolean => {
   const result = value === '모델1' || value === '모델2';
   modelRowCache.set(value, result);
   
-  // 디버깅용 로그
+  // 디버깅용 로그 (문제 해결 후 제거 가능)
   if (result) {
     console.log(`모델 행 확인: "${value}" -> ${result}`);
   }
@@ -88,15 +88,9 @@ export const createCellsSettingsFunction = (
       configureModelRowSettings(settings, data, row, isEditMode);
       
       // 모델 셀이 편집 가능한지 설정에 추가 플래그
-      if (!settings.readOnly) {
-        settings.isEditable = true; // Handsontable이 인식하는 편집 가능 플래그
-        
-        // 수정된 코드: 더블클릭 및 키보드 입력 편집을 위한 추가 속성
-        settings.editor = 'text'; // 텍스트 에디터 명시적 지정
-        settings.allowInvalid = true; // 임시로 유효하지 않은 값 허용
-      }
+      settings.isEditable = !settings.readOnly;
       
-      // 모델 셀이 편집 가능한지 디버깅용 로그
+      // 모델 셀이 편집 가능한지 디버깅용 로그 (문제 해결 후 제거 가능)
       if (col > 0 && !settings.readOnly) {
         console.log(`편집 가능한 모델 셀: 행=${row}, 열=${col}, 값=${cellValue}`);
       }
@@ -109,11 +103,6 @@ export const createCellsSettingsFunction = (
     // 하이라이팅 설정 - 실제로 셀이 수정된 경우에만 하이라이팅 적용
     if (isEditMode && isModifiedCell && isModifiedCell(row, col)) {
       Object.assign(settings, applyHighlightStyle(true, settings.renderer));
-    } else if (!settings.readOnly) {
-      // 수정: 편집 가능한 셀은 항상 editable-cell 클래스 추가
-      if (!settings.className.includes('editable-cell')) {
-        settings.className += ' editable-cell';
-      }
     }
 
     return settings;

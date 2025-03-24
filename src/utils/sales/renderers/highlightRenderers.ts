@@ -26,14 +26,10 @@ export const highlightModifiedCellRenderer = (
   }
   
   // 편집 가능한 셀 스타일 적용 (성능 최적화) - 모든 편집 가능 셀에 확실히 클래스 추가
-  // 중요: 편집 가능한 셀은 반드시 editable-cell 클래스를 가지도록 함
-  if (!cellProperties.readOnly) {
+  if (cellProperties.isEditable || !cellProperties.readOnly) {
     if (!td.classList.contains('editable-cell')) {
       td.classList.add('editable-cell');
     }
-    
-    // 커서 스타일을 직접 적용하여 편집 가능함을 명확히 표시
-    td.style.cursor = 'cell';
   }
 };
 
@@ -62,14 +58,11 @@ export const applyHighlightStyle = (isModified: boolean, renderer?: any) => {
         td.classList.remove('modified-cell');
       }
       
-      // 편집 가능한 셀 스타일 적용 - 적극적인 스타일 적용으로 개선
-      if (!cellProps.readOnly) {
+      // 편집 가능한 셀 스타일 적용 - 추가
+      if (cellProps.isEditable || !cellProps.readOnly) {
         if (!td.classList.contains('editable-cell')) {
           td.classList.add('editable-cell');
         }
-        
-        // 커서 스타일을 직접 적용
-        td.style.cursor = 'cell';
       }
     };
   } else {
