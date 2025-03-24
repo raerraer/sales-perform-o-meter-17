@@ -46,7 +46,7 @@ const SalesHotTable = memo(({
     width: "100%",
     height: "calc(100vh - 280px)",
     colWidths: [120, ...Array(12 * 11).fill(60)],
-    fixedColumnsLeft: 1,
+    fixedColumnsStart: 1, // fixedColumnsLeft 대신 fixedColumnsStart 사용
     manualColumnResize: true,
     contextMenu: isEditMode,
     copyPaste: isEditMode,
