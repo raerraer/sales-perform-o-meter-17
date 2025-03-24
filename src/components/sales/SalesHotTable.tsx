@@ -41,44 +41,38 @@ const SalesHotTable = memo(({
     rowHeaders: false,
     colHeaders: true,
     width: "100%",
-    height: "calc(100vh - 280px)", // 헤더 버튼들 추가된 크기 고려하여 조정
-    colWidths: [120, ...Array(12 * 11).fill(60)], // 첫 번째 열은 넓게, 나머지는 균일하게
+    height: "calc(100vh - 280px)",
+    colWidths: [120, ...Array(12 * 11).fill(60)],
     fixedColumnsLeft: 1,
     manualColumnResize: true,
     contextMenu: isEditMode,
     copyPaste: isEditMode,
     wordWrap: false,
-    stretchH: "none" as const, // 타입 캐스팅을 사용하여 문제 해결
+    stretchH: "none" as const,
     rowHeights: 28,
     outsideClickDeselects: false,
-    // 원래 있던 autoWrapRow는 유지하고 아래에 중복된 autoWrapCol은 제거
     autoWrapRow: true,
-    selectionMode: "range" as const, // 타입 캐스팅을 사용하여 문제 해결
-    allowInvalid: false, // 유효하지 않은 데이터 입력 방지
+    selectionMode: "range" as const,
+    allowInvalid: false,
     className: "sales-performance-table text-center",
-    tableClassName: "aria-rowindex=3", // 세로 스크롤시 행 고정
-    // 성능 최적화를 위한 추가 옵션
+    tableClassName: "aria-rowindex=3",
     renderAllRows: false,
     viewportColumnRenderingOffset: 10,
     viewportRowRenderingOffset: 20,
-    // 더 높은 성능을 위한 추가 설정
     fragmentSelection: true,
     autoColumnSize: false,
     autoRowSize: false,
-    maxRows: data.length, // 최대 행 제한으로 성능 최적화
-    observeDOMVisibility: true, // DOM 가시성 관찰로 최적화
-    preventOverflow: 'horizontal' as const, // 타입 캐스팅을 사용하여 문제 해결
-    // 셀 편집 관련 설정 추가
-    enterBeginsEditing: true, // Enter키로 편집 시작
-    enterMoves: { row: 1, col: 0 }, // Enter키 누르면 아래 셀로 이동
-    tabMoves: { row: 0, col: 1 }, // Tab키 누르면 오른쪽 셀로 이동
-    autoWrapCol: true, // 열 끝에서 자동으로 다음 행으로 이동
-    allowInsertRow: false, // 행 삽입 허용 안함
-    allowRemoveRow: false, // 행 삭제 허용 안함
-    // F2키로 편집 시작 가능하도록 추가
+    maxRows: data.length,
+    observeDOMVisibility: true,
+    preventOverflow: 'horizontal' as const,
+    enterBeginsEditing: true,
+    enterMoves: { row: 1, col: 0 },
+    tabMoves: { row: 0, col: 1 },
+    autoWrapCol: true,
+    allowInsertRow: false,
+    allowRemoveRow: false,
     editor: 'text',
-    fillHandle: false, // 셀 드래그 채우기 기능 비활성화
-    // 더블클릭으로도 편집 진입 가능하도록 설정
+    fillHandle: false,
     doubleClickToEditor: true,
   }), [isEditMode, data.length]);
   
@@ -97,7 +91,6 @@ const SalesHotTable = memo(({
   );
 });
 
-// 컴포넌트 이름 명시적 설정
 SalesHotTable.displayName = 'SalesHotTable';
 
 export default SalesHotTable;

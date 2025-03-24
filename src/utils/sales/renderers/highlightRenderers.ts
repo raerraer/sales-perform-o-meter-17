@@ -2,14 +2,7 @@
 import Handsontable from 'handsontable';
 
 /**
- * 변경된 셀에 하이라이팅 적용을 위한 렌더러 함수
- * @param instance Handsontable 인스턴스
- * @param td 셀 엘리먼트
- * @param row 행 인덱스
- * @param col 열 인덱스
- * @param prop 프로퍼티 이름
- * @param value 셀 값
- * @param cellProperties 셀 속성
+ * 변경된 셀에 하이라이팅 적용을 위한 렌더러 함수 - 성능 최적화 버전
  */
 export const highlightModifiedCellRenderer = (
   instance: any, 
@@ -35,9 +28,6 @@ export const highlightModifiedCellRenderer = (
 
 /**
  * 하이라이팅 스타일을 적용하는 함수 - 성능 최적화 버전
- * @param isModified 셀이 수정되었는지 여부
- * @param renderer 기존 렌더러
- * @returns 셀 속성 객체
  */
 export const applyHighlightStyle = (isModified: boolean, renderer?: any) => {
   // 성능 최적화: 불필요한 객체 생성 최소화

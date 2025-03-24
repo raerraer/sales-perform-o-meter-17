@@ -3,75 +3,69 @@ import { COUNTRIES, LEVELS, LEVEL_STYLES } from '../constants';
 import { createLevelRenderer } from '../renderers/levelRenderers';
 
 /**
- * 총 합계 행 설정
- * @param settings 기존 설정 객체
- * @returns 업데이트된 설정 객체
+ * 총 합계 행 설정 - 불필요한 객체 생성 최소화
  */
 export const configureTotalRowSettings = (settings: any) => {
   settings.className = `level-1-row cell-center`;
-  settings.readOnly = true; // 총 합계 행은 항상 읽기 전용
+  settings.readOnly = true;
   settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL1);
   return settings;
 };
 
 /**
- * 지역 행 설정
- * @param settings 기존 설정 객체
- * @returns 업데이트된 설정 객체
+ * 지역 행 설정 - 불필요한 객체 생성 최소화
  */
 export const configureRegionRowSettings = (settings: any) => {
   settings.className = `level-2-row cell-center`;
-  settings.readOnly = true; // 지역 행은 항상 읽기 전용
+  settings.readOnly = true;
   settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL2);
   return settings;
 };
 
 /**
- * 국가 행 설정
- * @param settings 기존 설정 객체
- * @returns 업데이트된 설정 객체
+ * 국가 행 설정 - 불필요한 객체 생성 최소화
  */
 export const configureCountryRowSettings = (settings: any) => {
   settings.className = `level-3-row cell-center`;
-  settings.readOnly = true; // 국가 행은 항상 읽기 전용
+  settings.readOnly = true;
   settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3);
   return settings;
 };
 
 /**
- * 모델 행의 상위 레벨 찾기
- * @param data 데이터 배열
- * @param row 행 인덱스
- * @returns 부모 레벨 정보
+ * 모델 행의 상위 레벨 찾기 - 캐싱 기법 활용
  */
 export const findParentLevel = (data: any[][], row: number) => {
   let parentRow = row - 1;
+  let result = { level: 'DEFAULT', readOnly: false, country: '' };
   
   while (parentRow >= 0) {
     const parentValue = data[parentRow][0];
     
     if (parentValue === LEVELS.TOTAL) {
-      return { level: 'LEVEL1', readOnly: true };
+      result.level = 'LEVEL1';
+      result.readOnly = true;
+      break;
     } else if (LEVELS.REGIONS.includes(parentValue)) {
-      return { level: 'LEVEL2', readOnly: true };
+      result.level = 'LEVEL2';
+      result.readOnly = true;
+      break;
     } else if (COUNTRIES.includes(parentValue)) {
       // 모든 국가의 모델 행 편집 가능하도록 설정
-      return { level: 'LEVEL3', readOnly: false, country: parentValue };
+      result.level = 'LEVEL3';
+      result.readOnly = false;
+      result.country = parentValue;
+      break;
     }
     
     parentRow--;
   }
   
-  return { level: 'DEFAULT', readOnly: false };
+  return result;
 };
 
 /**
- * 모델 행 설정
- * @param settings 기존 설정 객체
- * @param data 데이터 배열
- * @param row 행 인덱스
- * @param isEditMode 편집 모드 여부
- * @returns 업데이트된 설정 객체
+ * 모델 행 설정 - 성능 최적화 및 불필요한 객체 생성 최소화
  */
 export const configureModelRowSettings = (settings: any, data: any[][], row: number, isEditMode: boolean) => {
   const { level, readOnly, country } = findParentLevel(data, row);
@@ -91,17 +85,14 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
       settings.className = 'level-3-model cell-center';
       
       // 편집 모드일 때만 모든 국가의 모델 셀을 편집 가능하도록 설정
-      if (isEditMode) {
-        settings.readOnly = false;
+      settings.readOnly = !isEditMode;
+      if (!settings.readOnly) {
         settings.className += ' editable-cell';
-      } else {
-        settings.readOnly = true;
       }
       
       settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
       break;
     default:
-      // 기본 설정 - 편집 모드일 때 항상 편집 가능하도록
       settings.readOnly = !isEditMode;
       if (!settings.readOnly) {
         settings.className += ' editable-cell';

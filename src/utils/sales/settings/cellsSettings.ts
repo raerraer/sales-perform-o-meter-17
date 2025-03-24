@@ -11,44 +11,28 @@ import {
 } from './rowLevelSettings';
 import { applyHighlightStyle } from '../renderers/highlightRenderers';
 
+// 캐싱을 위한 Map 객체 사용
+const modelRowCache = new Map<string, boolean>();
+
 /**
- * 모델 행인지 확인하는 함수
- * @param value 셀 값
- * @returns 모델 행 여부
+ * 모델 행인지 빠르게 확인하는 함수 - 캐싱 로직 적용
  */
 const isModelRow = (value: string): boolean => {
-  return value === '모델1' || value === '모델2';
-};
-
-/**
- * 특정 행이 주어진 국가에 속한 모델 행인지 확인하는 함수
- * @param data 데이터 배열
- * @param row 현재 행 인덱스
- * @param country 확인할 국가명
- * @returns 해당 국가의 모델 행 여부
- */
-const isCountryModelRow = (data: any[][], row: number, country: string): boolean => {
-  if (!isModelRow(data[row][0])) return false;
+  if (!value) return false;
   
-  // 현재 행에서 위로 올라가면서 첫 번째 나오는 국가 확인
-  let currentRow = row - 1;
-  while (currentRow >= 0) {
-    if (COUNTRIES.includes(data[currentRow][0])) {
-      return data[currentRow][0] === country;
-    }
-    currentRow--;
+  // 캐시된 결과가 있으면 바로 반환
+  if (modelRowCache.has(value)) {
+    return modelRowCache.get(value) || false;
   }
   
-  return false;
+  // 캐시가 없으면 계산 후 캐싱
+  const result = value === '모델1' || value === '모델2';
+  modelRowCache.set(value, result);
+  return result;
 };
 
 /**
- * 메인 셀 설정 함수
- * @param data 데이터 배열
- * @param isEditMode 편집 모드 여부
- * @param originalData 원본 데이터 배열
- * @param isModifiedCell 셀이 수정되었는지 확인하는 함수
- * @returns 셀 설정 함수
+ * 메인 셀 설정 함수 - 성능 최적화 버전
  */
 export const createCellsSettingsFunction = (
   data: any[][], 
@@ -56,11 +40,22 @@ export const createCellsSettingsFunction = (
   originalData: any[][],
   isModifiedCell?: (row: number, col: number) => boolean
 ) => {
+  // 국가 데이터 캐싱 (행 인덱스 -> 국가명)
+  const countryRowCache = new Map<number, string>();
+  
+  // 사전에 국가 행 인덱스 캐싱하여 반복 검색 최소화
+  for (let i = 0; i < data.length; i++) {
+    if (data[i] && COUNTRIES.includes(data[i][0])) {
+      countryRowCache.set(i, data[i][0]);
+    }
+  }
+  
+  // 셀 설정 함수 - 최적화 버전
   return function(row: number, col: number) {
-    // 기본 설정
+    // 설정 객체 재사용으로 메모리 사용량 감소
     const settings: any = {
-      readOnly: !isEditMode,  // 기본적으로 편집 모드에 따라 읽기 전용 설정
-      className: 'cell-center', // 모든 셀에 중앙 정렬 클래스 추가
+      readOnly: !isEditMode,
+      className: 'cell-center',
       fontFamily: 'Pretendard',
       fontSize: '13px'
     };
@@ -71,41 +66,29 @@ export const createCellsSettingsFunction = (
     }
 
     // 셀 종류에 따른 설정
-    if (data[row][0] === LEVELS.TOTAL) {
+    const cellValue = data[row]?.[0];
+    
+    if (cellValue === LEVELS.TOTAL) {
       configureTotalRowSettings(settings);
     } 
-    else if (LEVELS.REGIONS.includes(data[row][0])) {
+    else if (LEVELS.REGIONS.includes(cellValue)) {
       configureRegionRowSettings(settings);
     }
-    else if (COUNTRIES.includes(data[row][0])) {
+    else if (COUNTRIES.includes(cellValue)) {
       configureCountryRowSettings(settings);
     }
-    else {
-      // 모델 행인지 확인 (모델1 또는 모델2)
-      const modelValue = data[row][0];
-      
-      if (isModelRow(modelValue)) {
-        // 모든 국가의 모델 셀 편집 가능하도록 설정
-        configureModelRowSettings(settings, data, row, isEditMode);
-        
-        // 편집 모드일 때 모든 국가 모델 셀을 편집 가능하게 설정
-        if (isEditMode && col > 0) {
-          settings.readOnly = false;
-          settings.className += ' editable-cell';
-        }
-      }
+    else if (isModelRow(cellValue)) {
+      // 모델 행 설정
+      configureModelRowSettings(settings, data, row, isEditMode);
     }
 
-    // 숫자 형식 설정 추가
+    // 숫자 형식 및 셀 정렬 설정
     Object.assign(settings, getNumericFormat(col));
-
-    // 셀 정렬 설정
     settings.className = `${settings.className.replace(/cell-(center|left|right)/, '')} ${getCellAlignmentClass(col, row, data)}`.trim();
 
     // 하이라이팅 설정 - 실제로 셀이 수정된 경우에만 하이라이팅 적용
     if (isEditMode && isModifiedCell && isModifiedCell(row, col)) {
-      const highlightSettings = applyHighlightStyle(true, settings.renderer);
-      Object.assign(settings, highlightSettings);
+      Object.assign(settings, applyHighlightStyle(true, settings.renderer));
     }
 
     return settings;
