@@ -32,6 +32,7 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
       let country = '';
       let currentRow = row - 1;
       
+      // 현재 행의 바로 위로부터 위쪽으로 올라가면서 국가를 찾음
       while (currentRow >= 0) {
         if (countryMap.has(currentRow)) {
           country = countryMap.get(currentRow) || '';
@@ -39,6 +40,8 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
         }
         currentRow--;
       }
+      
+      console.log(`row ${row}, model ${data[row][0]}, detected country: ${country}`);
       
       // 국가가 찾아진 경우에만 처리
       if (country) {
@@ -63,6 +66,8 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
             // 항목 유형(QTY/AMT) 판단
             const colInMonth = ((col - 1) % 11) + 1;
             const itemType = colInMonth % 2 === 0 ? 'AMT' : 'QTY';
+            
+            console.log(`변경 감지: 국가=${country}, 모델=${model}, 월=${month}, 유형=${itemType}, 이전값=${originalValue}, 새값=${currentValue}`);
             
             // 필요한 정보만 포함하여 객체 생성 (불필요한 속성 제거)
             changes.push({

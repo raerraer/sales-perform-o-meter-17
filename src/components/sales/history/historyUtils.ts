@@ -50,6 +50,9 @@ export const getDirectChangesOnly = (changes: CellChange[]): CellChange[] => {
     
     const hasValidModel = change.model && (change.model === "모델1" || change.model === "모델2");
     
+    // 변경 정보 확인을 위한 디버깅 로그 추가
+    console.log(`변경 확인: 국가=${change.country}, 모델=${change.model}, 유효=${hasValidCountry && hasValidModel}`);
+    
     const isValid = hasValidCountry && hasValidModel;
     
     if (!isValid) {

@@ -39,12 +39,12 @@ const HistoryChangeTable = ({ changes }: HistoryChangeTableProps) => {
                   key={changeIdx} 
                   className="hover:bg-gray-50 border-t border-gray-100"
                 >
-                  <td className="px-2 py-1.5">{change.country || '-'}</td>
+                  <td className="px-2 py-1.5 font-medium">{change.country || '-'}</td>
                   <td className="px-2 py-1.5">{change.month || '-'}</td>
                   <td className="px-2 py-1.5">{change.category || '전망'}</td>
                   <td className="px-2 py-1.5">{change.model || '-'}</td>
                   <td className="px-2 py-1.5">{itemType}</td>
-                  <td className="px-2 py-1.5 text-center">
+                  <td className="px-2 py-1.5 text-center text-gray-600">
                     {change.oldValue || '-'}
                   </td>
                   <td className="px-2 py-1.5 text-center">

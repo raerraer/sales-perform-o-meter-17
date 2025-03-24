@@ -44,6 +44,7 @@ export const useChangeManager = (
 
   // 편집 모드 전환 래퍼 함수
   const handleToggleEditMode = () => {
+    console.log('편집 모드 전환 시작');
     baseHandleToggleEditMode(
       isLatestVersion,
       isEditMode,
@@ -54,10 +55,20 @@ export const useChangeManager = (
       setData,
       clearHighlighting
     );
+    console.log('편집 모드 전환 완료, 현재 모드:', !isEditMode);
   };
 
   // 변경 사항 저장 래퍼 함수
   const handleSaveChanges = () => {
+    console.log('변경 사항 저장 시작');
+    
+    // 변경 사항 감지 (영국 또는 캐나다 변경 로깅)
+    const allChanges = getChangesFromData(data, originalData);
+    const ukChanges = allChanges.filter(change => change.country === "영국");
+    const canadaChanges = allChanges.filter(change => change.country === "캐나다");
+    
+    console.log(`감지된 변경: 총 ${allChanges.length}개, 영국: ${ukChanges.length}개, 캐나다: ${canadaChanges.length}개`);
+    
     baseHandleSaveChanges(
       data,
       originalData,
@@ -76,6 +87,7 @@ export const useChangeManager = (
       clearHighlighting,
       setIsEditMode
     );
+    console.log('변경 사항 저장 완료');
   };
 
   return {
