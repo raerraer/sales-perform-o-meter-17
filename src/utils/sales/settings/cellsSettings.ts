@@ -38,7 +38,7 @@ const isModelRow = (value: string): boolean => {
 };
 
 /**
- * 메인 셀 설정 함수 - 성능 최적화 버전
+ * 메인 셀 설정 함수 - 이태리 모델 행 편집 문제 해결
  */
 export const createCellsSettingsFunction = (
   data: any[][], 
@@ -48,26 +48,40 @@ export const createCellsSettingsFunction = (
 ) => {
   // 국가 데이터 캐싱 (행 인덱스 -> 국가명)
   const countryRowCache = new Map<number, string>();
+  const italyModelRows: number[] = [];
+  
+  // 이태리 국가 행과 그 모델 행 찾기
+  let italyRowIndex = -1;
   
   // 사전에 국가 행 인덱스 캐싱하여 반복 검색 최소화
   for (let i = 0; i < data.length; i++) {
     if (data[i] && COUNTRIES.includes(data[i][0])) {
       countryRowCache.set(i, data[i][0]);
+      
+      // 이태리 행 발견
+      if (data[i][0] === '이태리') {
+        italyRowIndex = i;
+        console.log(`이태리 국가 행 발견: ${italyRowIndex}`);
+        
+        // 이태리 모델 행 인덱스 저장
+        if (i + 1 < data.length && data[i+1][0] === '모델1') {
+          italyModelRows.push(i+1);
+          console.log(`이태리 모델1 행 발견: ${i+1}`);
+        }
+        if (i + 2 < data.length && data[i+2][0] === '모델2') {
+          italyModelRows.push(i+2);
+          console.log(`이태리 모델2 행 발견: ${i+2}`);
+        }
+      }
     }
   }
   
-  // 이태리 국가 행 위치 찾기
-  let italyRowIndex = -1;
-  for (let i = 0; i < data.length; i++) {
-    if (data[i] && data[i][0] === '이태리') {
-      italyRowIndex = i;
-      break;
-    }
-  }
+  // 디버깅을 위한 로그
+  console.log(`이태리 모델 행 목록:`, italyModelRows);
   
-  // 셀 설정 함수 - 최적화 버전
+  // 셀 설정 함수 - 이태리 모델 셀 편집 문제 수정
   return function(row: number, col: number) {
-    // 설정 객체 재사용으로 메모리 사용량 감소
+    // 설정 객체 초기화
     const settings: any = {
       readOnly: !isEditMode,
       className: 'cell-center',
@@ -80,6 +94,25 @@ export const createCellsSettingsFunction = (
     // 첫 번째 열(항목 이름)은 항상 읽기 전용
     if (col === 0) {
       settings.readOnly = true;
+    }
+
+    // 이태리 모델 행인 경우 특별 처리 (최우선 처리)
+    const isItalyModelRow = italyModelRows.includes(row);
+    if (isItalyModelRow && col > 0 && isEditMode) {
+      settings.readOnly = false;
+      settings.isEditable = true;
+      settings.className += ' editable-cell italy-model-cell';
+      settings.editor = Handsontable.editors.TextEditor;
+      
+      // 디버깅을 위한 로그
+      console.log(`이태리 모델 셀 설정: 행=${row}, 열=${col}, 편집가능=true`);
+      
+      // 수정된 셀인 경우 하이라이팅
+      if (isModifiedCell && isModifiedCell(row, col)) {
+        Object.assign(settings, applyHighlightStyle(true, settings.renderer));
+      }
+      
+      return settings;
     }
 
     // 셀 종류에 따른 설정
@@ -95,21 +128,19 @@ export const createCellsSettingsFunction = (
       configureCountryRowSettings(settings);
     }
     else if (isModelRow(cellValue)) {
-      // 모델 행 설정 - 편집 모드 정보 전달 확실히 함
+      // 모델 행 설정 - 편집 모드 정보 전달
       configureModelRowSettings(settings, data, row, isEditMode);
       
-      // 이태리의 모델 행인 경우 특별히 처리 (특히 문제가 있는 부분)
+      // 이태리 국가 바로 다음의 모델 행인 경우 특별 처리
       if (italyRowIndex > -1 && row > italyRowIndex && row <= italyRowIndex + 2) {
         // 이태리 모델 행은 편집 모드일 때 무조건 편집 가능하게 설정
         if (isEditMode && col > 0) {
           settings.readOnly = false;
-          settings.className += ' editable-cell';
+          settings.isEditable = true;
+          settings.className += ' editable-cell italy-model-cell';
           console.log(`이태리 모델 셀 특별 처리: 행=${row}, 열=${col}, 읽기전용=${settings.readOnly}`);
         }
       }
-      
-      // 모델 셀이 편집 가능한지 설정에 추가 플래그
-      settings.isEditable = !settings.readOnly;
     }
 
     // 숫자 형식 및 셀 정렬 설정

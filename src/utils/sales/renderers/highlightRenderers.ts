@@ -3,6 +3,7 @@ import Handsontable from 'handsontable';
 
 /**
  * 변경된 셀에 하이라이팅 적용을 위한 렌더러 함수 - 성능 최적화 버전
+ * 이태리 모델 셀 처리 로직 추가
  */
 export const highlightModifiedCellRenderer = (
   instance: any, 
@@ -32,21 +33,26 @@ export const highlightModifiedCellRenderer = (
     }
   }
   
-  // 값이 있는지 확인하여 출력 (디버깅용, 나중에 제거 가능)
-  if (col > 0 && cellProperties.isEditable) {
-    console.log(`렌더링: 행=${row}, 열=${col}, 값=${value}, 편집가능=${cellProperties.isEditable}`);
+  // 이태리 모델 셀인 경우 특별 처리
+  if (cellProperties.isItalyModelCell) {
+    if (!td.classList.contains('italy-model-cell')) {
+      td.classList.add('italy-model-cell');
+    }
   }
 };
 
 /**
  * 하이라이팅 스타일을 적용하는 함수 - 성능 최적화 버전
+ * 이태리 모델 셀 처리 로직 추가
  */
-export const applyHighlightStyle = (isModified: boolean, renderer?: any) => {
+export const applyHighlightStyle = (isModified: boolean, renderer?: any, isItalyModelCell: boolean = false) => {
   // 성능 최적화: 불필요한 객체 생성 최소화
   const cellProperties: any = { 
     isModified,
     // 편집 가능 여부를 확실히 표시
-    isEditable: true 
+    isEditable: true,
+    // 이태리 모델 셀 플래그 추가
+    isItalyModelCell
   };
   
   // 기존 렌더러가 있는 경우 유지, 아니면 하이라이트 렌더러 사용
@@ -71,6 +77,13 @@ export const applyHighlightStyle = (isModified: boolean, renderer?: any) => {
       if (cellProps.isEditable || !cellProps.readOnly) {
         if (!td.classList.contains('editable-cell')) {
           td.classList.add('editable-cell');
+        }
+      }
+      
+      // 이태리 모델 셀인 경우 특별 클래스 추가
+      if (cellProps.isItalyModelCell) {
+        if (!td.classList.contains('italy-model-cell')) {
+          td.classList.add('italy-model-cell');
         }
       }
     };
