@@ -31,6 +31,11 @@ export const highlightModifiedCellRenderer = (
       td.classList.add('editable-cell');
     }
   }
+  
+  // 값이 있는지 확인하여 출력 (디버깅용, 나중에 제거 가능)
+  if (col > 0 && cellProperties.isEditable) {
+    console.log(`렌더링: 행=${row}, 열=${col}, 값=${value}, 편집가능=${cellProperties.isEditable}`);
+  }
 };
 
 /**
@@ -38,7 +43,11 @@ export const highlightModifiedCellRenderer = (
  */
 export const applyHighlightStyle = (isModified: boolean, renderer?: any) => {
   // 성능 최적화: 불필요한 객체 생성 최소화
-  const cellProperties: any = { isModified };
+  const cellProperties: any = { 
+    isModified,
+    // 편집 가능 여부를 확실히 표시
+    isEditable: true 
+  };
   
   // 기존 렌더러가 있는 경우 유지, 아니면 하이라이트 렌더러 사용
   if (renderer) {
@@ -58,7 +67,7 @@ export const applyHighlightStyle = (isModified: boolean, renderer?: any) => {
         td.classList.remove('modified-cell');
       }
       
-      // 편집 가능한 셀 스타일 적용 - 추가
+      // 편집 가능한 셀 스타일 적용 - 확실히 적용
       if (cellProps.isEditable || !cellProps.readOnly) {
         if (!td.classList.contains('editable-cell')) {
           td.classList.add('editable-cell');

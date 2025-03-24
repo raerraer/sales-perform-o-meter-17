@@ -27,14 +27,19 @@ const SalesHotTable = memo(({
   // 테이블 스타일도 메모이제이션
   const tableStyles = useMemo(() => ({ __html: getSalesTableStyles() + `
     .editable-cell {
-      background-color: #f9f9f9 !important;
+      background-color: #f4f9ff !important;
       cursor: cell !important;
     }
     .editable-cell:hover {
-      background-color: #f0f0f0 !important;
+      background-color: #e6f0ff !important;
     }
     .modified-cell {
       background-color: #fffacd !important; /* 수정된 셀 하이라이트 */
+    }
+    /* 편집 모드일 때 더 확실하게 표시 */
+    .ht_master .htCore tbody tr td.current.editable-cell {
+      background-color: #e6f0ff !important;
+      box-shadow: inset 0 0 0 2px #4285f4 !important;
     }
   ` }), []);
 
@@ -46,7 +51,7 @@ const SalesHotTable = memo(({
     width: "100%",
     height: "calc(100vh - 280px)",
     colWidths: [120, ...Array(12 * 11).fill(60)],
-    fixedColumnsStart: 1, // fixedColumnsLeft 대신 fixedColumnsStart 사용
+    fixedColumnsStart: 1,
     manualColumnResize: true,
     contextMenu: isEditMode,
     copyPaste: isEditMode,
@@ -78,40 +83,99 @@ const SalesHotTable = memo(({
     fillHandle: false,
     doubleClickToEditor: true, // 더블클릭으로 편집 활성화
     
+    // F2 키 핸들러 추가 - 편집 시작
+    beforeKeyDown: function(event: KeyboardEvent) {
+      if (isEditMode && event.key === 'F2') {
+        const selectedCell = this.getSelectedLast();
+        if (selectedCell) {
+          const [row, col] = selectedCell;
+          const cellMeta = this.getCellMeta(row, col);
+          
+          // 읽기 전용이 아닌 경우만 편집 시작
+          if (!cellMeta.readOnly) {
+            this.getActiveEditor().beginEditing();
+            event.preventDefault();
+            
+            // 디버그 로그
+            console.log(`F2 편집 시작: 행=${row}, 열=${col}, 읽기전용=${cellMeta.readOnly}`);
+          }
+        }
+      }
+    },
+    
+    // 강화된 더블클릭 편집 처리
+    afterOnCellMouseDown: function(event: MouseEvent, coords: any, TD: HTMLElement) {
+      if (isEditMode && coords.row >= 0 && coords.col > 0 && event.detail === 2) {
+        const cellMeta = this.getCellMeta(coords.row, coords.col);
+        
+        if (!cellMeta.readOnly) {
+          // 더블클릭이면 즉시 편집 시작
+          setTimeout(() => {
+            this.getActiveEditor().beginEditing();
+            console.log(`더블클릭 편집 시작: 행=${coords.row}, 열=${coords.col}`);
+          }, 10);
+        }
+      }
+    },
+    
     // 편집 가능한 셀 처리 개선 - 더 엄격하게 편집 가능 셀 감지
     beforeOnCellMouseDown: function(event: any, coords: any) {
       if (isEditMode && coords.row >= 0 && coords.col > 0) {
         // 선택된 셀의 readOnly 속성 확인
         const cell = this.getCellMeta(coords.row, coords.col);
         
-        // 디버깅용 로그 (문제 해결 후 제거 가능)
-        console.log(`셀 클릭: 행=${coords.row}, 열=${coords.col}, 읽기전용=${cell.readOnly}`);
+        // 디버깅용 로그
+        console.log(`셀 클릭: 행=${coords.row}, 열=${coords.col}, 읽기전용=${cell.readOnly}, 값=${this.getDataAtCell(coords.row, coords.col)}`);
         
         if (!cell.readOnly) {
           // 클릭한 셀이 편집 가능한 경우 커서 스타일 변경
           event.target.style.cursor = 'cell';
+          
+          // 클래스 추가로 시각적 피드백 강화
+          if (!event.target.classList.contains('editable-cell')) {
+            event.target.classList.add('editable-cell');
+          }
         }
       }
     },
     
-    // 추가: 셀 더블클릭 시 편집 시작 전 처리
+    // 셀 호버 시 편집 가능한 셀 표시 강화
     beforeOnCellMouseOver: function(event: any, coords: any) {
       if (isEditMode && coords.row >= 0 && coords.col > 0) {
         const cell = this.getCellMeta(coords.row, coords.col);
         if (!cell.readOnly) {
           event.target.style.cursor = 'cell';
+          if (!event.target.classList.contains('editable-cell')) {
+            event.target.classList.add('editable-cell');
+          }
         }
       }
     },
     
-    // 추가: 선택한 셀 항상 활성화
+    // 선택한 셀 활성화 강화
     afterSelection: function(row: number, col: number) {
       if (isEditMode && col > 0) {
         const cell = this.getCellMeta(row, col);
         if (!cell.readOnly) {
-          console.log(`셀 선택: 행=${row}, 열=${col}, 편집가능=true`);
+          console.log(`셀 선택: 행=${row}, 열=${col}, 편집가능=true, 값=${this.getDataAtCell(row, col)}`);
+          
+          // 셀 시각적 피드백 강화를 위한 클래스 변경
+          const td = this.getCell(row, col);
+          if (td && !td.classList.contains('editable-cell')) {
+            td.classList.add('editable-cell');
+          }
         }
       }
+    },
+    
+    // 이태리 모델 셀 편집을 위한 클릭 핸들러 강화
+    afterBeginEditing: function(row: number, col: number) {
+      console.log(`편집 시작: 행=${row}, 열=${col}, 값=${this.getDataAtCell(row, col)}`);
+    },
+    
+    // 에디터 생성 전 처리
+    beforeCreateEditor: function(row: number, col: number) {
+      console.log(`에디터 생성 전: 행=${row}, 열=${col}, 값=${this.getDataAtCell(row, col)}`);
     }
   }), [isEditMode, data.length]);
   

@@ -95,6 +95,18 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
       
       settings.renderer = createLevelRenderer(LEVEL_STYLES.LEVEL3_MODEL);
       
+      // 이태리인 경우 특별 처리
+      if (country === '이태리') {
+        settings.readOnly = !isEditMode;
+        settings.isEditable = isEditMode;
+        
+        // 명시적으로 셀 속성 설정 (Handsontable이 인식하는 방식)
+        settings.editor = 'text';
+        
+        // 디버깅을 위한 로그
+        console.log(`이태리 모델 행 특별 설정: 행=${row}, 국가=${country}, 편집가능=${!settings.readOnly}`);
+      }
+      
       // 디버깅을 위한 로그 (문제 해결 후 제거 가능)
       console.log(`모델 셀 설정: 국가=${country}, 편집가능=${!settings.readOnly}, 편집모드=${isEditMode}`);
       break;
@@ -105,6 +117,9 @@ export const configureModelRowSettings = (settings: any, data: any[][], row: num
       }
       break;
   }
+  
+  // 명시적으로 편집 가능 여부 플래그 설정
+  settings.isEditable = !settings.readOnly;
   
   return settings;
 };
