@@ -33,6 +33,9 @@ const SalesHotTable = memo(({
     .editable-cell:hover {
       background-color: #f0f0f0 !important;
     }
+    .modified-cell {
+      background-color: #fffacd !important; /* 수정된 셀 하이라이트 */
+    }
   ` }), []);
 
   // 성능 최적화 설정 메모이제이션
@@ -73,7 +76,18 @@ const SalesHotTable = memo(({
     allowRemoveRow: false,
     editor: 'text',
     fillHandle: false,
-    doubleClickToEditor: true,
+    doubleClickToEditor: true, // 더블클릭으로 편집 활성화
+    // 편집 가능한 셀 처리 개선
+    beforeOnCellMouseDown: function(event: any, coords: any) {
+      if (isEditMode && coords.row >= 0 && coords.col > 0) {
+        // 선택된 셀의 readOnly 속성 확인
+        const cell = this.getCellMeta(coords.row, coords.col);
+        if (!cell.readOnly) {
+          // 클릭한 셀이 편집 가능한 경우 커서 스타일 변경
+          event.target.style.cursor = 'cell';
+        }
+      }
+    },
   }), [isEditMode, data.length]);
   
   return (

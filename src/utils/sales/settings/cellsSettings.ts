@@ -78,8 +78,11 @@ export const createCellsSettingsFunction = (
       configureCountryRowSettings(settings);
     }
     else if (isModelRow(cellValue)) {
-      // 모델 행 설정
+      // 모델 행 설정 - 여기가 핵심: isEditMode를 정확히 전달
       configureModelRowSettings(settings, data, row, isEditMode);
+      
+      // 모델 셀이 편집 가능한지 설정에 추가 플래그
+      settings.isEditable = !settings.readOnly;
     }
 
     // 숫자 형식 및 셀 정렬 설정

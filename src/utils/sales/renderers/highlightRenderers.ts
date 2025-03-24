@@ -24,6 +24,13 @@ export const highlightModifiedCellRenderer = (
   } else if (td.classList.contains('modified-cell')) {
     td.classList.remove('modified-cell');
   }
+  
+  // 편집 가능한 셀 스타일 적용 (성능 최적화)
+  if (cellProperties.isEditable) {
+    if (!td.classList.contains('editable-cell')) {
+      td.classList.add('editable-cell');
+    }
+  }
 };
 
 /**
