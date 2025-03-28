@@ -41,7 +41,7 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
         currentRow--;
       }
       
-      console.log(`row ${row}, model ${data[row][0]}, detected country: ${country}`);
+      console.log(`행 ${row}, 모델 ${data[row][0]}, 감지된 국가: ${country}`);
       
       // 국가가 찾아진 경우에만 처리
       if (country) {
@@ -79,7 +79,9 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
               model,
               month,
               category: '전망',
-              isDirectChange: true
+              isDirectChange: true,
+              // 고유 식별자 추가 - 변경 구분을 위한 키
+              changeId: `${country}:${model}:${month}:${itemType}:${row}:${col}`
             });
           }
         }

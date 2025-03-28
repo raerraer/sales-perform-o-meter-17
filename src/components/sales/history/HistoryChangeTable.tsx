@@ -36,7 +36,7 @@ const HistoryChangeTable = ({ changes }: HistoryChangeTableProps) => {
               
               return (
                 <tr 
-                  key={changeIdx} 
+                  key={change.changeId || changeIdx} 
                   className="hover:bg-gray-50 border-t border-gray-100"
                 >
                   <td className="px-2 py-1.5 font-medium">{change.country || '-'}</td>

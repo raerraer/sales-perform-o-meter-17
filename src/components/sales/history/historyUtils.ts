@@ -64,18 +64,24 @@ export const getDirectChangesOnly = (changes: CellChange[]): CellChange[] => {
   
   console.log(`최종 유효한 변경: ${validChanges.length}개`);
   
-  // 4. 중복 제거 (동일한 셀에 대한 변경은 하나만 유지)
+  // 4. 중복 제거 및 국가별로 변경사항을 정확히 분류 (동일한 셀에 대한 변경은 하나만 유지)
   const uniqueChanges: CellChange[] = [];
   const seenCells = new Set<string>();
   
   // 동일 셀에 대한 가장 마지막 변경만 유지
   for (let i = validChanges.length - 1; i >= 0; i--) {
     const change = validChanges[i];
-    const cellKey = `${change.country}:${change.model}:${change.month}:${change.col % 2 === 0 ? 'AMT' : 'QTY'}`;
+    
+    // changeId가 있으면 사용, 없으면 자체 생성
+    const cellKey = change.changeId || 
+                    `${change.country}:${change.model}:${change.month}:${change.col % 2 === 0 ? 'AMT' : 'QTY'}`;
     
     if (!seenCells.has(cellKey)) {
       uniqueChanges.unshift(change); // 원래 순서 유지를 위해 앞에 추가
       seenCells.add(cellKey);
+      console.log(`추가된 변경: ${cellKey}`);
+    } else {
+      console.log(`중복 제거된 변경: ${cellKey}`);
     }
   }
   

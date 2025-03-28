@@ -12,6 +12,7 @@ export interface CellChange {
   month?: string;
   category?: string;
   isDirectChange?: boolean; // 직접 변경 여부를 나타내는 필드
+  changeId?: string; // 고유 변경 식별자 추가
 }
 
 export interface VersionHistory {
@@ -49,6 +50,14 @@ export function useSalesHistory(): SalesHistoryHookReturn {
           change.month = calculatedMonth;
           console.log(`월 정보 계산: 셀(${change.row},${change.col}) => ${calculatedMonth}`);
         }
+        
+        // 고유 식별자가 없는 경우 생성
+        if (!change.changeId) {
+          const colInMonth = ((change.col - 1) % 11) + 1;
+          const itemType = colInMonth % 2 === 0 ? 'AMT' : 'QTY';
+          change.changeId = `${change.country}:${change.model}:${change.month}:${itemType}:${change.row}:${change.col}`;
+        }
+        
         return change;
       });
       
