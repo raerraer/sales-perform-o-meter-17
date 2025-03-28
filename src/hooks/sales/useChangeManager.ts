@@ -65,6 +65,51 @@ export const useChangeManager = (
     // 변경 사항 감지 (국가별 변경 로깅)
     const allChanges = getChangesFromData(data, originalData);
     
+    // 수정 전/후 변경된 데이터 로깅 (디버깅용)
+    console.log('---- 원본 데이터 주요 국가 값 ----');
+    for (let row = 0; row < originalData.length; row++) {
+      if (originalData[row] && originalData[row][0] === '영국') {
+        console.log(`영국 행: ${row}`);
+        for (let i = 0; i < 5; i++) {
+          const modelRow = row + 1 + i;
+          if (originalData[modelRow] && (originalData[modelRow][0] === '모델1' || originalData[modelRow][0] === '모델2')) {
+            console.log(`영국 ${originalData[modelRow][0]} 1월 원본: ${originalData[modelRow][10]}`);
+          }
+        }
+      }
+      else if (originalData[row] && originalData[row][0] === '캐나다') {
+        console.log(`캐나다 행: ${row}`);
+        for (let i = 0; i < 5; i++) {
+          const modelRow = row + 1 + i;
+          if (originalData[modelRow] && (originalData[modelRow][0] === '모델1' || originalData[modelRow][0] === '모델2')) {
+            console.log(`캐나다 ${originalData[modelRow][0]} 1월 원본: ${originalData[modelRow][10]}`);
+          }
+        }
+      }
+    }
+    
+    console.log('---- 변경된 데이터 주요 국가 값 ----');
+    for (let row = 0; row < data.length; row++) {
+      if (data[row] && data[row][0] === '영국') {
+        console.log(`영국 행: ${row}`);
+        for (let i = 0; i < 5; i++) {
+          const modelRow = row + 1 + i;
+          if (data[modelRow] && (data[modelRow][0] === '모델1' || data[modelRow][0] === '모델2')) {
+            console.log(`영국 ${data[modelRow][0]} 1월 변경: ${data[modelRow][10]}`);
+          }
+        }
+      }
+      else if (data[row] && data[row][0] === '캐나다') {
+        console.log(`캐나다 행: ${row}`);
+        for (let i = 0; i < 5; i++) {
+          const modelRow = row + 1 + i;
+          if (data[modelRow] && (data[modelRow][0] === '모델1' || data[modelRow][0] === '모델2')) {
+            console.log(`캐나다 ${data[modelRow][0]} 1월 변경: ${data[modelRow][10]}`);
+          }
+        }
+      }
+    }
+    
     // 국가별 변경 분석 - 디버깅용
     const countryChanges = new Map<string, CellChange[]>();
     

@@ -85,6 +85,16 @@ export function useSalesHistory(): SalesHistoryHookReturn {
       // 최종 변경 내역 로그 출력
       console.log(`최종 변경 이력 추가: ${directChanges.length}개 항목`);
       
+      // 각 국가별로 변경 내역 분리 및 확인
+      const countriesChanged = new Set<string>();
+      directChanges.forEach(change => {
+        if (change.country) {
+          countriesChanged.add(change.country);
+        }
+      });
+      
+      console.log(`변경된 국가 목록: ${Array.from(countriesChanged).join(', ')}`);
+      
       // 최종 국가별 통계 출력
       const finalCounts = new Map<string, number>();
       directChanges.forEach(change => {

@@ -19,8 +19,12 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
       '미국', '중국', '일본', '한국', '독일', '영국', '이태리', '캐나다'
     ].includes(data[i][0])) {
       countryMap.set(i, data[i][0]);
+      console.log(`국가 캐싱: 행 ${i}, 국가=${data[i][0]}`);
     }
   }
+  
+  // 사용자 직접 변경 감지 및 추적 로직 (모델별)
+  const directlyModifiedCells = new Set<string>();
   
   // 모델 행들을 돌면서 변경 사항 확인 (최적화된 방식)
   for (let row = 0; row < data.length; row++) {
@@ -40,8 +44,6 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
         }
         currentRow--;
       }
-      
-      console.log(`행 ${row}, 모델 ${data[row][0]}, 감지된 국가: ${country}`);
       
       // 국가가 찾아진 경우에만 처리
       if (country) {
@@ -69,6 +71,12 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
             
             console.log(`변경 감지: 국가=${country}, 모델=${model}, 월=${month}, 유형=${itemType}, 이전값=${originalValue}, 새값=${currentValue}`);
             
+            // 고유 식별자 생성 (국가:모델:월:유형)
+            const cellKey = `${country}:${model}:${month}:${itemType}`;
+            
+            // 직접 수정된 셀 추적
+            directlyModifiedCells.add(cellKey);
+            
             // 변경 정보에 독립적인 식별자 추가 (확실한 구분을 위해)
             const changeId = `${country}:${model}:${month}:${itemType}:${row}:${col}`;
             
@@ -90,6 +98,21 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
       }
     }
   }
+  
+  // 직접 수정된 셀만 최종 결과에 포함
+  console.log(`총 감지된 변경: ${changes.length}개, 직접 수정 셀: ${directlyModifiedCells.size}개`);
+  
+  // 국가별 변경사항 로깅
+  const countrySummary = new Map<string, number>();
+  changes.forEach(change => {
+    const country = change.country || '미지정';
+    countrySummary.set(country, (countrySummary.get(country) || 0) + 1);
+  });
+  
+  console.log('감지된 국가별 변경사항:');
+  countrySummary.forEach((count, country) => {
+    console.log(`${country}: ${count}개`);
+  });
   
   return changes;
 };

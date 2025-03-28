@@ -66,24 +66,25 @@ export const getDirectChangesOnly = (changes: CellChange[]): CellChange[] => {
   const uniqueChanges: CellChange[] = [];
   const seenCells = new Set<string>();
   
-  // 동일 셀에 대한 가장 마지막 변경만 유지
-  for (let i = validChanges.length - 1; i >= 0; i--) {
-    const change = validChanges[i];
-    
-    // changeId가 식별자로 사용 (없으면 생성)
+  // 5. 고유 식별자를 기준으로 중복 제거 (최신값 유지)
+  validChanges.forEach(change => {
+    // 고유 식별자 추출 또는 생성
     const cellKey = change.changeId || 
                     `${change.country}:${change.model}:${change.month}:${change.col % 2 === 0 ? 'AMT' : 'QTY'}`;
     
-    if (!seenCells.has(cellKey)) {
-      uniqueChanges.unshift(change); // 원래 순서 유지를 위해 앞에 추가
-      seenCells.add(cellKey);
-      console.log(`추가된 변경: ${cellKey}`);
-    } else {
+    // 이미 처리한 셀이면 건너뛰기 (중복 제거)
+    if (seenCells.has(cellKey)) {
       console.log(`중복 제거된 변경: ${cellKey}`);
+      return;
     }
-  }
+    
+    // 새로운 고유 셀 추가
+    uniqueChanges.push(change);
+    seenCells.add(cellKey);
+    console.log(`추가된 변경: ${cellKey}`);
+  });
   
-  // 5. 각 국가별 변경 사항 개수 출력 (디버깅용)
+  // 6. 각 국가별 변경 사항 개수 출력 (디버깅용)
   const countryChanges = new Map<string, number>();
   uniqueChanges.forEach(change => {
     const country = change.country || '미지정';
