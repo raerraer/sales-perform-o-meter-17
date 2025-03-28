@@ -1,10 +1,10 @@
 
 import { MONTHS, CATEGORIES, MODELS } from './constants';
 import { 
-  generateRandomData, 
   initializeModelRow, 
   addMonthlyDataToModelRow, 
-  calculateCellSum 
+  calculateCellSum,
+  getFixedCountryData
 } from './dataGeneratorUtils';
 
 /**
@@ -17,17 +17,18 @@ export const generateCountryData = (country: string) => {
   const modelData: any[][] = [];
   const countryModelData: any[][] = [[], []]; // 모델1, 모델2
   
+  // 고정된 국가 데이터 가져오기
+  const fixedData = getFixedCountryData(country);
+  
   // 각 모델별 데이터 생성
   MODELS.forEach((model, modelIndex) => {
     // 모델 행 초기화
     const modelRow = initializeModelRow(model);
     
-    // 월별 데이터 추가
-    const updatedModelRow = addMonthlyDataToModelRow(
-      modelRow, 
-      MONTHS.length, 
-      CATEGORIES.length - 1
-    );
+    // 고정된 데이터가 있으면 사용, 없으면 기본 데이터 생성
+    const updatedModelRow = fixedData && fixedData[modelIndex] 
+      ? [...modelRow, ...fixedData[modelIndex]]
+      : addMonthlyDataToModelRow(modelRow, MONTHS.length, CATEGORIES.length - 1);
     
     modelData.push([...updatedModelRow]); // 깊은 복사로 저장
     countryModelData[modelIndex] = [...updatedModelRow]; // 모델별 저장
