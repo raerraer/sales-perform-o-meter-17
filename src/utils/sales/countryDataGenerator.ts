@@ -17,7 +17,7 @@ export const generateCountryData = (country: string) => {
   const modelData: any[][] = [];
   const countryModelData: any[][] = [[], []]; // 모델1, 모델2
   
-  // 고정된 국가 데이터 가져오기
+  // 고정된 국가 데이터 가져오기 (항상 고정 데이터 사용)
   const fixedData = getFixedCountryData(country);
   
   // 각 모델별 데이터 생성
