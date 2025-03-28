@@ -40,22 +40,35 @@ export function useSalesHistory(): SalesHistoryHookReturn {
   const addVersionHistory = (history: VersionHistory) => {
     // 변경사항이 있는 경우만 이력 추가
     if (history.changes && history.changes.length > 0) {
-      console.log(`변경 이력 추가: 총 ${history.changes.length}개 변경사항`);
+      console.log(`변경 이력 추가 시작: 총 ${history.changes.length}개 변경사항`);
+      
+      // 변경 내역의 국가별 집계 (추가 검증용)
+      const initialCounts = new Map<string, number>();
+      history.changes.forEach(change => {
+        const country = change.country || '미지정';
+        initialCounts.set(country, (initialCounts.get(country) || 0) + 1);
+      });
+      
+      console.log('초기 국가별 변경 통계:');
+      initialCounts.forEach((count, country) => {
+        console.log(`${country}: ${count}개`);
+      });
       
       // 변경 내역의 월 정보가 정확한지 확인하고 수정
       const updatedChanges = history.changes.map(change => {
         // 모든 변경 항목에 정확한 월 정보 설정 (누락된 경우만)
-        if (!change.month) {
+        if (!change.month && change.col !== undefined) {
           const calculatedMonth = getMonthFromColIndex(change.col);
           change.month = calculatedMonth;
           console.log(`월 정보 계산: 셀(${change.row},${change.col}) => ${calculatedMonth}`);
         }
         
         // 고유 식별자가 없는 경우 생성
-        if (!change.changeId) {
+        if (!change.changeId && change.col !== undefined) {
           const colInMonth = ((change.col - 1) % 11) + 1;
           const itemType = colInMonth % 2 === 0 ? 'AMT' : 'QTY';
           change.changeId = `${change.country}:${change.model}:${change.month}:${itemType}:${change.row}:${change.col}`;
+          console.log(`식별자 생성: ${change.changeId}`);
         }
         
         return change;
@@ -69,9 +82,22 @@ export function useSalesHistory(): SalesHistoryHookReturn {
         return;
       }
       
-      // 필터링된 변경사항으로 이력 추가
+      // 최종 변경 내역 로그 출력
       console.log(`최종 변경 이력 추가: ${directChanges.length}개 항목`);
       
+      // 최종 국가별 통계 출력
+      const finalCounts = new Map<string, number>();
+      directChanges.forEach(change => {
+        const country = change.country || '미지정';
+        finalCounts.set(country, (finalCounts.get(country) || 0) + 1);
+      });
+      
+      console.log('최종 국가별 변경 통계:');
+      finalCounts.forEach((count, country) => {
+        console.log(`${country}: ${count}개`);
+      });
+      
+      // 변경 내역 추가
       setVersionHistory(prev => [...prev, {
         ...history,
         changes: directChanges

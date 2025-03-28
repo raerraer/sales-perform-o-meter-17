@@ -21,8 +21,8 @@ export const filterChanges = (changes: CellChange[]): CellChange[] => {
   // 실제 변경된 값만 필터링
   return changes.filter(change => {
     // 숫자로 변환하여 비교 (콤마 제거 후)
-    const oldValueNormalized = String(change.oldValue || '').replace(/,/g, '');
-    const newValueNormalized = String(change.newValue || '').replace(/,/g, '');
+    const oldValueNormalized = String(change.oldValue || '').replace(/,/g, '').trim();
+    const newValueNormalized = String(change.newValue || '').replace(/,/g, '').trim();
     return oldValueNormalized !== newValueNormalized;
   });
 };
@@ -53,18 +53,16 @@ export const getDirectChangesOnly = (changes: CellChange[]): CellChange[] => {
     // 변경 정보 확인을 위한 디버깅 로그 추가
     console.log(`변경 확인: 국가=${change.country}, 모델=${change.model}, 유효=${hasValidCountry && hasValidModel}`);
     
-    const isValid = hasValidCountry && hasValidModel;
-    
-    if (!isValid) {
+    if (!hasValidCountry || !hasValidModel) {
       console.log(`제외된 변경: 국가=${change.country}, 모델=${change.model}`);
     }
     
-    return isValid;
+    return hasValidCountry && hasValidModel;
   });
   
   console.log(`최종 유효한 변경: ${validChanges.length}개`);
   
-  // 4. 중복 제거 및 국가별로 변경사항을 정확히 분류 (동일한 셀에 대한 변경은 하나만 유지)
+  // 4. 중복 제거 및 국가별로 변경사항을 정확히 분류
   const uniqueChanges: CellChange[] = [];
   const seenCells = new Set<string>();
   
@@ -72,7 +70,7 @@ export const getDirectChangesOnly = (changes: CellChange[]): CellChange[] => {
   for (let i = validChanges.length - 1; i >= 0; i--) {
     const change = validChanges[i];
     
-    // changeId가 있으면 사용, 없으면 자체 생성
+    // changeId가 식별자로 사용 (없으면 생성)
     const cellKey = change.changeId || 
                     `${change.country}:${change.model}:${change.month}:${change.col % 2 === 0 ? 'AMT' : 'QTY'}`;
     
@@ -85,7 +83,18 @@ export const getDirectChangesOnly = (changes: CellChange[]): CellChange[] => {
     }
   }
   
-  console.log(`중복 제거 후: ${uniqueChanges.length}개`);
+  // 5. 각 국가별 변경 사항 개수 출력 (디버깅용)
+  const countryChanges = new Map<string, number>();
+  uniqueChanges.forEach(change => {
+    const country = change.country || '미지정';
+    countryChanges.set(country, (countryChanges.get(country) || 0) + 1);
+  });
+  
+  // 국가별 변경 통계 출력
+  console.log('국가별 변경 통계:');
+  countryChanges.forEach((count, country) => {
+    console.log(`${country}: ${count}개`);
+  });
   
   return uniqueChanges;
 };

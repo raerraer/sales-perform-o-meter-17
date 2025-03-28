@@ -62,13 +62,36 @@ export const useChangeManager = (
   const handleSaveChanges = () => {
     console.log('변경 사항 저장 시작');
     
-    // 변경 사항 감지 (영국 또는 캐나다 변경 로깅)
+    // 변경 사항 감지 (국가별 변경 로깅)
     const allChanges = getChangesFromData(data, originalData);
-    const ukChanges = allChanges.filter(change => change.country === "영국");
-    const canadaChanges = allChanges.filter(change => change.country === "캐나다");
     
-    console.log(`감지된 변경: 총 ${allChanges.length}개, 영국: ${ukChanges.length}개, 캐나다: ${canadaChanges.length}개`);
+    // 국가별 변경 분석 - 디버깅용
+    const countryChanges = new Map<string, CellChange[]>();
     
+    allChanges.forEach(change => {
+      const country = change.country || '미지정';
+      if (!countryChanges.has(country)) {
+        countryChanges.set(country, []);
+      }
+      countryChanges.get(country)?.push(change);
+    });
+    
+    // 국가별 변경 요약 로그
+    console.log('국가별 변경사항 요약:');
+    countryChanges.forEach((changes, country) => {
+      console.log(`${country}: ${changes.length}개 변경`);
+      
+      // 첫 3개 변경사항 상세 로그 (너무 많은 로그 방지)
+      changes.slice(0, 3).forEach((change, idx) => {
+        console.log(`  ${idx+1}. ${change.model} ${change.month} ${change.col % 2 === 0 ? 'AMT' : 'QTY'}: ${change.oldValue} => ${change.newValue}`);
+      });
+      
+      if (changes.length > 3) {
+        console.log(`  ... 외 ${changes.length - 3}개`);
+      }
+    });
+    
+    // 변경사항 저장 처리
     baseHandleSaveChanges(
       data,
       originalData,

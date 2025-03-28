@@ -54,9 +54,9 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
             continue;
           }
           
-          // 문자열로 변환하여 콤마 제거 후 비교
-          const originalValue = String(originalData[row][col] || '').replace(/,/g, '');
-          const currentValue = String(data[row][col] || '').replace(/,/g, '');
+          // 문자열로 변환하여 콤마 제거 후 비교 (정확한 값 비교)
+          const originalValue = String(originalData[row][col] || '').replace(/,/g, '').trim();
+          const currentValue = String(data[row][col] || '').replace(/,/g, '').trim();
           
           // 실제 값이 변경된 경우에만 변경 목록에 추가
           if (originalValue !== currentValue) {
@@ -69,6 +69,9 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
             
             console.log(`변경 감지: 국가=${country}, 모델=${model}, 월=${month}, 유형=${itemType}, 이전값=${originalValue}, 새값=${currentValue}`);
             
+            // 변경 정보에 독립적인 식별자 추가 (확실한 구분을 위해)
+            const changeId = `${country}:${model}:${month}:${itemType}:${row}:${col}`;
+            
             // 필요한 정보만 포함하여 객체 생성 (불필요한 속성 제거)
             changes.push({
               row,
@@ -80,8 +83,7 @@ export const detectDataChanges = (data: any[][], originalData: any[][]): CellCha
               month,
               category: '전망',
               isDirectChange: true,
-              // 고유 식별자 추가 - 변경 구분을 위한 키
-              changeId: `${country}:${model}:${month}:${itemType}:${row}:${col}`
+              changeId
             });
           }
         }
