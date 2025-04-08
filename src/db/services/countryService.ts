@@ -1,4 +1,5 @@
 
+import { query } from '../client';
 import type { CountrySchema } from '../schema';
 
 /**
@@ -7,19 +8,38 @@ import type { CountrySchema } from '../schema';
 export const countryService = {
   // 모든 국가 조회
   async getAllCountries(): Promise<CountrySchema[]> {
-    // DB 구현에 따라 실제 코드 작성 필요
-    return [];
+    const result = await query(`
+      SELECT c.*, r.name as region_name
+      FROM countries c
+      JOIN regions r ON c.region_id = r.id
+      ORDER BY c.display_order
+    `);
+    
+    return result.rows;
   },
   
   // 특정 국가 조회
   async getCountryById(id: string): Promise<CountrySchema | null> {
-    // DB 구현에 따라 실제 코드 작성 필요
-    return null;
+    const result = await query(`
+      SELECT c.*, r.name as region_name
+      FROM countries c
+      JOIN regions r ON c.region_id = r.id
+      WHERE c.id = $1
+    `, [id]);
+    
+    return result.rows.length ? result.rows[0] : null;
   },
   
   // 특정 지역에 속한 국가 조회
   async getCountriesByRegion(regionId: string): Promise<CountrySchema[]> {
-    // DB 구현에 따라 실제 코드 작성 필요
-    return [];
+    const result = await query(`
+      SELECT c.*, r.name as region_name
+      FROM countries c
+      JOIN regions r ON c.region_id = r.id
+      WHERE c.region_id = $1
+      ORDER BY c.display_order
+    `, [regionId]);
+    
+    return result.rows;
   }
 };
