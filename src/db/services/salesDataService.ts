@@ -181,14 +181,14 @@ export const salesDataService = {
       return null; // 업데이트할 필드가 없음
     }
     
-    const query = `
+    const queryText = `
       UPDATE sales_data
       SET ${fields.join(', ')}
       WHERE id = $${paramIndex}
       RETURNING *
     `;
     
-    const result = await query(query, values);
+    const result = await query(queryText, values);
     
     return result.rows.length ? result.rows[0] : null;
   },
