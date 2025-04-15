@@ -41,20 +41,21 @@ export const migrateClientData = async (versionData: Record<string, any[][]>, us
     await transaction(async (client) => {
       // 1. 첫 버전(rev1) 생성
       const versionResult = await client.query(
-        'INSERT INTO versions (name, year, month, week, is_latest, is_editable, description, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+        'INSERT INTO versions (name, year, month, week, is_latest, is_editable, description, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         ['rev1', '2023', '10', '1', true, false, '초기 데이터 마이그레이션', userId]
       );
       
-      const versionId = versionResult.rows[0].id;
+      // MySQL에서는 insertId로 새로 생성된 ID를 가져옴
+      const versionId = versionResult[0].insertId;
       console.log(`버전 생성 완료: rev1, ID: ${versionId}`);
       
       // 2. 총 합계 행 생성 (최상위 행)
       const totalRowResult = await client.query(
-        'INSERT INTO sales_data (version_id, row_type, display_order, created_by) VALUES ($1, $2, $3, $4) RETURNING id',
+        'INSERT INTO sales_data (version_id, row_type, display_order, created_by) VALUES (?, ?, ?, ?)',
         [versionId, 'total', 1, userId]
       );
       
-      const totalRowId = totalRowResult.rows[0].id;
+      const totalRowId = totalRowResult[0].insertId;
       console.log(`총 합계 행 생성 완료, ID: ${totalRowId}`);
       
       // 3. 각 지역 행 생성
@@ -64,11 +65,11 @@ export const migrateClientData = async (versionData: Record<string, any[][]>, us
       for (let i = 0; i < regions.length; i++) {
         const regionName = regions[i];
         const regionResult = await client.query(
-          'INSERT INTO sales_data (version_id, row_type, parent_id, display_order, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+          'INSERT INTO sales_data (version_id, row_type, parent_id, display_order, created_by) VALUES (?, ?, ?, ?, ?)',
           [versionId, 'region', totalRowId, i + 2, userId]
         );
         
-        regionIds[regionName] = regionResult.rows[0].id;
+        regionIds[regionName] = regionResult[0].insertId;
         console.log(`${regionName} 지역 행 생성 완료, ID: ${regionIds[regionName]}`);
       }
       
@@ -85,55 +86,55 @@ export const migrateClientData = async (versionData: Record<string, any[][]>, us
       
       for (const [country, region] of Object.entries(countryRegionMap)) {
         // 국가 ID 조회
-        const countryResult = await client.query(
-          'SELECT id FROM countries WHERE name = $1',
+        const [countryResult] = await client.query(
+          'SELECT id FROM countries WHERE name = ?',
           [country]
         );
         
         let countryId;
-        if (countryResult.rows.length > 0) {
-          countryId = countryResult.rows[0].id;
+        if (countryResult.length > 0) {
+          countryId = countryResult[0].id;
         } else {
           // 국가 정보 없으면 생성
           const newCountryResult = await client.query(
-            'INSERT INTO countries (name, code, region_id, display_order) VALUES ($1, $2, $3, $4) RETURNING id',
+            'INSERT INTO countries (name, code, region_id, display_order) VALUES (?, ?, ?, ?)',
             [country, country.substring(0, 2).toUpperCase(), region === '미주' ? 1 : 2, displayOrder]
           );
-          countryId = newCountryResult.rows[0].id;
+          countryId = newCountryResult[0].insertId;
         }
         
         // 국가 행 생성
         const countryRowResult = await client.query(
-          'INSERT INTO sales_data (version_id, country_id, row_type, parent_id, display_order, created_by) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+          'INSERT INTO sales_data (version_id, country_id, row_type, parent_id, display_order, created_by) VALUES (?, ?, ?, ?, ?, ?)',
           [versionId, countryId, 'country', regionIds[region], displayOrder, userId]
         );
         
-        countryIds[country] = countryRowResult.rows[0].id;
+        countryIds[country] = countryRowResult[0].insertId;
         console.log(`${country} 국가 행 생성 완료, ID: ${countryIds[country]}`);
         displayOrder++;
         
         // 모델 행 생성
         const models = ['모델1', '모델2'];
         for (let j = 0; j < models.length; j++) {
-          const modelResult = await client.query(
-            'SELECT id FROM models WHERE name = $1',
+          const [modelResult] = await client.query(
+            'SELECT id FROM models WHERE name = ?',
             [models[j]]
           );
           
           let modelId;
-          if (modelResult.rows.length > 0) {
-            modelId = modelResult.rows[0].id;
+          if (modelResult.length > 0) {
+            modelId = modelResult[0].id;
           } else {
             const newModelResult = await client.query(
-              'INSERT INTO models (name, code, display_order) VALUES ($1, $2, $3) RETURNING id',
+              'INSERT INTO models (name, code, display_order) VALUES (?, ?, ?)',
               [models[j], `M${j+1}`, j+1]
             );
-            modelId = newModelResult.rows[0].id;
+            modelId = newModelResult[0].insertId;
           }
           
           // 모델 행 생성
           await client.query(
-            'INSERT INTO sales_data (version_id, country_id, model_id, row_type, parent_id, display_order, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+            'INSERT INTO sales_data (version_id, country_id, model_id, row_type, parent_id, display_order, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [versionId, countryId, modelId, 'model', countryIds[country], displayOrder, userId]
           );
           
@@ -195,8 +196,8 @@ export const migrateClientData = async (versionData: Record<string, any[][]>, us
               if (currentRowId) {
                 await client.query(
                   `UPDATE sales_data 
-                  SET month = $1, category = $2, qty = $3, amt = $4
-                  WHERE id = $5 AND version_id = $6`,
+                  SET month = ?, category = ?, qty = ?, amt = ?
+                  WHERE id = ? AND version_id = ?`,
                   [month, category, qty, amt, currentRowId, versionId]
                 );
               }

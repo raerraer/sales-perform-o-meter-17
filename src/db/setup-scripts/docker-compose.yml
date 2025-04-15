@@ -1,0 +1,45 @@
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sales-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: your_root_password
+      MYSQL_DATABASE: sales_performance_db
+      MYSQL_USER: sales_user
+      MYSQL_PASSWORD: sales_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - sales-network
+
+  sales-api:
+    build:
+      context: ../../
+      dockerfile: src/api/Dockerfile
+    container_name: sales-api
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=sales_performance_db
+      - DB_USER=sales_user
+      - DB_PASSWORD=sales_password
+      - API_PORT=3001
+    depends_on:
+      - mysql
+    networks:
+      - sales-network
+
+networks:
+  sales-network:
+    driver: bridge

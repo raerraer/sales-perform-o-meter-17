@@ -1,4 +1,3 @@
-
 import { query, transaction } from '../client';
 import type { 
   SalesDataTableSchema, 
@@ -35,17 +34,17 @@ export const salesDataService = {
           sd.updated_at,
           sd.created_by,
           1 as level,
-          ARRAY[sd.display_order] as sort_path
+          sd.display_order as sort_path
         FROM 
           sales_data sd
         LEFT JOIN
           countries c ON sd.country_id = c.id
         LEFT JOIN
-          regions r ON (sd.row_type = 'region' AND sd.id IN (SELECT id FROM sales_data WHERE parent_id IN (SELECT id FROM sales_data WHERE row_type = 'region')))
+          regions r ON (c.region_id = r.id)
         LEFT JOIN
           models m ON sd.model_id = m.id
         WHERE 
-          sd.version_id = $1 
+          sd.version_id = ?
           AND sd.row_type = 'total'
         
         UNION ALL
@@ -70,7 +69,7 @@ export const salesDataService = {
           sd.updated_at,
           sd.created_by,
           dh.level + 1,
-          dh.sort_path || sd.display_order
+          dh.sort_path * 1000 + sd.display_order
         FROM 
           sales_data sd
         JOIN 
@@ -78,15 +77,15 @@ export const salesDataService = {
         LEFT JOIN
           countries c ON sd.country_id = c.id
         LEFT JOIN
-          regions r ON (sd.row_type = 'region' AND c.region_id = r.id)
+          regions r ON (c.region_id = r.id)
         LEFT JOIN
           models m ON sd.model_id = m.id
         WHERE 
-          sd.version_id = $1
+          sd.version_id = ?
       )
       SELECT * FROM data_hierarchy
-      ORDER BY sort_path;
-    `, [versionId]);
+      ORDER BY sort_path
+    `, [versionId, versionId]);
     
     return result.rows;
   },
@@ -96,8 +95,7 @@ export const salesDataService = {
     const result = await query(`
       INSERT INTO sales_data
       (version_id, country_id, model_id, row_type, parent_id, display_order, month, category, qty, amt, remarks, created_by)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      RETURNING *
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       data.version_id,
       data.country_id,
@@ -113,7 +111,12 @@ export const salesDataService = {
       data.created_by
     ]);
     
-    return result.rows[0];
+    // 새로 삽입된 ID로 데이터 다시 조회
+    const newDataResult = await query(`
+      SELECT * FROM sales_data WHERE id = LAST_INSERT_ID()
+    `);
+    
+    return newDataResult.rows[0];
   },
   
   // 데이터 배치 생성
@@ -125,8 +128,7 @@ export const salesDataService = {
         const result = await client.query(`
           INSERT INTO sales_data
           (version_id, country_id, model_id, row_type, parent_id, display_order, month, category, qty, amt, remarks, created_by)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-          RETURNING *
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
           data.version_id,
           data.country_id,
@@ -142,7 +144,12 @@ export const salesDataService = {
           data.created_by
         ]);
         
-        results.push(result.rows[0]);
+        // 새로 삽입된 ID로 데이터 다시 조회
+        const newRow = await client.query(`
+          SELECT * FROM sales_data WHERE id = ?
+        `, [result[0].insertId]);
+        
+        results.push(newRow[0]);
       }
       
       return results;
@@ -154,7 +161,6 @@ export const salesDataService = {
     // 업데이트할 필드 구성
     const fields = [];
     const values = [];
-    let paramIndex = 1;
     
     // 업데이트 가능한 필드 목록
     const updatableFields = [
@@ -165,30 +171,28 @@ export const salesDataService = {
     // 업데이트할 필드 구성
     for (const field of updatableFields) {
       if (data[field] !== undefined) {
-        fields.push(`${field} = $${paramIndex}`);
+        fields.push(`${field} = ?`);
         values.push(data[field]);
-        paramIndex++;
       }
     }
-    
-    // 마지막에 updated_at 추가
-    fields.push(`updated_at = NOW()`);
-    
-    // id 파라미터 추가
-    values.push(id);
     
     if (fields.length === 0) {
       return null; // 업데이트할 필드가 없음
     }
     
+    // id 파라미터 추가
+    values.push(id);
+    
     const queryText = `
       UPDATE sales_data
       SET ${fields.join(', ')}
-      WHERE id = $${paramIndex}
-      RETURNING *
+      WHERE id = ?
     `;
     
-    const result = await query(queryText, values);
+    await query(queryText, values);
+    
+    // 업데이트된 레코드 조회
+    const result = await query('SELECT * FROM sales_data WHERE id = ?', [id]);
     
     return result.rows.length ? result.rows[0] : null;
   },
@@ -197,21 +201,22 @@ export const salesDataService = {
   async copyVersionData(sourceVersionId: string, targetVersionId: string): Promise<boolean> {
     return await transaction(async (client) => {
       // 소스 버전 데이터 가져오기
-      const sourceData = await client.query(
-        'SELECT * FROM sales_data WHERE version_id = $1 ORDER BY id',
+      const [sourceDataResult] = await client.query(
+        'SELECT * FROM sales_data WHERE version_id = ? ORDER BY id',
         [sourceVersionId]
       );
+      
+      const sourceData = sourceDataResult;
       
       // ID 매핑 객체 (원본 ID -> 새 ID)
       const idMap = {};
       
       // 첫 번째 패스: 모든 행 복제 (parent_id는 아직 매핑되지 않음)
-      for (const row of sourceData.rows) {
-        const result = await client.query(`
+      for (const row of sourceData) {
+        const [result] = await client.query(`
           INSERT INTO sales_data
           (version_id, country_id, model_id, row_type, display_order, month, category, qty, amt, remarks, created_by)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-          RETURNING id
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
           targetVersionId,
           row.country_id,
@@ -227,18 +232,18 @@ export const salesDataService = {
         ]);
         
         // 원본 ID -> 새 ID 매핑 저장
-        idMap[row.id] = result.rows[0].id;
+        idMap[row.id] = result.insertId;
       }
       
       // 두 번째 패스: parent_id 업데이트
-      for (const row of sourceData.rows) {
+      for (const row of sourceData) {
         if (row.parent_id) {
           const newParentId = idMap[row.parent_id];
           const newId = idMap[row.id];
           
           if (newParentId && newId) {
             await client.query(
-              'UPDATE sales_data SET parent_id = $1 WHERE id = $2',
+              'UPDATE sales_data SET parent_id = ? WHERE id = ?',
               [newParentId, newId]
             );
           }

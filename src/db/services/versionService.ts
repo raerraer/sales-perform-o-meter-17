@@ -14,7 +14,7 @@ export const versionService = {
   
   // 특정 버전 조회
   async getVersionById(id: string): Promise<VersionSchema | null> {
-    const result = await query('SELECT * FROM versions WHERE id = $1', [id]);
+    const result = await query('SELECT * FROM versions WHERE id = ?', [id]);
     return result.rows.length ? result.rows[0] : null;
   },
   
@@ -30,8 +30,7 @@ export const versionService = {
     const result = await query(
       `INSERT INTO versions 
       (name, year, month, week, is_latest, is_editable, description, created_by) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-      RETURNING *`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         version.name, 
         version.year, 
@@ -44,18 +43,22 @@ export const versionService = {
       ]
     );
     
-    return result.rows[0];
+    // MySQL에서는 insertId로 새로 삽입된 ID를 가져옴
+    const newVersionId = result.rows.insertId;
+    
+    // 삽입된 버전 조회
+    const newVersion = await this.getVersionById(newVersionId);
+    return newVersion!;
   },
   
   // 버전 복제 (이전 버전 데이터를 새 버전으로 복사)
   async cloneVersion(sourceVersionId: string, newVersion: Omit<VersionSchema, 'id' | 'created_at'>): Promise<VersionSchema | null> {
     return await transaction(async (client) => {
       // 1. 새 버전 생성
-      const versionResult = await client.query(
+      const [versionResult] = await client.query(
         `INSERT INTO versions 
         (name, year, month, week, is_latest, is_editable, description, created_by) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-        RETURNING *`,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           newVersion.name, 
           newVersion.year, 
@@ -68,85 +71,81 @@ export const versionService = {
         ]
       );
       
-      const newVersionId = versionResult.rows[0].id;
+      const newVersionId = versionResult.insertId;
       
       // 2. 소스 버전 데이터 복사
       // 최상위 행부터 복사하고 ID 맵핑을 유지하여 계층 구조 보존
       const idMap = new Map();
       
       // 2.1 총합계 행 복사
-      const totalRows = await client.query(
-        'SELECT * FROM sales_data WHERE version_id = $1 AND row_type = $2 AND parent_id IS NULL',
+      const [totalRows] = await client.query(
+        'SELECT * FROM sales_data WHERE version_id = ? AND row_type = ? AND parent_id IS NULL',
         [sourceVersionId, 'total']
       );
       
-      for (const row of totalRows.rows) {
-        const result = await client.query(
+      for (const row of totalRows) {
+        const [result] = await client.query(
           `INSERT INTO sales_data 
           (version_id, row_type, display_order, created_by) 
-          VALUES ($1, $2, $3, $4) 
-          RETURNING id`,
+          VALUES (?, ?, ?, ?) `,
           [newVersionId, row.row_type, row.display_order, newVersion.created_by]
         );
         
         // 원본 ID -> 새 ID 맵핑
-        idMap.set(row.id, result.rows[0].id);
+        idMap.set(row.id, result.insertId);
       }
       
       // 2.2 지역 행 복사
-      const regionRows = await client.query(
-        'SELECT * FROM sales_data WHERE version_id = $1 AND row_type = $2',
+      const [regionRows] = await client.query(
+        'SELECT * FROM sales_data WHERE version_id = ? AND row_type = ?',
         [sourceVersionId, 'region']
       );
       
-      for (const row of regionRows.rows) {
+      for (const row of regionRows) {
         const newParentId = idMap.get(row.parent_id);
         
-        const result = await client.query(
+        const [result] = await client.query(
           `INSERT INTO sales_data 
           (version_id, row_type, parent_id, display_order, created_by) 
-          VALUES ($1, $2, $3, $4, $5) 
-          RETURNING id`,
+          VALUES (?, ?, ?, ?, ?)`,
           [newVersionId, row.row_type, newParentId, row.display_order, newVersion.created_by]
         );
         
-        idMap.set(row.id, result.rows[0].id);
+        idMap.set(row.id, result.insertId);
       }
       
       // 2.3 국가 행 복사
-      const countryRows = await client.query(
-        'SELECT * FROM sales_data WHERE version_id = $1 AND row_type = $2',
+      const [countryRows] = await client.query(
+        'SELECT * FROM sales_data WHERE version_id = ? AND row_type = ?',
         [sourceVersionId, 'country']
       );
       
-      for (const row of countryRows.rows) {
+      for (const row of countryRows) {
         const newParentId = idMap.get(row.parent_id);
         
-        const result = await client.query(
+        const [result] = await client.query(
           `INSERT INTO sales_data 
           (version_id, country_id, row_type, parent_id, display_order, created_by) 
-          VALUES ($1, $2, $3, $4, $5, $6) 
-          RETURNING id`,
+          VALUES (?, ?, ?, ?, ?, ?)`,
           [newVersionId, row.country_id, row.row_type, newParentId, row.display_order, newVersion.created_by]
         );
         
-        idMap.set(row.id, result.rows[0].id);
+        idMap.set(row.id, result.insertId);
       }
       
       // 2.4 모델 행 복사
-      const modelRows = await client.query(
-        'SELECT * FROM sales_data WHERE version_id = $1 AND row_type = $2',
+      const [modelRows] = await client.query(
+        'SELECT * FROM sales_data WHERE version_id = ? AND row_type = ?',
         [sourceVersionId, 'model']
       );
       
-      for (const row of modelRows.rows) {
+      for (const row of modelRows) {
         const newParentId = idMap.get(row.parent_id);
         
-        const result = await client.query(
+        const [result] = await client.query(
           `INSERT INTO sales_data 
           (version_id, country_id, model_id, row_type, parent_id, display_order, month, category, qty, amt, remarks, created_by) 
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) 
-          RETURNING id`,
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             newVersionId, row.country_id, row.model_id, row.row_type, newParentId, 
             row.display_order, row.month, row.category, row.qty, row.amt, row.remarks, 
@@ -154,29 +153,30 @@ export const versionService = {
           ]
         );
         
-        idMap.set(row.id, result.rows[0].id);
+        idMap.set(row.id, result.insertId);
       }
       
       // 3. 모든 데이터 복사 후 월별/카테고리별 실적 데이터 복사
-      // (parent_id 맵핑에 따라 이미 복사된 행에 데이터 업데이트)
-      const dataRows = await client.query(
-        'SELECT * FROM sales_data WHERE version_id = $1 AND month IS NOT NULL AND category IS NOT NULL',
+      const [dataRows] = await client.query(
+        'SELECT * FROM sales_data WHERE version_id = ? AND month IS NOT NULL AND category IS NOT NULL',
         [sourceVersionId]
       );
       
-      for (const row of dataRows.rows) {
+      for (const row of dataRows) {
         const newId = idMap.get(row.id);
         if (newId) {
           await client.query(
             `UPDATE sales_data 
-            SET month = $1, category = $2, qty = $3, amt = $4, remarks = $5
-            WHERE id = $6`,
+            SET month = ?, category = ?, qty = ?, amt = ?, remarks = ?
+            WHERE id = ?`,
             [row.month, row.category, row.qty, row.amt, row.remarks, newId]
           );
         }
       }
       
-      return versionResult.rows[0];
+      // 새 버전 정보 반환
+      const [newVersionData] = await client.query('SELECT * FROM versions WHERE id = ?', [newVersionId]);
+      return newVersionData[0];
     });
   }
 };
