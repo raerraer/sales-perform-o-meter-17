@@ -1,5 +1,4 @@
 
-import { query } from '../client';
 import type { RegionSchema } from '../schema';
 
 /**
@@ -8,20 +7,13 @@ import type { RegionSchema } from '../schema';
 export const regionService = {
   // 모든 지역 조회
   async getAllRegions(): Promise<RegionSchema[]> {
-    const result = await query(`
-      SELECT * FROM regions
-      ORDER BY display_order
-    `);
-    
-    return result.rows;
+    // DB 구현에 따라 실제 코드 작성 필요
+    return [];
   },
   
   // 특정 지역 조회
   async getRegionById(id: string): Promise<RegionSchema | null> {
-    const result = await query(`
-      SELECT * FROM regions WHERE id = $1
-    `, [id]);
-    
-    return result.rows.length ? result.rows[0] : null;
+    // DB 구현에 따라 실제 코드 작성 필요
+    return null;
   }
 };

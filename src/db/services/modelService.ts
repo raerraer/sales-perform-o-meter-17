@@ -1,5 +1,4 @@
 
-import { query } from '../client';
 import type { ModelSchema } from '../schema';
 
 /**
@@ -8,20 +7,13 @@ import type { ModelSchema } from '../schema';
 export const modelService = {
   // 모든 모델 조회
   async getAllModels(): Promise<ModelSchema[]> {
-    const result = await query(`
-      SELECT * FROM models
-      ORDER BY display_order
-    `);
-    
-    return result.rows;
+    // DB 구현에 따라 실제 코드 작성 필요
+    return [];
   },
   
   // 특정 모델 조회
   async getModelById(id: string): Promise<ModelSchema | null> {
-    const result = await query(`
-      SELECT * FROM models WHERE id = $1
-    `, [id]);
-    
-    return result.rows.length ? result.rows[0] : null;
+    // DB 구현에 따라 실제 코드 작성 필요
+    return null;
   }
 };
